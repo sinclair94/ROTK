@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>人物解谜 · 三国演义 · 群英谱</title>
+<style>
+:root{
+  --ink:#27231f; --muted:#716960; --paper:#fffdf8; --wash:#f2eee6;
+  --line:#ded6c9; --card-line:#e8e1d2;
+  --accent:#8d3025; --gold:#b88b35; --gold-d:#8a6a1f;
+  --dark:#29241f; --dark2:#342c25; --cream:#f7efe2; --goldlight:#d8bf86;
+  --divider:#eee7de; --track:#f3eee4;
+  --wei:#476b86; --shu:#8d3025; --wu:#527b5c; --qun:#b88b35; --jin:#8a6a1f; --folk:#8a7355;
+  --shadow:0 8px 24px rgba(42,31,21,.08);
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;
+  --sans:"Noto Sans SC","PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+
+.app-header{position:sticky;top:0;z-index:20;background:var(--dark);color:var(--cream)}
+.header-inner{max-width:1320px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand h1{font-family:var(--serif);font-size:21px;line-height:1.2;color:var(--cream);font-weight:700}
+.brand h1 a{color:inherit;text-decoration:none}
+.header-stat{color:#d8cabc;font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs a{border:1px solid transparent;border-radius:6px;background:#3d352e;color:#eadfd2;padding:7px 12px;font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap}
+.tabs a:hover{border-color:#c5a05f}
+.tabs a.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.shell{max-width:1320px;margin:auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:18px}
+.section-head h2{font-family:var(--serif);font-size:24px;color:#3a3029;font-weight:700}
+.section-head p{margin-top:4px;color:var(--muted);font-size:13px;line-height:22px;max-width:1000px}
+
+.game-wrap{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+
+/* 聊天区 */
+.chat{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.chat-head{padding:13px 18px;border-bottom:1px solid var(--divider);background:#fdfaf3;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.chat-head h3{font-family:var(--serif);font-size:17px;font-weight:700;color:#3a3029}
+.chat-meta{font-size:12px;color:var(--muted)}
+.chat-log{padding:16px 18px;display:flex;flex-direction:column;gap:12px;height:min(58vh,520px);overflow-y:auto;background:#fdfcf8}
+.chat-log::-webkit-scrollbar{width:7px}
+.chat-log::-webkit-scrollbar-thumb{background:#ddd4c4;border-radius:4px}
+
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg .ava{flex:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-weight:700;color:#fff}
+.msg.sys .ava{background:var(--dark2)}
+.msg.me .ava{background:var(--accent)}
+.bub{max-width:78%;background:#fff;border:1px solid var(--card-line);border-radius:11px;padding:10px 14px;font-size:13.5px;line-height:22px;color:#40362f}
+.msg.me{flex-direction:row-reverse}
+.msg.me .bub{background:var(--dark2);color:var(--cream);border-color:var(--dark2)}
+.bub b{font-family:var(--serif)}
+.bub .kv{display:inline-block;background:#f7f1e5;border:1px solid var(--card-line);border-radius:6px;padding:1px 9px;margin:2px 4px 2px 0;font-size:12.5px}
+.msg.me .bub .kv{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff}
+.bub.win{background:#f2f7f3;border-color:#cfe0d3;color:#3d5a45}
+.bub.lose{background:#fdf3f1;border-color:#eed6d2;color:#7c3a30}
+.card-init{border-left:3px solid var(--gold);background:#fffdf5}
+
+/* 输入区 */
+.chat-input{border-top:1px solid var(--divider);padding:12px 18px;display:flex;flex-direction:column;gap:10px;background:#fdfaf3}
+.quick{display:flex;gap:7px;flex-wrap:wrap}
+.qbtn{font-size:12px;padding:4px 11px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#5d544b;cursor:pointer}
+.qbtn:hover{border-color:#c5a05f;background:#fffdf5}
+.qbtn.on{background:var(--dark);color:var(--cream);border-color:var(--dark)}
+.input-row{display:flex;gap:9px}
+.input-row input{flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:var(--sans);background:#fff;color:var(--ink)}
+.input-row input:focus{outline:none;border-color:#c5a05f}
+.btn{padding:10px 20px;border-radius:8px;border:1px solid var(--dark);background:var(--dark);color:var(--cream);font-size:13.5px;font-weight:500;cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.btn:hover{background:#3a322b}
+.btn.ghost{background:#fff;color:#5d544b;border-color:var(--line)}
+.btn.ghost:hover{border-color:#c5a05f;background:#fffdf5}
+.btn.gold{background:var(--gold-d);border-color:var(--gold-d);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* 侧栏 */
+.side{display:flex;flex-direction:column;gap:14px;position:sticky;top:96px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{padding:13px 16px;border-bottom:1px solid var(--divider)}
+.panel-head h3{font-family:var(--serif);font-size:16px;font-weight:700;color:#3a3029}
+.panel-head p{margin-top:2px;font-size:11.5px;color:var(--muted)}
+.panel-body{padding:13px 16px;display:flex;flex-direction:column;gap:10px}
+.stat-row{display:flex;justify-content:space-between;font-size:13px;color:#5d544b}
+.stat-row b{font-family:var(--serif);color:#3a342c;font-size:15px}
+.hint-list{display:flex;flex-direction:column;gap:7px}
+.hint-item{font-size:12.5px;line-height:20px;color:#615851;border-left:2px solid var(--gold);padding-left:10px;background:#fffdf5;border-radius:0 6px 6px 0}
+.hint-item.locked{color:#a89b88;border-color:var(--card-line);background:#faf8f3}
+.hint-item b{color:#3a342c}
+.note{font-size:11.5px;color:var(--muted);line-height:19px}
+
+.app-footer{background:var(--dark);color:var(--cream)}
+.footer-inner{max-width:1320px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.footer-brand strong{font-family:var(--serif);font-size:16px;color:var(--cream)}
+.footer-brand span{color:#d8cabc;font-size:12px;line-height:20px}
+.footer-right{color:var(--goldlight);font-size:12px}
+
+@media(max-width:1080px){ .game-wrap{grid-template-columns:1fr} .side{position:static} }
+
+/* wx-gap-fallback */
+@supports not ((gap: 1px) or (row-gap: 1px)){.header-inner > *{margin-right:18px;margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.tabs > *{margin-right:6px;margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.shell > *:not(:last-child){margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.chat-head > *{margin-right:12px;margin-bottom:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.chat-log > *:not(:last-child){margin-bottom:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.msg > *:not(:last-child){margin-right:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 输入区 */
+.chat-input > *:not(:last-child){margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.quick > *{margin-right:7px;margin-bottom:7px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.input-row > *:not(:last-child){margin-right:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 侧栏 */
+.side > *:not(:last-child){margin-bottom:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.panel-body > *:not(:last-child){margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.hint-list > *:not(:last-child){margin-bottom:7px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.footer-inner > *{margin-right:18px;margin-bottom:18px;}}
+</style>
+<!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
+<link rel="stylesheet" href="mobile.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="三国演义 · 群英谱">
+<meta property="og:title" content="三国演义 · 群英谱">
+<meta property="og:description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#29241f">
+<link rel="stylesheet" href="wx-compat.css">
+<script src="wx-compat.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <h1><a href="index.html">三国演义 · 群英谱</a></h1>
+      <span class="header-stat">人物解谜 · 聊天式问答猜人物</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <a href="index.html">总览</a>
+      <a href="timeline.html">时间轴</a>
+      <a href="people.html">人物名录</a>
+      <a href="network.html">关系网</a>
+      <a href="map.html">地图</a>
+      <a href="states.html">三国志</a>
+      <a href="game.html" class="active">解谜</a>
+      <a href="insights.html">论三国</a>
+      <a href="#chronicle">帝王年谱</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="section-head">
+    <h2>人物解谜</h2>
+    <p>我心里想着一位三国人物。我会先给你一张身份卡（阵营、身份、年代、登场回目），然后你可以<strong>随便提问</strong>——是非题或具体问题都行，我会照实回答；也可以直接报名字来猜。猜中即通关，随时可以换一局新的。</p>
+  </div>
+
+  <div class="game-wrap">
+    <section class="chat">
+      <div class="chat-head">
+        <h3>第 <span id="roundNo">1</span> 局</h3>
+        <span class="chat-meta">共 <span id="poolSize">0</span> 位候选人物 · 已提问 <span id="qCount">0</span> 次</span>
+      </div>
+      <div class="chat-log" id="log"></div>
+      <div class="chat-input">
+        <div class="quick" id="quick"></div>
+        <div class="input-row">
+          <input id="inp" type="text" placeholder="输入问题，或直接输入人名来猜……" autocomplete="off">
+          <button class="btn" id="send">发送</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-head"><h3>局况</h3></div>
+        <div class="panel-body">
+          <div class="stat-row"><span>已提问</span><b id="sQ">0</b></div>
+          <div class="stat-row"><span>已用提示</span><b id="sH">0</b></div>
+          <div class="stat-row"><span>状态</span><b id="sState">进行中</b></div>
+          <div class="stat-row"><span>难度</span><span id="diffBox" style="display:flex;gap:6px">
+            <button class="qbtn on" data-d="easy">知名人物</button>
+            <button class="qbtn" data-d="normal">全名录</button>
+          </span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn ghost" id="btnHint" style="flex:1">要一条提示</button>
+            <button class="btn ghost" id="btnGive" style="flex:1">看答案</button>
+            <button class="btn gold" id="btnNew" style="flex:1 1 100%">重新开始 · 换一局</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>线索</h3><p>每点一次「要一条提示」解锁一条</p></div>
+        <div class="panel-body"><div class="hint-list" id="hints"></div></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>可以这么问</h3></div>
+        <div class="panel-body" style="padding-top:10px">
+          <span class="note">
+            · 可以这样问：<b>字什么？</b> <b>哪里人？</b> <b>第几回出场？</b> <b>活了多少岁？</b> <b>怎么死的？</b> <b>姓什么？</b> <b>有什么事迹？</b><br>
+            · 也可以自由提问，句子里带上相关字眼即可，例如「他的字是两个字吗」「是南方人吗」。<br>
+            · 阵营与身份类别开场那张卡上已经写了，再问只会得到卡片原文，不会额外透露信息。<br>
+            · 直接猜人：<b>名、字、姓＋字都算对</b>。如答案陆逊，回答「陆逊」「伯言」「陆伯言」「是陆伯言对吧」统统判中，不必只打两个字。<br>
+            · 答不上来的问题，我会给你一条相关线索而不是说不知道。
+          </span>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>三国演义 · 群英谱</strong>
+      <span>人物解谜 · 题库取自本站演义本人物名录，问答由前端规则匹配生成。</span>
+    </div>
+    <span class="footer-right">共 <span id="poolSize2">0</span> 位候选</span>
+  </div>
+</footer>
+
+<script src="data-wei.js"></script>
+<script src="data-shu.js"></script>
+<script src="data-wu-qun.js"></script>
+<script src="data-more-wei.js"></script>
+<script src="data-more-wei2.js"></script>
+<script src="data-more-shu.js"></script>
+<script src="data-more-shu2.js"></script>
+<script src="data-more-wu.js"></script>
+<script src="data-more-wu2.js"></script>
+<script src="data-more-wu3.js"></script>
+<script src="data-more-jin.js"></script>
+<script src="data-more-qun.js"></script>
+<script src="data-more-qun2.js"></script>
+<script src="data-more-qun3.js"></script>
+<script src="data-more-qun4.js"></script>
+<script src="data-more-qun5.js"></script>
+<script src="data-more-qun6.js"></script>
+<script src="data-more-qun7.js"></script>
+<script src="data-more-qun8.js"></script>
+<script src="data-more-qun9.js"></script>
+<script>
+(function(){
+  var FN={wei:"曹魏",shu:"蜀汉",wu:"东吴",qun:"群雄 · 汉",jin:"西晋"};
+  var CN={d:"帝王",w:"文臣",m:"武将",p:"平民"};
+
+  /* 女性名单（用于回答性别问题） */
+  var FEMALE=("卞夫人 甄宓 曹节 甘夫人 糜夫人 孙夫人 穆皇后 敬哀皇后 黄月英 大乔 小乔 吴国太 步夫人 潘夫人 祝融夫人 蔡琰 何太后 董太后 唐妃 伏皇后 董贵人 蔡夫人 郭汜妻 辛宪英 夏侯令女 阮氏 王异 姜叙母 孙鲁班 孙鲁育 谢夫人 徐夫人 袁夫人 王夫人 何姬 滕芳兰 左夫人张氏").split(" ");
+
+  /* 汇总全部人物 */
+  var W=window;
+  var ALL=[].concat(W.P_WEI||[],W.P_JIN||[],W.P_SHU||[],W.P_WU||[],W.P_QUN||[]);
+  var seen={},POOL=[],HOT=[];
+  ALL.forEach(function(p){
+    if(!p.n||seen[p.n])return;
+    seen[p.n]=1;
+    if((p.g||"").length>=18 && ((p.e||[]).length>=1||p.d)){
+      POOL.push(p);
+      /* 知名人物：有首登场回目且年表较完整，或年表很长 */
+      if((p.d&&(p.e||[]).length>=3)||((p.e||[]).length>=4)) HOT.push(p);
+    }
+  });
+
+  var log=document.getElementById("log"), inp=document.getElementById("inp");
+  var qCount=0, hints=0, round=0, cur=null, over=false, diff="easy";
+
+  document.getElementById("poolSize").textContent=POOL.length;
+  document.getElementById("poolSize2").textContent=POOL.length;
+
+  /* ---------- 工具 ---------- */
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+  function say(html,cls){
+    var d=document.createElement("div");
+    d.className="msg sys";
+    d.innerHTML='<i class="ava">三</i><div class="bub'+(cls?' '+cls:'')+'">'+html+'</div>';
+    log.appendChild(d); log.scrollTop=log.scrollHeight;
+  }
+  function me(t){
+    var d=document.createElement("div");
+    d.className="msg me";
+    d.innerHTML='<i class="ava">我</i><div class="bub">'+esc(t)+'</div>';
+    log.appendChild(d); log.scrollTop=log.scrollHeight;
+  }
+  function yes(v){ return v?'<b>是的</b>。':'<b>不是</b>。'; }
+
+  /* 解析生卒 */
+  function parseYears(y){
+    var m=String(y||"").match(/(\d{2,3})\s*[–\-~]\s*(\d{2,3})/);
+    if(m) return {b:+m[1],d:+m[2]};
+    return null;
+  }
+  function eraRange(p){
+    var ys=(p.e||[]).map(function(e){return parseInt(e[0],10);}).filter(function(n){return !isNaN(n);});
+    if(!ys.length) return null;
+    return {min:Math.min.apply(null,ys),max:Math.max.apply(null,ys)};
+  }
+  function debut(p){
+    return p.d||"不详";
+  }
+
+  /* ---------- 身份卡 ---------- */
+  function introCard(p){
+    var er=eraRange(p);
+    var age=parseYears(p.y);
+    var s='<b>我心里已经想好一个人了。</b><br>这是他的身份卡：<br>'+
+      '<span class="kv">阵营：<b>'+FN[p.f]+'</b></span>'+
+      '<span class="kv">身份：<b>'+CN[p.c]+'</b></span>'+
+      (er?'<span class="kv">活跃年代：约 <b>'+er.min+'–'+er.max+'</b> 年</span>':'')+
+      '<span class="kv">首次登场：<b>'+debut(p)+'</b></span>'+
+      '<br>你可以问我任何问题，也可以直接报名字来猜。准备好了吗？';
+    say(s,"card-init");
+  }
+
+  /* ---------- 问答引擎 ---------- */
+  function answer(p,q){
+    q=String(q).replace(/[\s，。？?！!、]/g,"");
+
+    /* 势力 */
+    var fk=[["wei",/曹魏|魏国|^魏/],["shu",/蜀汉|^蜀|季汉/],["wu",/东吴|^吴|孙吴/],["qun",/群雄|汉室|东汉|汉朝|^群|^汉(?!中)|黄巾|董卓|袁绍/],["jin",/西晋|^晋|司马炎/]];
+    for(var i=0;i<fk.length;i++){
+      if(fk[i][1].test(q)){
+        return p.f===fk[i][0]
+          ? '<b>是的</b>——不过这一点开场那张身份卡上已经写明：'+FN[p.f]+'。'
+          : '<b>不是</b>，身份卡上写的是「'+FN[p.f]+'」。';
+      }
+    }
+    /* 类别：同样以身份卡为准，避免出现与卡片不一致的说法 */
+    function cardYes(hit){ return hit? '<b>是的</b>——身份卡上写的也是「'+CN[p.c]+'」。'
+                                    : '<b>不是</b>，身份卡上写的是「'+CN[p.c]+'」。'; }
+    if(/文臣|文官|谋士|谋臣|军师|文士/.test(q)) return cardYes(p.c==="w");
+    if(/武将|武官|将军|战将|武人/.test(q)) return cardYes(p.c==="m");
+    if(/帝王|皇帝|君主|国君|称帝|主公|诸侯/.test(q)) return cardYes(p.c==="d");
+    if(/平民|百姓|布衣|方外|隐士|术士|医者/.test(q)) return cardYes(p.c==="p");
+
+    /* 性别 */
+    if(/男|性别|是男的|爷们/.test(q)) return yes(FEMALE.indexOf(p.n)<0);
+    if(/女|女性|是女的|娘子|夫人/.test(q)) return yes(FEMALE.indexOf(p.n)>=0);
+
+    /* 虚构 */
+    if(/虚构|杜撰|假的|正史|真有其人|史书/.test(q)){
+      return p.t? "这一位是演义虚构的人物，正史并无其人。" : "此人于史有据，《三国志》等史书有载（演义或有艺术加工）。";
+    }
+
+    /* 生卒 / 年龄 */
+    var py=parseYears(p.y);
+    if(/多少岁|年纪|寿命|活了|寿|几岁/.test(q)){
+      if(!py) return "生卒年不详，无法确知寿数。";
+      return "生卒为 <b>"+p.y+"</b>，约 <b>"+(py.d-py.b)+"</b> 岁。";
+    }
+    if(/生卒|生于|卒于|什么时候出生|哪年生/.test(q)) return "生卒：<b>"+p.y+"</b>。";
+
+    /* 籍贯 */
+    if(/哪里人|籍贯|何方人士|什么地方人|哪儿人|家乡/.test(q)){
+      return p.o? "籍贯是 <b>"+p.o+"</b>。" : "籍贯不详。";
+    }
+
+    /* 字 */
+    if(/字什么|表字|字是|他的字|什么字/.test(q)){
+      return p.z? "表字 <b>"+p.z+"</b>。" : "史未载其字（或本无字）。";
+    }
+
+    /* 登场回目 */
+    if(/第几回|出场|登场|出现|回目/.test(q)){
+      return "首次登场于 <b>"+debut(p)+"</b>。";
+    }
+
+    /* 事迹 / 著名 */
+    if(/事迹|著名|成名|生平|有什么故事|最出名|代表作|成就|做过什么/.test(q)){
+      return "其小传如此记载：<b>"+p.g+"</b>";
+    }
+
+    /* 死法 / 结局 */
+    if(/怎么死|死于|结局|下场|末路|最后/.test(q)){
+      var ev=(p.e||[]);
+      if(!ev.length) return "结局不详。";
+      var last=ev[ev.length-1];
+      return "年表所记最后一事：<b>"+last[0]+" 年，"+last[1]+"</b>。";
+    }
+
+    /* 姓氏 / 名字 */
+    if(/姓什么|什么姓|姓氏/.test(q)) return "姓 <b>"+p.n.charAt(0)+"</b>。";
+    if(/几个字|名字多长|名字字数/.test(q)) return "姓名共 <b>"+p.n.length+"</b> 个字。";
+
+    /* 年代 */
+    if(/什么时期|活跃|哪个年代|什么时候的人/.test(q)){
+      var er=eraRange(p);
+      return er? "年表所载事迹在 <b>"+er.min+"–"+er.max+"</b> 年间。" : "年代不详。";
+    }
+
+    /* 兜底：给一条相关线索 */
+    var fallbacks=[];
+    if(p.e&&p.e.length) fallbacks.push("年表第一条：<b>"+p.e[0][0]+" 年，"+p.e[0][1]+"</b>。");
+    if(p.z) fallbacks.push("表字 <b>"+p.z+"</b>。");
+    if(p.o) fallbacks.push("籍贯 <b>"+p.o+"</b>。");
+    /* 小传只给开头一句，避免整段念完等于直接报出此人 */
+    fallbacks.push("小传开头：<b>"+p.g.slice(0,Math.min(30,p.g.length))+"……</b>");
+    if(!fallbacks.length) return "这个问题我答不上来，换一个试试？";
+    return "这个问题我不太确定怎么答。给你一条线索：" + fallbacks[(qCount-1+fallbacks.length)%fallbacks.length];
+  }
+
+  /* ---------- 提示 ---------- */
+  /* 线索按信息量递增排列，且不与开局身份卡已给的内容重复
+     （卡上已写明阵营、身份类别、活跃年代、首次登场，故这些不再作为前几条线索） */
+  var HINT_DEFS=[
+    function(p){ return p.z? "表字 <b>"+p.z+"</b>":"（史未载其字）"; },
+    function(p){ return "籍贯：<b>"+(p.o||"不详")+"</b>"; },
+    function(p){ return "姓名共 <b>"+p.n.length+"</b> 字，姓 <b>"+p.n.charAt(0)+"</b>"; },
+    function(p){ return (p.e&&p.e.length)? "年表最早一事：<b>"+p.e[0][0]+" 年，"+p.e[0][1]+"</b>":"年表无载"; },
+    function(p){ return "小传首句：<b>"+p.g.slice(0,Math.min(34,p.g.length))+"……</b>"; },
+    function(p){ var ev=p.e||[]; return ev.length? "年表最后一事：<b>"+ev[ev.length-1][0]+" 年，"+ev[ev.length-1][1]+"</b>":"结局不详"; },
+    function(p){ return "阵营 <b>"+FN[p.f]+"</b> · 身份 <b>"+CN[p.c]+"</b>（即身份卡所载）"; },
+    function(p){ return "直接告诉你：是 <b>"+p.n+"</b>。" }
+  ];
+
+  function drawHints(){
+    var host=document.getElementById("hints");
+    host.innerHTML=HINT_DEFS.map(function(f,i){
+      if(i<hints) return '<div class="hint-item">'+f(cur)+'</div>';
+      return '<div class="hint-item locked">线索 '+(i+1)+' · 未解锁</div>';
+    }).join("");
+  }
+
+  function updStats(){
+    document.getElementById("sQ").textContent=qCount;
+    document.getElementById("sH").textContent=hints;
+    document.getElementById("qCount").textContent=qCount;
+    document.getElementById("sState").textContent=over?"已结束":"进行中";
+  }
+
+  /* ---------- 猜人 ---------- */
+  /* 名、字、姓+字 都算正确答案；只要回答里出现其一即判定猜中 */
+  function norm(s){
+    return String(s).replace(/[\s，。？?！!、·「」『』《》"'"'：:；;~～]/g,"");
+  }
+  function aliases(p){
+    var a=[];
+    if(p.n) a.push(p.n);
+    var z=(p.z||"").replace(/^字/,"");
+    if(z.length>=2) a.push(z);                       // 伯言
+    if(z.length>=2 && p.n && p.n.length>=2) a.push(p.n.charAt(0)+z); // 陆伯言
+    return a.filter(function(x){return x && x.length>=2;});
+  }
+  function guess(text){
+    var t=norm(text);
+    if(!t) return false;
+    var A=aliases(cur);
+    for(var i=0;i<A.length;i++){ if(t.indexOf(A[i])>=0) return true; }
+    return false;
+  }
+  function win(){
+    {
+      over=true; updStats();
+      say("🎉 <b>猜中了！就是 "+cur.n+"。</b><br>"+
+        "阵营 <b>"+FN[cur.f]+"</b> · 身份 <b>"+CN[cur.c]+"</b>"+(cur.z?" · 字 <b>"+cur.z+"</b>":"")+"<br>"+
+        "生卒 "+(cur.y||"不详")+" · 籍贯 "+(cur.o||"不详")+"<br><br>"+
+        "小传：<b>"+cur.g+"</b><br><br>"+
+        "你一共提问 <b>"+qCount+"</b> 次，用了 <b>"+hints+"</b> 条提示。<br>"+
+        "想再来一局，点右边「重新开始」。","win");
+    }
+  }
+
+  /* ---------- 主流程 ---------- */
+  function handle(text){
+    if(over){
+      say("这一局已经结束了。点右侧「重新开始」换个人吧。");
+      return;
+    }
+    text=String(text||"").trim();
+    if(!text) return;
+    me(text);
+    qCount++; updStats();
+
+    var t=norm(text);
+
+    /* 名 / 字 / 姓+字，只要出现在回答里就算猜中 */
+    if(guess(t)){ win(); return; }
+
+    /* 不像问句的短输入：当作是报错了名字 */
+    var looksLikeQuestion=/[吗呢么什谁哪几多怎何]/.test(t)||/(什么|怎么|为何|如何|多少|第几|是否|是不是|有没有|对不对|关?系)/.test(t);
+    if(!looksLikeQuestion && t.length<=7){
+      var other=ALL.filter(function(p){return p.n===t||(p.z&&p.z===t);})[0];
+      if(other){
+        say('不是「'+esc(t)+'」。不过名录里确有其人：'+FN[other.f]+' · '+CN[other.c]+'。再想想。');
+      }else{
+        say('不是「'+esc(t)+'」，再想想。（继续提问，或直接报另一个名字）');
+      }
+      return;
+    }
+    say(answer(cur,t));
+  }
+
+  function pick(){
+    var src=(diff==="easy"&&HOT.length)?HOT:POOL;
+    return src[Math.floor(Math.random()*src.length)];
+  }
+
+  function newRound(){
+    if(!POOL.length){ say("题库为空，无法开局。"); return; }
+    cur=pick();
+    qCount=0; hints=0; over=false;
+    log.innerHTML="";
+    round++;
+    document.getElementById("roundNo").textContent=round;
+    updStats(); drawHints();
+    say("—— 第 "+round+" 局开始 ——");
+    introCard(cur);
+    inp.focus();
+  }
+
+  /* ---------- 事件 ---------- */
+  document.getElementById("send").addEventListener("click",function(){ var v=inp.value; inp.value=""; handle(v); });
+  inp.addEventListener("keydown",function(e){ if(e.key==="Enter"){ var v=inp.value; inp.value=""; handle(v); } });
+
+  /* 快捷提问只给出「身份卡上没写」的问题，避免问了白问或与卡片自相矛盾 */
+  var QUICK=["字什么？","哪里人？","姓什么？","第几回出场？","活了多少岁？","什么时期的人？","有什么事迹？","怎么死的？","是虚构人物吗？","是男是女？"];
+  document.getElementById("quick").innerHTML=QUICK.map(function(q){return '<button class="qbtn">'+q+'</button>';}).join("");
+  document.getElementById("quick").addEventListener("click",function(e){
+    var b=e.target.closest(".qbtn"); if(!b)return; handle(b.textContent);
+  });
+
+  document.getElementById("btnHint").addEventListener("click",function(){
+    if(over){say("本局已结束。");return;}
+    if(hints>=HINT_DEFS.length){say("线索已经全给完了。");return;}
+    hints++; updStats(); drawHints();
+    say("给你第 "+hints+" 条线索：<br>"+HINT_DEFS[hints-1](cur));
+  });
+
+  document.getElementById("btnGive").addEventListener("click",function(){
+    if(over)return;
+    over=true; updStats();
+    say("答案是 <b>"+cur.n+"</b>（"+FN[cur.f]+" · "+CN[cur.c]+"）。<br>"+
+      "生卒 "+(cur.y||"不详")+" · 籍贯 "+(cur.o||"不详")+"<br><br>"+
+      "小传：<b>"+cur.g+"</b><br><br>点「重新开始」再来一局。","lose");
+  });
+
+  document.getElementById("diffBox").addEventListener("click",function(e){
+    var b=e.target.closest(".qbtn"); if(!b)return;
+    diff=b.dataset.d;
+    [].slice.call(this.querySelectorAll(".qbtn")).forEach(function(x){x.classList.toggle("on",x.dataset.d===diff);});
+    newRound();
+  });
+
+  document.getElementById("btnNew").addEventListener("click",newRound);
+
+  /* 开局 */
+  newRound();
+})();
+</script>
+<div id="wx-tip"><span>内容较多，首次加载约 2–3 秒。若显示异常，可点右上角「···」→ 在浏览器中打开。</span><span class="wx-x" role="button" aria-label="关闭">×</span></div>
+</body>
+</html>

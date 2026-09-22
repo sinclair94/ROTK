@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>关系网 · 三国演义 · 群英谱</title>
+<style>
+:root{
+  --ink:#27231f; --muted:#716960; --paper:#fffdf8; --wash:#f2eee6;
+  --line:#ded6c9; --card-line:#e8e1d2;
+  --accent:#8d3025; --gold:#b88b35; --gold-d:#8a6a1f;
+  --dark:#29241f; --dark2:#342c25; --cream:#f7efe2; --goldlight:#d8bf86;
+  --divider:#eee7de; --track:#f3eee4;
+  --wei:#476b86; --shu:#8d3025; --wu:#527b5c; --qun:#b88b35; --jin:#8a6a1f; --folk:#8a7355;
+  --shadow:0 8px 24px rgba(42,31,21,.08);
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;
+  --sans:"Noto Sans SC","PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+
+.app-header{position:sticky;top:0;z-index:20;background:var(--dark);color:var(--cream)}
+.header-inner{max-width:1320px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand h1{font-family:var(--serif);font-size:21px;line-height:1.2;color:var(--cream);font-weight:700}
+.brand h1 a{color:inherit;text-decoration:none}
+.header-stat{color:#d8cabc;font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs a{border:1px solid transparent;border-radius:6px;background:#3d352e;color:#eadfd2;padding:7px 12px;font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap}
+.tabs a:hover{border-color:#c5a05f}
+.tabs a.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.shell{max-width:1320px;margin:auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:18px}
+.section-head h2{font-family:var(--serif);font-size:24px;color:#3a3029;font-weight:700}
+.section-head p{margin-top:4px;color:var(--muted);font-size:13px;line-height:22px;max-width:1000px}
+
+.toolbar{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+.tb-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:1px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 13px;font-size:12.5px;color:#5d544b;cursor:pointer;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--gold)}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700}
+.chip i.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.tb-sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.mini-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 12px;font-size:12.5px;color:#5d544b;cursor:pointer;font-family:var(--sans)}
+.mini-btn:hover{border-color:var(--gold);color:var(--gold-d)}
+.mini-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.net-wrap{display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{padding:16px 20px 12px;border-bottom:1px solid var(--divider)}
+.panel-head h3{font-family:var(--serif);font-size:17px;color:#3a3029;font-weight:700}
+.panel-head p{margin-top:3px;font-size:12.5px;color:var(--muted)}
+.panel-body{padding:16px 20px}
+
+.net-stage{position:relative;background:#fbf8f1;padding:6px}
+svg.net{width:100%;height:auto;display:block;touch-action:none}
+.link{stroke:#c9bda9;stroke-opacity:.55}
+.link.hi{stroke:var(--gold);stroke-opacity:.95;stroke-width:2.2}
+.link.dim{stroke-opacity:.12}
+.node{cursor:pointer;stroke:#fff;stroke-width:1.6}
+.node.dim{opacity:.2}
+.node.sel{stroke:var(--dark);stroke-width:3}
+.nlabel{font-size:11px;fill:#4a4238;font-family:var(--sans);font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.nlabel.dim{opacity:.18}
+.zoombar{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
+.zoombar button{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:15px;color:#5d544b;cursor:pointer;line-height:1}
+.zoombar button:hover{border-color:var(--gold);color:var(--gold-d)}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 20px 14px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+.side{display:flex;flex-direction:column;gap:18px}
+.rank-list{display:flex;flex-direction:column;gap:2px;max-height:420px;overflow-y:auto}
+.rank-row{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:7px;cursor:pointer;border-left:3px solid transparent}
+.rank-row:hover{background:#faf6ee}
+.rank-row.on{background:#faf4e8;border-left-color:var(--gold)}
+.rank-no{font-size:11px;color:#a89b88;width:20px;text-align:right;font-variant-numeric:tabular-nums}
+.rank-n{font-size:13.5px;font-weight:700}
+.rank-bar{flex:1;height:7px;background:var(--track);border-radius:4px;overflow:hidden}
+.rank-bar i{display:block;height:100%;border-radius:4px}
+.rank-w{font-size:11px;color:var(--muted);width:52px;text-align:right;font-variant-numeric:tabular-nums}
+
+.dt-name{font-family:var(--serif);font-size:20px;font-weight:700}
+.dt-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.dt-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.dt-tag{font-size:11.5px;border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:#5d544b;background:#fff}
+.dt-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.dt-stat{background:#faf6ee;border:1px solid var(--divider);border-radius:8px;padding:8px 10px}
+.dt-stat b{display:block;font-size:17px;color:#3a3029;font-variant-numeric:tabular-nums}
+.dt-stat span{font-size:11px;color:var(--muted)}
+.dt-rel{margin-top:12px;border-top:1px solid var(--divider);padding-top:10px}
+.dt-rel h4{font-size:12.5px;color:var(--muted);letter-spacing:1px;margin-bottom:7px}
+.rel-item{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:3px 0;cursor:pointer}
+.rel-item:hover{color:var(--accent)}
+.rel-item i{width:8px;height:8px;border-radius:50%;flex:none}
+.rel-c{font-size:11px;color:#a89b88;margin-left:auto}
+.dt-link{margin-top:12px;display:inline-block;background:var(--accent);color:#fff;border-radius:8px;padding:8px 16px;font-size:12.5px;text-decoration:none;font-weight:700}
+.note{font-size:12.5px;color:var(--muted);line-height:21px}
+.note b{color:#3a3029}
+.empty{color:var(--muted);font-size:13px;padding:14px 0;text-align:center}
+
+@media(max-width:1080px){ .net-wrap{grid-template-columns:1fr} }
+@media(max-width:640px){
+  .header-inner{padding:11px 14px}
+  .shell{padding:18px 14px 56px;gap:14px}
+  .section-head h2{font-size:20px}
+  .toolbar{padding:11px 12px}
+  .net-stage{padding:3px}
+  .rank-list{max-height:280px}
+  .dt-stats{grid-template-columns:1fr 1fr}
+  .nlabel{font-size:13px}
+}
+
+/* wx-gap-fallback */
+@supports not ((gap: 1px) or (row-gap: 1px)){.header-inner > *{margin-right:18px;margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.tabs > *{margin-right:6px;margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.shell > *:not(:last-child){margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.toolbar > *:not(:last-child){margin-bottom:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.tb-row > *{margin-right:10px;margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.chip > *:not(:last-child){margin-right:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.zoombar > *:not(:last-child){margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.legend > *{margin-right:14px;margin-bottom:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.legend span > *:not(:last-child){margin-right:5px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.side > *:not(:last-child){margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.rank-list > *:not(:last-child){margin-bottom:2px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.rank-row > *:not(:last-child){margin-right:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.dt-tags > *{margin-right:6px;margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.rel-item > *:not(:last-child){margin-right:7px;}}
+@media(max-width:640px){@supports not ((gap: 1px) or (row-gap: 1px)){.shell > *:not(:last-child){margin-right:14px;}}}
+</style>
+<!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
+<link rel="stylesheet" href="mobile.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="三国演义 · 群英谱">
+<meta property="og:title" content="三国演义 · 群英谱">
+<meta property="og:description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#29241f">
+<link rel="stylesheet" href="wx-compat.css">
+<script src="wx-compat.js"></script>
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <h1><a href="index.html">三国演义 · 群英谱</a></h1>
+      <span class="header-stat">关系网 · 人物权重与共现网络</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <a href="index.html">总览</a>
+      <a href="timeline.html">时间轴</a>
+      <a href="people.html">人物名录</a>
+      <a href="network.html" class="active">关系网</a>
+      <a href="map.html">地图</a>
+      <a href="states.html">三国志</a>
+      <a href="game.html">解谜</a>
+      <a href="insights.html">论三国</a>
+      <a href="#chronicle">帝王年谱</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="section-head">
+    <h2>关系网 · 谁才是这段历史的中枢</h2>
+    <p>把 699 位人物的小传与年表事件全部拆开，统计<strong>每个人被多少其他人提到、提到多少次</strong>，以及与谁出现在同一件事里。被提及次数越多，说明此人在整个叙事网络中越处于枢纽位置；两点之间的连线表示二人曾在同一条目中共现，线越粗则共现越频繁。</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="tb-row"><span class="tb-label">阵营</span>
+      <span id="f-force" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+      <span class="tb-sep"></span>
+      <span class="tb-label">时期</span>
+      <span id="f-era" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+    </div>
+    <div class="tb-row"><span class="tb-label">节点数</span>
+      <span id="f-n" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+      <span class="tb-sep"></span>
+      <button class="mini-btn" id="btnReplay">重新布局</button>
+      <button class="mini-btn" id="btnReset">恢复默认</button>
+      <span id="stat" style="font-size:12px;color:var(--muted);margin-left:auto"></span>
+    </div>
+  </div>
+
+  <div class="net-wrap">
+    <section class="panel">
+      <div class="panel-head"><h3 id="netTitle">关系网络图</h3>
+        <p>点选节点查看此人的关联对象；可拖动节点调整位置；鼠标滚轮或右上角按钮缩放</p></div>
+      <div class="net-stage">
+        <svg class="net" id="svg" viewBox="0 0 1000 720" role="img" aria-label="三国人物关系网络图"></svg>
+        <div class="zoombar">
+          <button id="zIn" title="放大">＋</button>
+          <button id="zOut" title="缩小">－</button>
+          <button id="zFit" title="复位">◎</button>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-head"><h3>权重榜</h3><p>按「被其他人物提及次数」排序，点一行可定位</p></div>
+        <div class="panel-body" style="padding:10px 12px"><div class="rank-list" id="rank"></div></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>人物详情</h3><p>点图中的节点，或点右侧榜单</p></div>
+        <div class="panel-body" id="detail"><div class="empty">尚未选择人物</div></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>这张图怎么读</h3></div>
+        <div class="panel-body">
+          <p class="note">
+            · <b>节点大小</b>＝被提及次数（跨全部人物的小传与年表累计）。<br>
+            · <b>连线粗细</b>＝二人共现于同一条目的次数。<br>
+            · <b>权重</b>高说明此人是叙事网络的枢纽，并不直接等于其历史重要性——演义着墨多的人天然占优。<br>
+            · 数据由程序从本站人物数据自动抽取，属<b>文本共现统计</b>，仅供结构参考，不作史实论断。<br>
+            · 395 位未被他人提及的人物（多为仅存姓名的武将、地方官员）默认不进入图中。
+          </p>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<script src="data-network.js"></script>
+<script>
+(function(){
+  var FS={wei:"var(--wei)",shu:"var(--shu)",wu:"var(--wu)",qun:"var(--qun)",jin:"var(--jin)"};
+  var FHEX={wei:"#476b86",shu:"#8d3025",wu:"#527b5c",qun:"#b88b35",jin:"#8a6a1f"};
+  var FN={wei:"曹魏",shu:"蜀汉",wu:"东吴",qun:"群雄 · 汉",jin:"西晋"};
+  var CN={d:"帝王",w:"文臣",m:"武将",p:"平民 · 方外"};
+
+  var NODES=window.NET_NODES||[], LINKS=window.NET_LINKS||[], ERAS=window.NET_ERA||[];
+  var byName={}; NODES.forEach(function(n){byName[n.n]=n;});
+  var maxW=1; NODES.forEach(function(n){if(n.w>maxW)maxW=n.w;});
+
+  var W=1000,H=720;
+  var svg=document.getElementById("svg");
+  var state={f:"all",era:"all",topN:50,sel:null,zoom:1,cx:W/2,cy:H/2};
+
+  /* ---------- 筛选控件 ---------- */
+  function chips(host,items,cur,onPick){
+    var el=document.getElementById(host);
+    el.innerHTML=items.map(function(it){
+      return '<button class="chip'+(it.v===cur?' on':'')+'" data-v="'+it.v+'">'
+        +(it.c?'<i class="dot" style="background:'+it.c+'"></i>':'')+it.t+'</button>';
+    }).join("");
+    el.addEventListener("click",function(e){
+      var b=e.target.closest(".chip"); if(!b)return;
+      onPick(b.getAttribute("data-v"));
+      Array.prototype.forEach.call(el.querySelectorAll(".chip"),function(x){x.classList.toggle("on",x===b);});
+    });
+  }
+  chips("f-force",[{v:"all",t:"全部"},{v:"wei",t:"曹魏",c:FHEX.wei},{v:"shu",t:"蜀汉",c:FHEX.shu},
+    {v:"wu",t:"东吴",c:FHEX.wu},{v:"qun",t:"群雄 · 汉",c:FHEX.qun},{v:"jin",t:"西晋",c:FHEX.jin}],
+    "all",function(v){state.f=v;build();});
+  chips("f-era",[{v:"all",t:"全期"}].concat(ERAS.map(function(e){return {v:e.id,t:e.name};})),
+    "all",function(v){state.era=v;build();});
+  chips("f-n",[{v:"30",t:"30 人"},{v:"50",t:"50 人"},{v:"80",t:"80 人"},{v:"120",t:"120 人"}],
+    "50",function(v){state.topN=+v;build();});
+
+  document.getElementById("legend").innerHTML=
+    Object.keys(FN).map(function(k){
+      return '<span><i style="background:'+FHEX[k]+'"></i>'+FN[k]+'</span>';
+    }).join("")+'<span>· 连线粗细＝共现频次</span>';
+
+  /* ---------- 构图 ---------- */
+  var nodesG=[], linksG=[], adj={};
+  function build(){
+    // 取候选节点
+    var cand=NODES.filter(function(n){
+      if(n.w<=0) return false;
+      if(state.f!=="all"&&n.f!==state.f) return false;
+      if(state.era!=="all"&&n.era!==state.era) return false;
+      return true;
+    }).slice(0,state.topN);
+
+    var inSet={}; cand.forEach(function(n){inSet[n.n]=1;});
+    // 边：两端都在集合内；再剔除子图内度为 0 的节点
+    var deg={};
+    var ls=LINKS.filter(function(l){return inSet[l[0]]&&inSet[l[1]];});
+    ls.forEach(function(l){deg[l[0]]=(deg[l[0]]||0)+1;deg[l[1]]=(deg[l[1]]||0)+1;});
+    nodesG=cand.filter(function(n){return deg[n.n];}).map(function(n){
+      return {n:n.n,z:n.z,f:n.f,c:n.c,w:n.w,era:n.era,deg:deg[n.n]||0,x:0,y:0,vx:0,vy:0};
+    });
+    var ok={}; nodesG.forEach(function(n){ok[n.n]=1;});
+    linksG=ls.filter(function(l){return ok[l[0]]&&ok[l[1]];}).map(function(l){return {a:l[0],b:l[1],c:l[2]};});
+
+    adj={}; nodesG.forEach(function(n){adj[n.n]=[];});
+    linksG.forEach(function(l){adj[l.a].push({to:l.b,c:l.c});adj[l.b].push({to:l.a,c:l.c});});
+
+    state.sel=null;
+    document.getElementById("stat").textContent="节点 "+nodesG.length+" · 连线 "+linksG.length
+      +"（候选 "+cand.length+" 人，已剔除孤立项）";
+    document.getElementById("netTitle").textContent=
+      (state.f==="all"?"三国人物":FN[state.f])+"关系网络 · "+(state.era==="all"?"全期":eraName(state.era));
+    layout(); draw(); drawRank(); showDetail(null);
+  }
+  function eraName(id){ var e=ERAS.filter(function(x){return x.id===id;})[0]; return e?e.name:id; }
+
+  /* ---------- 力导向布局 ---------- */
+  var raf=null, iter=0, IT=260;
+  function layout(){
+    var n=nodesG.length; if(!n) return;
+    var groups={}; nodesG.forEach(function(nd){(groups[nd.f]=groups[nd.f]||[]).push(nd);});
+    var keys=Object.keys(groups), gi=0;
+    nodesG.forEach(function(nd,i){
+      var a=(i/n)*Math.PI*2 + keys.indexOf(nd.f)*0.7;
+      nd.x=W/2+Math.cos(a)*(W*0.26); nd.y=H/2+Math.sin(a)*(H*0.26); nd.vx=0; nd.vy=0;
+    });
+    iter=0; if(raf)cancelAnimationFrame(raf); step();
+  }
+  function step(){
+    var n=nodesG.length; if(!n) return;
+    var k=Math.sqrt((W*H)/n)*0.62;
+    var idx={}; nodesG.forEach(function(nd,i){idx[nd.n]=i;});
+    var E=linksG.map(function(l){return [idx[l.a],idx[l.b],l.c];}).filter(function(e){return e[0]>=0&&e[1]>=0;});
+    iter++;
+    var t=Math.max(0.02,0.9*(1-iter/IT));
+    // 斥力
+    for(var i=0;i<n;i++){
+      for(var j=i+1;j<n;j++){
+        var dx=nodesG[i].x-nodesG[j].x, dy=nodesG[i].y-nodesG[j].y;
+        var d2=dx*dx+dy*dy; if(d2<1)d2=1;
+        var d=Math.sqrt(d2), f=(k*k)/d2;
+        var fx=dx/d*f, fy=dy/d*f;
+        nodesG[i].vx+=fx; nodesG[i].vy+=fy;
+        nodesG[j].vx-=fx; nodesG[j].vy-=fy;
+      }
+    }
+    // 引力（共现越多越近）
+    for(var m=0;m<E.length;m++){
+      var A=nodesG[E[m][0]],B=nodesG[E[m][1]];
+      var ex=B.x-A.x, ey=B.y-A.y, ed=Math.sqrt(ex*ex+ey*ey)||1;
+      var g=(ed*ed)/k*(0.35+Math.min(E[m][2],6)*0.09);
+      var gx=ex/ed*g, gy=ey/ed*g;
+      A.vx+=gx; A.vy+=gy; B.vx-=gx; B.vy-=gy;
+    }
+    // 向心 + 位移
+    for(var q=0;q<n;q++){
+      var nd=nodesG[q];
+      nd.vx+=(W/2-nd.x)*0.02; nd.vy+=(H/2-nd.y)*0.02;
+      nd.x+=Math.max(-24,Math.min(24,nd.vx*t)); nd.y+=Math.max(-24,Math.min(24,nd.vy*t));
+      nd.vx*=0.72; nd.vy*=0.72;
+      var r=radius(nd)+6;
+      nd.x=Math.max(r,Math.min(W-r,nd.x)); nd.y=Math.max(r+2,Math.min(H-r-2,nd.y));
+    }
+    draw();
+    if(iter<IT) raf=requestAnimationFrame(step);
+  }
+  function radius(nd){ return Math.min(26, 4.2+Math.sqrt(nd.w)*1.55); }
+
+  /* ---------- 绘制 ---------- */
+  function vb(){ var w=W/state.zoom,h=H/state.zoom;
+    return [(state.cx-w/2).toFixed(1),(state.cy-h/2).toFixed(1),w.toFixed(1),h.toFixed(1)]; }
+  function draw(){
+    if(!nodesG.length){
+      svg.innerHTML='<rect width="'+W+'" height="'+H+'" fill="#fbf8f1"/>'
+        +'<text x="'+W/2+'" y="'+H/2+'" text-anchor="middle" fill="#a89b88" font-size="15">当前筛选下没有可连边的人物，请放宽条件</text>';
+      return;
+    }
+    var idx={}; nodesG.forEach(function(nd,i){idx[nd.n]=i;});
+    var sel=state.sel, near={};
+    if(sel){ near[sel]=1; (adj[sel]||[]).forEach(function(r){near[r.to]=1;}); }
+    var s='<rect x="-2000" y="-2000" width="6000" height="6000" fill="#fbf8f1"/>';
+    s+='<g class="links">'+linksG.map(function(l){
+      var A=nodesG[idx[l.a]],B=nodesG[idx[l.b]];
+      var hi=sel&&(l.a===sel||l.b===sel);
+      var cls="link"+(hi?" hi":(sel?" dim":""));
+      var wdt=0.6+Math.min(l.c,8)*0.28;
+      return '<line class="'+cls+'" x1="'+A.x.toFixed(1)+'" y1="'+A.y.toFixed(1)+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke-width="'+wdt.toFixed(2)+'"/>';
+    }).join("")+'</g>';
+    s+='<g class="nodes">'+nodesG.map(function(nd,i){
+      var r=radius(nd), col=FHEX[nd.f]||"#8a7355";
+      var cls="node"+(sel?(near[nd.n]?"":" dim"):"")+(nd.n===sel?" sel":"");
+      var showLabel=(!sel&&(nd.w>=18||nd.deg>=14))||nd.n===sel||(sel&&near[nd.n]);
+      var lab=showLabel? '<text class="nlabel'+(sel&&!near[nd.n]?" dim":"")+'" x="'+(nd.x+r+4).toFixed(1)+'" y="'+(nd.y+4).toFixed(1)+'">'+nd.n+'</text>':'';
+      return '<circle class="'+cls+'" cx="'+nd.x.toFixed(1)+'" cy="'+nd.y.toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+col+'" data-n="'+nd.n+'"><title>'
+        +nd.n+'｜'+FN[nd.f]+' · '+CN[nd.c]+'｜被提及 '+nd.w+' 次 · 关联 '+nd.deg+' 人</title></circle>'+lab;
+    }).join("")+'</g>';
+    var v=vb();
+    svg.setAttribute("viewBox",v[0]+" "+v[1]+" "+v[2]+" "+v[3]);
+    svg.innerHTML=s;
+  }
+
+  /* ---------- 交互 ---------- */
+  svg.addEventListener("click",function(e){
+    var c=e.target.closest(".node"); if(!c)return;
+    state.sel=c.getAttribute("data-n"); draw(); drawRank(); showDetail(state.sel);
+  });
+  svg.addEventListener("wheel",function(e){
+    e.preventDefault();
+    state.zoom=Math.max(0.6,Math.min(4,state.zoom*(e.deltaY<0?1.12:0.89)));
+    draw();
+  },{passive:false});
+  // 拖动节点
+  var drag=null;
+  function pt(e){
+    var r=svg.getBoundingClientRect(), v=vb();
+    var sx=(e.clientX-r.left)/r.width*parseFloat(v[2])+parseFloat(v[0]);
+    var sy=(e.clientY-r.top)/r.height*parseFloat(v[3])+parseFloat(v[1]);
+    return [sx,sy];
+  }
+  svg.addEventListener("pointerdown",function(e){
+    var c=e.target.closest(".node"); if(!c)return;
+    var nd=nodesG.filter(function(x){return x.n===c.getAttribute("data-n");})[0];
+    if(!nd)return; drag=nd; if(raf)cancelAnimationFrame(raf); svg.setPointerCapture&&svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener("pointermove",function(e){
+    if(!drag)return; var p=pt(e); drag.x=p[0]; drag.y=p[1]; drag.vx=0; drag.vy=0; draw();
+  });
+  svg.addEventListener("pointerup",function(){drag=null;});
+  svg.addEventListener("pointercancel",function(){drag=null;});
+
+  document.getElementById("zIn").onclick=function(){state.zoom=Math.min(4,state.zoom*1.25);draw();};
+  document.getElementById("zOut").onclick=function(){state.zoom=Math.max(0.6,state.zoom/1.25);draw();};
+  document.getElementById("zFit").onclick=function(){state.zoom=1;state.cx=W/2;state.cy=H/2;draw();};
+  document.getElementById("btnReplay").onclick=function(){layout();};
+  document.getElementById("btnReset").onclick=function(){
+    state.f="all";state.era="all";state.topN=50;state.zoom=1;state.cx=W/2;state.cy=H/2;
+    ["f-force","f-era","f-n"].forEach(function(id){
+      var el=document.getElementById(id), def=id==="f-n"?"50":"all";
+      Array.prototype.forEach.call(el.querySelectorAll(".chip"),function(x){
+        x.classList.toggle("on",x.getAttribute("data-v")===def);});
+    });
+    build();
+  };
+
+  /* ---------- 权重榜 ---------- */
+  function drawRank(){
+    var list=nodesG.slice().sort(function(a,b){return b.w-a.w;}).slice(0,40);
+    var host=document.getElementById("rank");
+    if(!list.length){host.innerHTML='<div class="empty">无数据</div>';return;}
+    host.innerHTML=list.map(function(nd,i){
+      var col=FHEX[nd.f]||"#8a7355";
+      return '<div class="rank-row'+(nd.n===state.sel?' on':'')+'" data-n="'+nd.n+'">'
+        +'<span class="rank-no">'+(i+1)+'</span>'
+        +'<span class="rank-n" style="color:'+col+'">'+nd.n+'</span>'
+        +'<span class="rank-bar"><i style="width:'+Math.round(nd.w/maxW*100)+'%;background:'+col+'"></i></span>'
+        +'<span class="rank-w">'+nd.w+' 次</span></div>';
+    }).join("");
+  }
+  document.getElementById("rank").addEventListener("click",function(e){
+    var r=e.target.closest(".rank-row"); if(!r)return;
+    var n=r.getAttribute("data-n");
+    state.sel=n; draw(); drawRank(); showDetail(n);
+  });
+
+  /* ---------- 详情 ---------- */
+  function showDetail(name){
+    var host=document.getElementById("detail");
+    if(!name){host.innerHTML='<div class="empty">尚未选择人物</div>';return;}
+    var nd=nodesG.filter(function(x){return x.n===name;})[0]||byName[name];
+    if(!nd){host.innerHTML='<div class="empty">未找到该人物</div>';return;}
+    var col=FHEX[nd.f]||"#8a7355";
+    var rels=(adj[name]||[]).slice().sort(function(a,b){return b.c-a.c;}).slice(0,12);
+    var h='<div class="dt-name" style="color:'+col+'">'+nd.n+'</div>';
+    h+='<div class="dt-sub">'+(nd.z?'字 '+nd.z+' · ':'')+FN[nd.f]+' · '+CN[nd.c]+' · 主要活跃于 '+eraName(nd.era)+'</div>';
+    h+='<div class="dt-tags"><span class="dt-tag">权重排名 '+rankOf(name)+'</span>'
+      +'<span class="dt-tag">'+eraName(nd.era)+'</span></div>';
+    h+='<div class="dt-stats">'
+      +'<div class="dt-stat"><b>'+nd.w+'</b><span>被提及次数</span></div>'
+      +'<div class="dt-stat"><b>'+nd.deg+'</b><span>关联人物数</span></div></div>';
+    h+='<div class="dt-rel"><h4>关联最密的人物</h4>'
+      +rels.map(function(r){
+        var o=byName[r.to]||{f:"qun"};
+        return '<div class="rel-item" data-n="'+r.to+'"><i style="background:'+(FHEX[o.f]||"#8a7355")+'"></i>'
+          +r.to+'<span class="rel-c">共现 '+r.c+' 次</span></div>';
+      }).join("")+'</div>';
+    h+='<a class="dt-link" href="people.html?p='+encodeURIComponent(name)+'" target="_blank">查看生平 →</a>';
+    host.innerHTML=h;
+  }
+  function rankOf(name){
+    var sorted=NODES.slice().sort(function(a,b){return b.w-a.w;});
+    for(var i=0;i<sorted.length;i++) if(sorted[i].n===name) return "第 "+(i+1)+" 位 / "+sorted.length;
+    return "—";
+  }
+  document.getElementById("detail").addEventListener("click",function(e){
+    var it=e.target.closest(".rel-item"); if(!it)return;
+    var n=it.getAttribute("data-n");
+    if(byName[n]&&nodesG.some(function(x){return x.n===n;})){ state.sel=n; draw(); drawRank(); showDetail(n); }
+  });
+
+  build();
+})();
+</script>
+<div id="wx-tip"><span>内容较多，首次加载约 2–3 秒。若显示异常，可点右上角「···」→ 在浏览器中打开。</span><span class="wx-x" role="button" aria-label="关闭">×</span></div>
+</body>
+</html>

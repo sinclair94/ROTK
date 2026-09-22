@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>三国演义 · 群英谱</title>
+<style>
+:root{
+  --ink:#27231f; --muted:#716960; --paper:#fffdf8; --wash:#f2eee6;
+  --line:#ded6c9; --card-line:#e8e1d2;
+  --accent:#8d3025; --gold:#b88b35; --green:#527b5c; --blue:#476b86;
+  --dark:#29241f; --dark2:#342c25; --cream:#f7efe2; --cream2:#dfd0c1;
+  --goldlight:#d8bf86; --barbg:#eee8df; --track:#f3eee4; --divider:#eee7de;
+  --shadow:0 8px 24px rgba(42,31,21,.08);
+  --wei:#476b86; --shu:#8d3025; --wu:#527b5c; --qun:#b88b35;
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;
+  --sans:"Noto Sans SC","PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+.serif{font-family:var(--serif)}
+
+/* ===== 顶部导航 ===== */
+.app-header{position:sticky;top:0;z-index:20;background:var(--dark);color:var(--cream)}
+.header-inner{max-width:1320px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;gap:3px}
+.brand h1{font-family:var(--serif);font-size:21px;line-height:1.2;color:var(--cream);font-weight:700}
+.header-stat{color:#d8cabc;font-size:12px;white-space:nowrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs a{display:inline-block;border:1px solid transparent;border-radius:6px;background:#3d352e;color:#eadfd2;padding:7px 12px;font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap;transition:border-color .15s}
+.tabs a:hover{border-color:#c5a05f}
+.tabs a.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== 主内容 ===== */
+.shell{max-width:1320px;margin:auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:32px}
+section{scroll-margin-top:86px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.section-head h2{font-family:var(--serif);font-size:24px;color:#3a3029;font-weight:700}
+.section-head p{margin-top:3px;color:var(--muted);font-size:13px}
+.src-tag{display:inline-block;padding:2px 10px;border-radius:999px;background:#f2ead9;color:#775f2e;font-size:11px;white-space:nowrap}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:14px}
+
+/* ===== 总览 ===== */
+.summary-hero{display:grid;grid-template-columns:1fr 430px;gap:18px;margin-top:16px}
+.hero-copy{background:var(--dark2);color:var(--cream);border-radius:10px;padding:28px;display:flex;flex-direction:column;gap:10px}
+.hero-copy h2{font-family:var(--serif);font-size:26px;line-height:38px;color:#fff;font-weight:700}
+.hero-copy p{color:var(--cream2);font-size:13px;line-height:24px}
+.hero-note{color:var(--goldlight);font-size:12px}
+.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-content:start}
+.metric{background:#fff;border:1px solid var(--line);border-radius:8px;padding:15px;display:flex;flex-direction:column;gap:4px}
+.metric .value{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--accent);line-height:1.2}
+.metric .label{color:var(--muted);font-size:12px}
+
+/* ===== 图例 ===== */
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:12px}
+.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* ===== 势力分布 ===== */
+.part-list{display:flex;flex-direction:column;gap:11px}
+.part-row{display:grid;grid-template-columns:170px 1fr 66px 82px;gap:10px;align-items:center}
+.part-label strong{display:block;color:#40362f;font-size:13px}
+.part-label span{display:block;color:var(--muted);font-size:11px}
+.part-bar{height:16px;background:var(--barbg);border-radius:3px;overflow:hidden;display:flex}
+.part-segment{height:100%}
+.seg-d{color:var(--gold)} .seg-w{color:var(--blue)} .seg-m{color:var(--accent)} .seg-p{color:var(--green)}
+.part-values{text-align:right;font-weight:700;color:var(--accent);font-size:13px}
+.part-density{text-align:right;color:var(--muted);font-size:11px}
+.note{color:var(--muted);font-size:12px}
+
+/* ===== 人物卡片 ===== */
+.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.character-card{background:#fff;border:1px solid var(--card-line);border-radius:9px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;text-decoration:none;transition:transform .12s,box-shadow .12s}
+.character-card:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(42,31,21,.13)}
+.card-topbar{height:4px;flex:none}
+.card-body{padding:14px;display:flex;flex-direction:column;gap:6px}
+.card-namerow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-namerow h3{font-family:var(--serif);font-size:20px;font-weight:700}
+.cat-tag{flex:none;padding:1px 8px;border-radius:999px;font-size:10px;border:1px solid}
+.cat-d{background:#f6efdd;border-color:#e0cfa4;color:#8a6a1f}
+.cat-w{background:#eaf0f5;border-color:#c3d3de;color:#476b86}
+.cat-m{background:#fdf3f1;border-color:#e8c9c4;color:#8d3025}
+.cat-p{background:#ebf2ec;border-color:#c9dacd;color:#527b5c}
+.card-meta{color:var(--muted);font-size:11px}
+.card-desc{color:#615851;font-size:12px;line-height:20px}
+
+/* ===== 时间轴 ===== */
+.phase-band{display:flex;height:52px;border-radius:6px;overflow:hidden}
+.phase{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:3px;color:#fff;min-width:4px;text-decoration:none;transition:filter .15s}
+.phase:hover{filter:brightness(1.12)}
+.phase:hover strong{text-decoration:underline}
+.phase strong{font-size:11px;font-weight:700;white-space:nowrap}
+.phase span{font-size:10px;white-space:nowrap}
+.phase-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}
+.subhead{font-family:var(--serif);font-size:15px;font-weight:700;color:#8a6a1f}
+.event-list{display:flex;flex-direction:column}
+.event-row{padding:7px 2px;display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid var(--divider)}
+.event-row:last-child{border-bottom:none}
+.event-year{flex:none;width:86px;font-weight:700;color:var(--accent);font-size:13px}
+.event-text{color:#40362f;font-size:13px}
+
+/* ===== 帝王年谱 ===== */
+.chron-axis{position:relative;height:20px;margin-left:130px}
+.chron-tick{position:absolute;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+.chron-tick.first{transform:none}
+.chron-group{display:flex;align-items:center;gap:6px;margin-top:6px}
+.chron-group .dot{width:10px;height:10px;border-radius:2px}
+.chron-group strong{font-size:13px;color:#40362f}
+.chron-row{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center;padding:2px 0}
+.chron-name{text-align:right;font-size:12px;color:#443a32;white-space:nowrap}
+.chron-track{position:relative;height:18px;background:var(--track);border-radius:3px}
+.chron-bar{position:absolute;top:5px;height:8px;border-radius:2px}
+
+/* ===== 洞察 ===== */
+.insight-toc{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.ins-card{display:flex;background:#fff;border:1px solid var(--card-line);border-radius:9px;overflow:hidden}
+.ins-bar{width:3px;flex:none}
+.ins-body{padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+.ins-num{font-size:11px;font-weight:700;color:#b9ae98}
+.ins-disc{font-size:11px;font-weight:700}
+.ins-title{font-size:13px;color:#4a4238}
+.synthesis{background:#fdf9ee;border:1px solid #e0cc96;border-radius:9px;overflow:hidden}
+.synthesis-top{height:3px;background:var(--gold)}
+.synthesis-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.synthesis-body h4{font-family:var(--serif);font-size:14px;color:#8a6a1f;font-weight:700}
+.synthesis-body p{font-size:13px;line-height:22px;color:#3a342c}
+
+/* ===== 页脚 ===== */
+.app-footer{background:var(--dark);color:var(--cream)}
+.footer-inner{max-width:1320px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.footer-brand{display:flex;flex-direction:column;gap:4px}
+.footer-brand strong{font-family:var(--serif);font-size:16px;color:var(--cream)}
+.footer-brand span{color:#d8cabc;font-size:12px}
+.footer-right{color:var(--goldlight);font-size:12px;white-space:nowrap}
+
+@media(max-width:1000px){
+  .summary-hero{grid-template-columns:1fr}
+  .card-grid{grid-template-columns:repeat(2,1fr)}
+  .insight-toc{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .card-grid{grid-template-columns:1fr}
+  .part-row{grid-template-columns:110px 1fr 48px 56px}
+  .chron-row{grid-template-columns:92px 1fr}
+  .chron-axis{margin-left:102px}
+}
+
+/* wx-gap-fallback */
+@supports not ((gap: 1px) or (row-gap: 1px)){.header-inner > *{margin-right:18px;margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.brand > *:not(:last-child){margin-bottom:3px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.tabs > *{margin-right:6px;margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* ===== 主内容 ===== */
+.shell > *:not(:last-child){margin-bottom:32px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.section-head > *{margin-right:14px;margin-bottom:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.panel > *:not(:last-child){margin-bottom:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.hero-copy > *:not(:last-child){margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.metric > *:not(:last-child){margin-bottom:4px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* ===== 图例 ===== */
+.legend > *{margin-right:14px;margin-bottom:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.legend span > *:not(:last-child){margin-right:5px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* ===== 势力分布 ===== */
+.part-list > *:not(:last-child){margin-bottom:11px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.card-body > *:not(:last-child){margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.card-namerow > *:not(:last-child){margin-right:8px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.event-row > *:not(:last-child){margin-right:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.chron-group > *:not(:last-child){margin-right:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.ins-body > *:not(:last-child){margin-bottom:2px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.synthesis-body > *:not(:last-child){margin-bottom:8px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.footer-inner > *{margin-right:18px;margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.footer-brand > *:not(:last-child){margin-bottom:4px;}}
+</style>
+<!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
+<link rel="stylesheet" href="mobile.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="三国演义 · 群英谱">
+<meta property="og:title" content="三国演义 · 群英谱">
+<meta property="og:description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#29241f">
+<link rel="stylesheet" href="wx-compat.css">
+<script src="wx-compat.js"></script>
+</head>
+<body>
+
+<!-- ===== 顶部导航 ===== -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <h1>三国演义 · 群英谱</h1>
+      <span class="header-stat">演义本 · 毛宗岗评本一百二十回 · 人物与年份均保留核验状态</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <a href="index.html" class="active">总览</a>
+      <a href="timeline.html">时间轴</a>
+      <a href="people.html">人物名录</a>
+      <a href="network.html">关系网</a>
+      <a href="map.html">地图</a>
+      <a href="states.html">三国志</a>
+      <a href="game.html">解谜</a>
+      <a href="insights.html">论三国</a>
+      <a href="#chronicle">帝王年谱</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+
+  <!-- ===== 总览 ===== -->
+  <section id="overview">
+    <div class="section-head">
+      <div>
+        <h2>总览</h2>
+        <p>从黄巾举事到三家归晋——演义笔下乱世群像的总览视图</p>
+      </div>
+      <span class="src-tag">演义本 · 数据核验中</span>
+    </div>
+    <div class="summary-hero">
+      <div class="hero-copy">
+        <h2>滚滚长江东逝水，浪花淘尽英雄</h2>
+        <p>《三国演义》以七实三虚之笔，写尽东汉末年至晋初一百年间的帝王将相、谋臣武将与布衣方外之士。本站沿人物、事件、时间、政权四条线索整理演义全本：凡有名有姓者皆录，帝王、文臣、武将、平民各归其类，为后续正史本（《三国志》及裴注）打底。</p>
+        <span class="hero-note">数据来自毛宗岗评本一百二十回 · 人物、年份与归属均保留核验状态</span>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><span class="value">699</span><span class="label">已收录有姓名人物（演义本）</span></div>
+        <div class="metric"><span class="value">120</span><span class="label">回目（毛宗岗评本）</span></div>
+        <div class="metric"><span class="value">121 年</span><span class="label">叙事跨度 159–280</span></div>
+        <div class="metric"><span class="value">64 场</span><span class="label">地图标注战役 · 六期分期</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 势力分布 ===== -->
+  <section class="panel" id="distribution">
+    <div>
+      <h2 class="serif" style="font-size:24px;color:#3a3029">势力分布</h2>
+      <p style="margin-top:3px;color:var(--muted);font-size:13px">人物按演义叙事中的最终归属政权统计；构成按帝王 / 文臣 / 武将 / 平民四类拆分</p>
+    </div>
+    <div class="legend">
+      <span><i class="legend-dot" style="background:var(--gold)"></i>帝王</span>
+      <span><i class="legend-dot" style="background:var(--blue)"></i>文臣</span>
+      <span><i class="legend-dot" style="background:var(--accent)"></i>武将</span>
+      <span><i class="legend-dot" style="background:var(--green)"></i>平民（含方外、医卜、女子）</span>
+    </div>
+    <div class="part-list">
+      <div class="part-row">
+        <div class="part-label"><strong>曹魏 · 含西晋</strong><span>138 + 16 人 · 都洛阳</span></div>
+        <div class="part-bar">
+          <i class="part-segment" style="background:var(--gold);flex-grow:8"></i>
+          <i class="part-segment" style="background:var(--blue);flex-grow:77"></i>
+          <i class="part-segment" style="background:var(--accent);flex-grow:59"></i>
+          <i class="part-segment" style="background:var(--green);flex-grow:10"></i>
+        </div>
+        <span class="part-values">154</span><span class="part-density">22.0%</span>
+      </div>
+      <div class="part-row">
+        <div class="part-label"><strong>蜀汉</strong><span>221–263 · 都成都</span></div>
+        <div class="part-bar">
+          <i class="part-segment" style="background:var(--gold);flex-grow:6"></i>
+          <i class="part-segment" style="background:var(--blue);flex-grow:48"></i>
+          <i class="part-segment" style="background:var(--accent);flex-grow:47"></i>
+          <i class="part-segment" style="background:var(--green);flex-grow:18"></i>
+        </div>
+        <span class="part-values">119</span><span class="part-density">17.0%</span>
+      </div>
+      <div class="part-row">
+        <div class="part-label"><strong>东吴</strong><span>229–280 · 都建业</span></div>
+        <div class="part-bar">
+          <i class="part-segment" style="background:var(--gold);flex-grow:10"></i>
+          <i class="part-segment" style="background:var(--blue);flex-grow:37"></i>
+          <i class="part-segment" style="background:var(--accent);flex-grow:61"></i>
+          <i class="part-segment" style="background:var(--green);flex-grow:14"></i>
+        </div>
+        <span class="part-values">122</span><span class="part-density">17.5%</span>
+      </div>
+      <div class="part-row">
+        <div class="part-label"><strong>群雄 · 汉 · 黄巾</strong><span>董卓 袁绍 吕布 十常侍等</span></div>
+        <div class="part-bar">
+          <i class="part-segment" style="background:var(--gold);flex-grow:32"></i>
+          <i class="part-segment" style="background:var(--blue);flex-grow:65"></i>
+          <i class="part-segment" style="background:var(--accent);flex-grow:177"></i>
+          <i class="part-segment" style="background:var(--green);flex-grow:30"></i>
+        </div>
+        <span class="part-values">304</span><span class="part-density">43.5%</span>
+      </div>
+    </div>
+    <p class="note">统计口径：人物按演义叙事中的最终归属划分，多易其主者从其后主；西晋六人（司马炎、羊祜、杜预、王濬、贾充、卫瓘）并入曹魏条统计。本栏数字由名录实时统计得出，与「人物名录」页一致。</p>
+  </section>
+
+  <!-- ===== 人物图谱 ===== -->
+  <section class="panel" id="characters">
+    <div>
+      <h2 class="serif" style="font-size:24px;color:#3a3029">人物图谱 · 精选</h2>
+      <p style="margin-top:3px;color:var(--muted);font-size:13px">以下为八位代表人物；完整名录已收录两百余位演义人物，支持筛选与搜索，点开任一卡片可直入人物详情</p>
+    </div>
+    <div class="legend">
+      <span><i class="legend-dot" style="background:var(--wei)"></i>曹魏</span>
+      <span><i class="legend-dot" style="background:var(--shu)"></i>蜀汉</span>
+      <span><i class="legend-dot" style="background:var(--wu)"></i>东吴</span>
+      <span><i class="legend-dot" style="background:var(--qun)"></i>群雄 · 其他</span>
+    </div>
+    <div class="card-grid">
+      <div class="character-card" data-go="曹操">
+        <i class="card-topbar" style="background:var(--wei)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--wei)">曹操</h3><span class="cat-tag cat-d">帝王</span></div>
+          <span class="card-meta">155–220 · 沛国谯县 · 首登场第一回</span>
+          <p class="card-desc">治世之能臣，乱世之奸雄。挟天子以令诸侯，统一北方奠曹魏之基，薨后追尊魏武帝。</p>
+        </div>
+      </div>
+      <div class="character-card" data-go="司马懿">
+        <i class="card-topbar" style="background:var(--wei)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--wei)">司马懿</h3><span class="cat-tag cat-w">文臣</span></div>
+          <span class="card-meta">179–251 · 河内温县 · 首登场第六十七回</span>
+          <p class="card-desc">鹰视狼顾，深自晦匿。拒诸葛于五丈原，诈病赚曹爽，祖孙三代终开晋室之业，追尊晋宣帝。</p>
+        </div>
+      </div>
+      <div class="character-card" data-go="刘备">
+        <i class="card-topbar" style="background:var(--shu)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--shu)">刘备</h3><span class="cat-tag cat-d">帝王</span></div>
+          <span class="card-meta">161–223 · 涿郡涿县 · 首登场第一回</span>
+          <p class="card-desc">汉昭烈帝。贩屦织席而起，三顾茅庐得卧龙，据荆益二州续汉祚，白帝城托孤而终。</p>
+        </div>
+      </div>
+      <div class="character-card" data-go="诸葛亮">
+        <i class="card-topbar" style="background:var(--shu)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--shu)">诸葛亮</h3><span class="cat-tag cat-w">文臣</span></div>
+          <span class="card-meta">181–234 · 琅琊阳都 · 首登场第三十八回</span>
+          <p class="card-desc">卧龙先生。隆中对定三分天下，出师表昭鞠躬尽瘁，六出祁山，星落五丈原，千古名相。</p>
+        </div>
+      </div>
+      <div class="character-card" data-go="关羽">
+        <i class="card-topbar" style="background:var(--shu)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--shu)">关羽</h3><span class="cat-tag cat-m">武将</span></div>
+          <span class="card-meta">？–220 · 河东解良 · 首登场第一回</span>
+          <p class="card-desc">汉寿亭侯。温酒斩华雄，千里走单骑，水淹七军威震华夏；败走麦城，义绝千古。</p>
+        </div>
+      </div>
+      <div class="character-card" data-go="周瑜">
+        <i class="card-topbar" style="background:var(--wu)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--wu)">周瑜</h3><span class="cat-tag cat-m">武将</span></div>
+          <span class="card-meta">175–210 · 庐江舒县 · 首登场第十五回</span>
+          <p class="card-desc">东吴大都督。雄姿英发，羽扇纶巾，赤壁一炬破曹公八十万；既生瑜，何生亮，巴丘陨命。</p>
+        </div>
+      </div>
+      <div class="character-card" data-go="孙权">
+        <i class="card-topbar" style="background:var(--wu)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--wu)">孙权</h3><span class="cat-tag cat-d">帝王</span></div>
+          <span class="card-meta">182–252 · 吴郡富春 · 首登场第二十九回</span>
+          <p class="card-desc">吴大帝。碧眼紫髯，承父兄之业坐领江东；联刘破曹于赤壁，二二九年称帝建吴。</p>
+        </div>
+      </div>
+      <div class="character-card" data-go="貂蝉">
+        <i class="card-topbar" style="background:var(--qun)"></i>
+        <div class="card-body">
+          <div class="card-namerow"><h3 style="color:var(--qun)">貂蝉</h3><span class="cat-tag cat-p">平民</span></div>
+          <span class="card-meta">生卒不详 · 演义虚构人物 · 首登场第八回</span>
+          <p class="card-desc">司徒王允义女。连环计间董卓、吕布父子于凤仪亭，为演义最著名的虚构女性，正史无载。</p>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <a href="people.html" style="display:inline-block;background:var(--accent);color:#fff;border-radius:8px;padding:11px 26px;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:2px">进入人物名录 · 查看全部 →</a>
+    </div>
+  </section>
+
+  <!-- ===== 时间轴 ===== -->
+  <section class="panel" id="timeline">
+    <div>
+      <h2 class="serif" style="font-size:24px;color:#3a3029">时间轴</h2>
+      <p style="margin-top:3px;color:var(--muted);font-size:13px">159 桓灵乱政 — 280 三家归晋；分期带按演义叙事阶段划分，宽度与年数成比例。<strong style="color:var(--gold-d);font-weight:500">点击任意分期，可进入该时期的战役、制度改革、发迹人物与大事详解。</strong></p>
+    </div>
+    <div class="phase-band">
+      <a class="phase" href="timeline.html#p0" style="background:#6b5b4b;flex:25"><strong>东汉衰亡</strong><span style="color:#e5dcd0">159–184 · 详解 →</span></a>
+      <a class="phase" href="timeline.html#p1" style="background:#a24b55;flex:7"><strong>黄巾之乱</strong><span style="color:#f5e3e0">184–191 · 详解 →</span></a>
+      <a class="phase" href="timeline.html#p2" style="background:#8d5f42;flex:17"><strong>群雄割据</strong><span style="color:#f0e4da">191–208 · 详解 →</span></a>
+      <a class="phase" href="timeline.html#p3" style="background:#b88b35;flex:12"><strong>赤壁 · 三分奠基</strong><span style="color:#f7ecd4">208–220 · 详解 →</span></a>
+      <a class="phase" href="timeline.html#p4" style="background:#8d3025;flex:43"><strong>三国鼎立</strong><span style="color:#f2dcd8">220–263 · 详解 →</span></a>
+      <a class="phase" href="timeline.html#p5" style="background:#476b86;flex:17"><strong>三家归晋</strong><span style="color:#dfe8ef">263–280 · 详解 →</span></a>
+    </div>
+    <div class="phase-scale"><span>159</span><span>184</span><span>200</span><span>220</span><span>240</span><span>260</span><span>280</span></div>
+    <h3 class="subhead">大事记</h3>
+    <div class="event-list">
+      <div class="event-row"><span class="event-year">184</span><span class="event-text">黄巾起义爆发 · 刘备、关羽、张飞桃园结义</span></div>
+      <div class="event-row"><span class="event-year">190</span><span class="event-text">十八路诸侯讨董卓 · 温酒斩华雄、三英战吕布</span></div>
+      <div class="event-row"><span class="event-year">200</span><span class="event-text">官渡之战 · 曹操以少胜多破袁绍，北方底定</span></div>
+      <div class="event-row"><span class="event-year">208</span><span class="event-text">赤壁之战 · 孙刘联军火攻破曹，三分之势始成</span></div>
+      <div class="event-row"><span class="event-year">220–221</span><span class="event-text">曹丕代汉称帝建魏 · 次年刘备于成都称帝续汉</span></div>
+      <div class="event-row"><span class="event-year">229</span><span class="event-text">孙权称帝建吴 · 三国鼎立格局正式形成</span></div>
+      <div class="event-row"><span class="event-year">234</span><span class="event-text">诸葛亮星落五丈原 · 蜀汉北伐止息</span></div>
+      <div class="event-row"><span class="event-year">263–280</span><span class="event-text">蜀亡（263）· 司马炎代魏建晋（266）· 吴亡（280），天下归晋</span></div>
+    </div>
+    <p style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <a href="timeline.html" style="display:inline-block;background:var(--dark);color:var(--cream);border-radius:8px;padding:9px 16px;font-size:13px;text-decoration:none">展开六期完整时间轴 · 49 场战役与制度改革 →</a>
+      <a href="map.html" style="display:inline-block;background:#fff;color:#5d544b;border:1px solid var(--line);border-radius:8px;padding:9px 16px;font-size:13px;text-decoration:none">在地图上查看战役分布 →</a>
+      <a href="states.html" style="display:inline-block;background:#fff;color:#5d544b;border:1px solid var(--line);border-radius:8px;padding:9px 16px;font-size:13px;text-decoration:none">三国志 · 制度与优劣对比 →</a>
+      <a href="game.html" style="display:inline-block;background:var(--gold-d);color:#fff;border-radius:8px;padding:9px 16px;font-size:13px;text-decoration:none">玩人物解谜 →</a>
+    </p>
+  </section>
+
+  <!-- ===== 帝王年谱 ===== -->
+  <section class="panel" id="chronicle">
+    <div>
+      <h2 class="serif" style="font-size:24px;color:#3a3029">帝王年谱</h2>
+      <p style="margin-top:3px;color:var(--muted);font-size:13px">魏、蜀、吴、晋四朝帝王在位谱系，按在位年数成比例绘制；追尊未亲政者不入谱</p>
+    </div>
+    <div class="chron-axis">
+      <span class="chron-tick first" style="left:0%">210</span>
+      <span class="chron-tick" style="left:13.33%">220</span>
+      <span class="chron-tick" style="left:40%">240</span>
+      <span class="chron-tick" style="left:66.67%">260</span>
+      <span class="chron-tick" style="left:93.33%">280</span>
+    </div>
+
+    <div class="chron-group"><i class="dot" style="background:var(--wei)"></i><strong>曹魏 · 五帝（220–266）</strong></div>
+    <div class="chron-row"><span class="chron-name">魏文帝 · 曹丕</span><div class="chron-track"><i class="chron-bar" style="background:var(--wei);left:13.33%;width:8%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">魏明帝 · 曹叡</span><div class="chron-track"><i class="chron-bar" style="background:var(--wei);left:21.33%;width:17.33%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">齐王 · 曹芳</span><div class="chron-track"><i class="chron-bar" style="background:var(--wei);left:38.67%;width:20%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">高贵乡公 · 曹髦</span><div class="chron-track"><i class="chron-bar" style="background:var(--wei);left:58.67%;width:8%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">魏元帝 · 曹奂</span><div class="chron-track"><i class="chron-bar" style="background:var(--wei);left:66.67%;width:8%"></i></div></div>
+
+    <div class="chron-group"><i class="dot" style="background:var(--shu)"></i><strong>蜀汉 · 二帝（221–263）</strong></div>
+    <div class="chron-row"><span class="chron-name">昭烈帝 · 刘备</span><div class="chron-track"><i class="chron-bar" style="background:var(--shu);left:14.67%;width:2.67%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">后主 · 刘禅</span><div class="chron-track"><i class="chron-bar" style="background:var(--shu);left:17.33%;width:53.33%"></i></div></div>
+
+    <div class="chron-group"><i class="dot" style="background:var(--wu)"></i><strong>东吴 · 四帝（229–280）</strong></div>
+    <div class="chron-row"><span class="chron-name">吴大帝 · 孙权</span><div class="chron-track"><i class="chron-bar" style="background:var(--wu);left:25.33%;width:30.67%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">会稽王 · 孙亮</span><div class="chron-track"><i class="chron-bar" style="background:var(--wu);left:56%;width:8%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">吴景帝 · 孙休</span><div class="chron-track"><i class="chron-bar" style="background:var(--wu);left:64%;width:8%"></i></div></div>
+    <div class="chron-row"><span class="chron-name">乌程侯 · 孙皓</span><div class="chron-track"><i class="chron-bar" style="background:var(--wu);left:72%;width:21.33%"></i></div></div>
+
+    <div class="chron-group"><i class="dot" style="background:var(--gold)"></i><strong>西晋 · 武帝一代（266–280 演义叙事止）</strong></div>
+    <div class="chron-row"><span class="chron-name">晋武帝 · 司马炎</span><div class="chron-track"><i class="chron-bar" style="background:var(--gold);left:74.67%;width:25.33%"></i></div></div>
+
+    <p class="note">注：司马炎 266 年受魏禅建晋，280 年灭吴一统；其在位至 290 年，演义叙事止于 280 年，谱条绘至叙事终点。</p>
+  </section>
+
+  <!-- ===== 名家论三国 · 预览 ===== -->
+  <section class="panel" id="insights">
+    <div>
+      <h2 class="serif" style="font-size:24px;color:#3a3029">论三国</h2>
+      <p style="margin-top:3px;color:var(--muted);font-size:13px">千年评说，汇于一页——同代识鉴、正史之评、诗家咏叹、评点三家、近代回望，尽在专题页</p>
+    </div>
+    <div class="insight-toc">
+      <div class="ins-card"><i class="ins-bar" style="background:var(--accent)"></i>
+        <div class="ins-body"><span class="ins-num">01</span><span class="ins-disc" style="color:var(--accent)">识鉴</span><span class="ins-title">许劭：「治世之能臣，乱世之奸雄。」——一句定曹操千年形象</span></div>
+      </div>
+      <div class="ins-card"><i class="ins-bar" style="background:var(--blue)"></i>
+        <div class="ins-body"><span class="ins-num">02</span><span class="ins-disc" style="color:var(--blue)">正史</span><span class="ins-title">陈寿：「抑可谓非常之人，超世之杰矣。」——史家笔下的枭雄</span></div>
+      </div>
+      <div class="ins-card"><i class="ins-bar" style="background:var(--green)"></i>
+        <div class="ins-body"><span class="ins-num">03</span><span class="ins-disc" style="color:var(--green)">诗家</span><span class="ins-title">苏轼：「大江东去，浪淘尽、千古风流人物。」</span></div>
+      </div>
+      <div class="ins-card"><i class="ins-bar" style="background:var(--gold)"></i>
+        <div class="ins-body"><span class="ins-num">04</span><span class="ins-disc" style="color:#8a6a1f">评点</span><span class="ins-title">毛宗岗：三国有三奇——智绝孔明、义绝云长、奸绝孟德</span></div>
+      </div>
+      <div class="ins-card"><i class="ins-bar" style="background:#8a6a1f"></i>
+        <div class="ins-body"><span class="ins-num">05</span><span class="ins-disc" style="color:#8a6a1f">近代</span><span class="ins-title">鲁迅：「欲显刘备之长厚而似伪，状诸葛之多智而近妖。」</span></div>
+      </div>
+      <div class="ins-card"><i class="ins-bar" style="background:#6b5a86"></i>
+        <div class="ins-body"><span class="ins-num">06</span><span class="ins-disc" style="color:#6b5a86">当代</span><span class="ins-title">1959 年曹操论战、田余庆的孙吴江东化、走马楼吴简的基层图景</span></div>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <a href="insights.html" style="display:inline-block;background:var(--accent);color:#fff;border-radius:8px;padding:11px 26px;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:2px">论三国 · 89 条评语，三维可筛 →</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== 页脚 ===== -->
+<footer class="app-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>三国演义 · 群英谱</strong>
+      <span>本版为演义本 v0.2，以毛宗岗评本一百二十回为据；新增人物名录（六百余位，点卡片看生卒经历）、三国志比较研究（含引用文献 47 种）与论三国专题页（89 条评语，三维筛选）；正史本（《三国志》及裴松之注）整理中。</span>
+    </div>
+    <span class="footer-right">东汉末 — 晋初 · 人物总录计划 · 演义本 v0.2</span>
+  </div>
+</footer>
+
+<script>
+// 精选人物卡 → 人物名录详情
+(function(){
+  Array.prototype.forEach.call(document.querySelectorAll('.character-card[data-go]'),function(card){
+    card.addEventListener('click',function(){
+      location.href='people.html?p='+encodeURIComponent(card.getAttribute('data-go'));
+    });
+  });
+})();
+// 导航激活态：页内锚点滚动监听
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#tabs a'));
+  /* 仅认真正的页内锚点（#xxx）；离线包里栏目链接会被改写为 #/page.html，需排除 */
+  var anchors = links.filter(function(a){
+    var h=a.getAttribute('href')||'';
+    return h.charAt(0)==='#' && h.charAt(1)!=='/' && h.length>1;
+  });
+  if(!anchors.length) return;
+  var map = anchors.map(function(a){
+    var sec=null; try{ sec=document.querySelector(a.getAttribute('href')); }catch(e){}
+    return {a:a, sec:sec};
+  });
+  var dist = document.getElementById('distribution');
+  if(dist) map.push({a:links[0], sec:dist});
+  var overview = links[0], overviewSec = document.getElementById('overview');
+  if(overviewSec) map.push({a:overview, sec:overviewSec});
+  window.addEventListener('scroll', function(){
+    var y = window.scrollY + 120, current = null;
+    map.forEach(function(m){ if(m.sec && m.sec.offsetTop <= y) current = m; });
+    anchors.forEach(function(a){ a.classList.remove('active'); });
+    if(current) current.a.classList.add('active');
+    else links[0].classList.add('active');
+  }, {passive:true});
+})();
+</script>
+<div id="wx-tip"><span>内容较多，首次加载约 2–3 秒。若显示异常，可点右上角「···」→ 在浏览器中打开。</span><span class="wx-x" role="button" aria-label="关闭">×</span></div>
+</body>
+</html>

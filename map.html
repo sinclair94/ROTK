@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>地图 · 三国演义 · 群英谱</title>
+<style>
+:root{
+  --ink:#27231f; --muted:#716960; --paper:#fffdf8; --wash:#f2eee6;
+  --line:#ded6c9; --card-line:#e8e1d2;
+  --accent:#8d3025; --gold:#b88b35; --gold-d:#8a6a1f;
+  --dark:#29241f; --dark2:#342c25; --cream:#f7efe2; --goldlight:#d8bf86;
+  --divider:#eee7de; --track:#f3eee4;
+  --wei:#476b86; --shu:#8d3025; --wu:#527b5c; --qun:#b88b35; --jin:#8a6a1f; --folk:#8a7355;
+  --shadow:0 8px 24px rgba(42,31,21,.08);
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;
+  --sans:"Noto Sans SC","PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+
+.app-header{position:sticky;top:0;z-index:20;background:var(--dark);color:var(--cream)}
+.header-inner{max-width:1320px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand h1{font-family:var(--serif);font-size:21px;line-height:1.2;color:var(--cream);font-weight:700}
+.brand h1 a{color:inherit;text-decoration:none}
+.header-stat{color:#d8cabc;font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs a{border:1px solid transparent;border-radius:6px;background:#3d352e;color:#eadfd2;padding:7px 12px;font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap}
+.tabs a:hover{border-color:#c5a05f}
+.tabs a.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.shell{max-width:1320px;margin:auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:18px}
+.section-head h2{font-family:var(--serif);font-size:24px;color:#3a3029;font-weight:700}
+.section-head p{margin-top:4px;color:var(--muted);font-size:13px;line-height:22px;max-width:1000px}
+
+/* 工具条 */
+.toolbar{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+.tb-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-label{font-size:12px;font-weight:700;color:var(--gold-d);flex:none;width:52px}
+.chip-btn{font-size:12.5px;padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#5d544b;cursor:pointer;white-space:nowrap;transition:.15s}
+.chip-btn:hover{border-color:#c5a05f}
+.chip-btn.on{background:var(--dark);color:var(--cream);border-color:var(--dark)}
+.tb-sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+
+/* 主体两栏 */
+.map-wrap{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+.map-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.map-head{padding:13px 18px;border-bottom:1px solid var(--divider);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.map-head h3{font-family:var(--serif);font-size:17px;font-weight:700;color:#3a3029}
+.map-head .hint{font-size:11.5px;color:var(--muted)}
+.zoombar{display:flex;align-items:center;gap:6px}
+.zbtn{min-width:28px;height:28px;padding:0 8px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:14px;line-height:1;color:#5d544b;font-family:var(--sans)}
+.zbtn:hover{border-color:#c5a05f;color:var(--accent)}
+.zbtn.sm{font-size:12px}
+.zval{font-size:12px;color:var(--muted);min-width:46px;text-align:center;font-variant-numeric:tabular-nums}
+.map-status{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--divider);background:#fdfaf3;font-size:12px;color:#5d544b}
+.map-status .ms{display:inline-flex;align-items:center;gap:6px}
+.map-status b{color:var(--gold-d);font-variant-numeric:tabular-nums;font-weight:700}
+.map-status .dotmark{width:7px;height:7px;border-radius:50%;background:#b88b35;display:inline-block}
+.locate-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lbtn{font-size:12px;padding:4px 11px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#5d544b;cursor:pointer}
+.lbtn:hover{border-color:#c5a05f;color:var(--gold-d)}
+.map-stage{padding:10px 14px 16px;background:#fbf8f1}
+svg.map{width:100%;height:auto;display:block;touch-action:none;cursor:grab}
+svg.map.grabbing{cursor:grabbing}
+.prov{fill:#f0ebe0;stroke:#dcd3c4;stroke-width:.7;vector-effect:non-scaling-stroke}
+.prov-hl{fill:#e6dfd0}
+.terr{stroke-width:1.4;stroke-dasharray:6 4;fill-opacity:.15;stroke-opacity:.55;vector-effect:non-scaling-stroke}
+.prov-label{font-size:11px;fill:#a3988a;vector-effect:non-scaling-stroke;font-family:var(--sans);font-weight:700;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2.6px;stroke-linejoin:round}
+.mod-dot{fill:#bdb09a;stroke:#fff;stroke-width:.9;vector-effect:non-scaling-stroke;pointer-events:none}
+.mod-txt{font-size:9.5px;fill:#8a8073;font-family:var(--sans);pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2.4px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.city-dot{stroke:#fff;stroke-width:1.4;cursor:pointer;vector-effect:non-scaling-stroke}
+.city-dot:hover{stroke:var(--gold);stroke-width:2.4}
+.city-txt{fill:#4a4238;font-family:var(--sans);font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:2.6px;stroke-linejoin:round;vector-effect:non-scaling-stroke;pointer-events:none}
+.bat-dot{stroke:#fff;stroke-width:1.1;cursor:pointer;vector-effect:non-scaling-stroke}
+.bat-dot:hover{stroke:#3a3029;stroke-width:2}
+.bat-dot.dim{opacity:.18}
+.bat-dot.sel{stroke:#27231f;stroke-width:2.6}
+.nh-box{fill:#fffdf8;stroke:#ded6c9;stroke-width:1}
+.nh-label{font-size:9px;fill:#8a8073;font-family:var(--sans)}
+
+/* ---------- Leaflet 画布与覆盖层 ---------- */
+#leaf{height:min(78vh,680px);background:#e7ecef;border-radius:5px;overflow:hidden}
+@media(max-width:760px){#leaf{height:min(56vh,470px)}}
+.leaflet-container{font-family:var(--sans);background:#e7ecef}
+.leaflet-container .leaflet-control-attribution{background:rgba(255,253,248,.82);color:#8a8073;font-size:10.5px}
+.leaflet-container .leaflet-control-attribution a{color:#8a6a1f}
+.leaflet-bar a{color:#5d544b}
+.citymk{display:flex;align-items:center;gap:5px;white-space:nowrap;
+  font:700 12px/1 var(--sans);color:#3f3830;
+  text-shadow:0 0 3px #fff,0 0 4px #fff,0 1px 0 #fff,0 0 6px #fff;cursor:pointer}
+.citymk i{width:10px;height:10px;border-radius:3px;border:1.5px solid #fff;
+  box-shadow:0 1px 3px rgba(30,20,10,.32);flex:none;display:block}
+.citymk:hover{color:#8a6a1f}
+.leaflet-tooltip.sg-tip{font:500 12px/1.55 var(--sans);color:#3a3029;background:#fffdf8;
+  border:1px solid var(--line);box-shadow:0 3px 12px rgba(42,31,21,.16);border-radius:7px;padding:4px 10px}
+.leaflet-tooltip.sg-tip::before{display:none}
+.map-toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:900;
+  background:#3a3029;color:#f7efe2;font-size:12px;padding:7px 15px;border-radius:999px;
+  box-shadow:0 6px 18px rgba(30,20,10,.28);display:none;white-space:nowrap}
+
+/* 侧栏 */
+.side{display:flex;flex-direction:column;gap:14px;position:sticky;top:96px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{padding:13px 16px;border-bottom:1px solid var(--divider)}
+.panel-head h3{font-family:var(--serif);font-size:16px;font-weight:700;color:#3a3029}
+.panel-head p{margin-top:2px;font-size:11.5px;color:var(--muted)}
+.panel-body{padding:13px 16px;display:flex;flex-direction:column;gap:10px}
+
+.legend{display:flex;flex-direction:column;gap:7px}
+.lg-row{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#5d544b}
+.lg-dot{width:11px;height:11px;border-radius:50%;flex:none}
+.lg-sq{width:11px;height:11px;border-radius:2px;flex:none}
+
+/* 详情卡 */
+.detail{display:flex;flex-direction:column;gap:7px}
+.det-empty{font-size:12.5px;color:var(--muted);line-height:20px}
+.det-top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.det-y{font-family:var(--serif);font-size:13px;font-weight:700;color:var(--gold-d)}
+.det-n{font-family:var(--serif);font-size:16px;font-weight:700;color:#33302a}
+.det-tag{margin-left:auto;font-size:11px;padding:1px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
+.det-sides{font-size:12px;color:var(--muted)}
+.det-d{font-size:12.5px;line-height:21px;color:#615851}
+
+/* 战役列表 */
+.blist{display:flex;flex-direction:column;max-height:330px;overflow-y:auto}
+.blist::-webkit-scrollbar{width:6px}
+.blist::-webkit-scrollbar-thumb{background:#ddd4c4;border-radius:3px}
+.bitem{display:flex;gap:9px;align-items:flex-start;padding:8px 2px;border-bottom:1px solid var(--divider);cursor:pointer;font-size:12.5px}
+.bitem:last-child{border-bottom:none}
+.bitem:hover{background:#fdf9f1}
+.bitem.b-on{background:#f7eeda}
+.bi-bar{flex:none;width:3px;align-self:stretch;border-radius:2px;min-height:16px}
+.bi-y{flex:none;width:52px;font-weight:700;color:var(--gold-d);font-size:12px}
+.bi-t{color:#40362f}
+
+.note{font-size:11.5px;color:var(--muted);line-height:19px}
+
+.app-footer{background:var(--dark);color:var(--cream)}
+.footer-inner{max-width:1320px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.footer-brand strong{font-family:var(--serif);font-size:16px;color:var(--cream)}
+.footer-brand span{color:#d8cabc;font-size:12px;line-height:20px}
+.footer-right{color:var(--goldlight);font-size:12px}
+
+@media(max-width:1080px){
+  .map-wrap{grid-template-columns:1fr}
+  .side{position:static}
+}
+
+/* wx-gap-fallback */
+@supports not ((gap: 1px) or (row-gap: 1px)){.header-inner > *{margin-right:18px;margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.tabs > *{margin-right:6px;margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.shell > *:not(:last-child){margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 工具条 */
+.toolbar > *:not(:last-child){margin-bottom:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.tb-row > *{margin-right:10px;margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.map-head > *{margin-right:12px;margin-bottom:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.zoombar > *:not(:last-child){margin-right:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.map-status > *{margin-right:16px;margin-bottom:8px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.map-status .ms > *:not(:last-child){margin-right:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.locate-row > *{margin-right:8px;margin-bottom:8px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.citymk > *:not(:last-child){margin-right:5px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 侧栏 */
+.side > *:not(:last-child){margin-bottom:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.panel-body > *:not(:last-child){margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.legend > *:not(:last-child){margin-bottom:7px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.lg-row > *:not(:last-child){margin-right:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 详情卡 */
+.detail > *:not(:last-child){margin-bottom:7px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.det-top > *{margin-right:9px;margin-bottom:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.bitem > *:not(:last-child){margin-right:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.footer-inner > *{margin-right:18px;margin-bottom:18px;}}
+</style>
+<link rel="stylesheet" href="leaflet.css">
+<!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
+<link rel="stylesheet" href="mobile.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="三国演义 · 群英谱">
+<meta property="og:title" content="三国演义 · 群英谱">
+<meta property="og:description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#29241f">
+<link rel="stylesheet" href="wx-compat.css">
+<script src="wx-compat.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <h1><a href="index.html">三国演义 · 群英谱</a></h1>
+      <span class="header-stat">地图 · 三国疆域、都城与战役地理</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <a href="index.html">总览</a>
+      <a href="timeline.html">时间轴</a>
+      <a href="people.html">人物名录</a>
+      <a href="network.html">关系网</a>
+      <a href="map.html" class="active">地图</a>
+      <a href="states.html">三国志</a>
+      <a href="game.html">解谜</a>
+      <a href="insights.html">论三国</a>
+      <a href="#chronicle">帝王年谱</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="section-head">
+    <h2>地图 · 疆域与战役地理</h2>
+    <p>以<strong>高德地图</strong>为底图，在真实地理上标注三国疆域、都城建制与主要战役发生地。可按时期与势力筛选，点圆点查看战役详情；教室无网络时可一键切换为<strong>简版示意图</strong>。三国疆界为示意画法，不代表精确历史边界，战役定位以古今地名对照推定。</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="tb-row"><span class="tb-label">时期</span><span id="t-periods" style="display:flex;gap:8px;flex-wrap:wrap"></span></div>
+    <div class="tb-row"><span class="tb-label">势力</span><span id="t-forces" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+      <span class="tb-sep"></span>
+      <span id="t-layers" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+    </div>
+    <div class="tb-row"><span class="tb-label">底图</span><span id="t-base" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+      <span style="font-size:11.5px;color:var(--muted)">影像模式更接近地形实感；示意图为离线可用版</span>
+    </div>
+    <div class="tb-row"><span class="tb-label">定位</span><span id="t-locate" class="locate-row"></span></div>
+  </div>
+
+  <div class="map-wrap">
+    <section class="map-card">
+      <div class="map-head">
+        <h3 id="mapTitle">三国疆域与战役图</h3>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span class="hint" id="mapHint">滚轮或双指缩放 · 拖动 · 点圆点看详情</span>
+          <div class="zoombar">
+            <button class="zbtn" id="zOut" title="缩小">−</button>
+            <span class="zval" id="zVal">—</span>
+            <button class="zbtn" id="zIn" title="放大">＋</button>
+            <button class="zbtn sm" id="zReset" title="回到全图">全图</button>
+          </div>
+        </div>
+      </div>
+      <div class="map-stage">
+        <div id="leaf"></div>
+        <div id="svgStage" style="display:none"><svg class="map" id="svg" viewBox="0 0 1000 841" role="img" aria-label="三国疆域与战役示意图"></svg></div>
+        <div class="map-toast" id="mapToast"></div>
+      </div>
+      <div class="map-status">
+        <span class="ms"><i class="dotmark"></i>光标位置：<b id="stProv">—</b></span>
+        <span class="ms">邻近古地名：<b id="stOld">—</b></span>
+        <span class="ms">经纬度：<b id="stLL">—</b></span>
+        <span class="ms" style="margin-left:auto">缩放 <b id="stZ">—</b> · 视野中心 <b id="stC">—</b></span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-head"><h3>图例</h3><p>按势力分色，与时间轴一致</p></div>
+        <div class="panel-body">
+          <div class="legend" id="legend"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>详情</h3><p>点击地图圆点或下方列表</p></div>
+        <div class="panel-body"><div class="detail" id="detail"><span class="det-empty">尚未选中。点击地图上的圆点，或从下方战役列表中选择一场战役。</span></div></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>战役列表</h3><p><span id="bCount">0</span> 场 · 按年代排序</p></div>
+        <div class="panel-body" style="padding-top:6px"><div class="blist" id="blist"></div></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-body"><span class="note">底图服务：高德地图矢量 / 影像瓦片（GCJ-02 坐标系）；简版示意图底图数据源为阿里云 DataV.GeoAtlas（民政部行政区划标准地图），Albers 等积圆锥投影。三国疆界与战役定位为历史地理示意，非精确边界。</span></div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>三国演义 · 群英谱</strong>
+      <span>地图 · 疆域、都城与战役地理 —— 底图为高德地图，古今地名对照仅作定位示意。</span>
+    </div>
+    <span class="footer-right">159 — 280 · 六期战役全览</span>
+  </div>
+</footer>
+
+<script src="data-geo.js"></script>
+<script src="data-map.js"></script>
+<script src="data-map-b1.js"></script>
+<script src="data-map-b2.js"></script>
+<script src="data-timeline.js"></script>
+<script src="data-timeline2.js"></script>
+<script src="data-timeline-p0.js"></script>
+<!-- Leaflet（147KB）改为按需加载：首屏直接用零外链的内置示意图，用户点「矢量/卫星」时才取。
+     打包离线版时 _bundle.js 会把这个 data-src 内联，离线版里 L 直接可用。 -->
+<script data-src="leaflet.js"></script>
+<script src="map-svg.js"></script>
+<script>
+(function(){
+  var G=window.GEO, MG=window.MAP_GEO;
+  var B=[].concat(window.MAP_B1||[],window.MAP_B2||[]);
+  var T=[].concat(window.TL_C||[],window.TL_A||[],window.TL_B||[]);
+
+  var FS={wei:"#476B86",shu:"#8D3025",wu:"#527B5C",qun:"#B88B35",jin:"#8A6A1F",p:"#8A7355"};
+  var FN={wei:"曹魏",shu:"蜀汉",wu:"东吴",qun:"群雄 · 汉",jin:"西晋",p:"平民 · 方外"};
+
+  var state={period:"all",forces:{wei:1,shu:1,wu:1,qun:1,jin:1},terr:true,city:true,bat:true,sel:null};
+
+  function curList(){
+    return B.filter(function(b){
+      return state.forces[b.f] && (state.period==="all"||b.p===state.period);
+    }).slice().sort(function(a,b){
+      return parseInt(a.y,10)-parseInt(b.y,10);
+    });
+  }
+
+  /* ==================== 侧栏：图例 / 列表 / 详情 ==================== */
+  var blist=document.getElementById("blist"), detail=document.getElementById("detail");
+
+  document.getElementById("legend").innerHTML=
+    Object.keys(FN).filter(function(k){return k!=="p";}).map(function(k){
+      return '<div class="lg-row"><i class="lg-dot" style="background:'+FS[k]+'"></i>'+FN[k]+'</div>';
+    }).join("")+
+    '<div class="lg-row" style="margin-top:4px"><i class="lg-sq" style="width:10px;height:10px;border-radius:3px;border:1.5px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);background:#476B86"></i>都城 · 重镇（方标）</div>'+
+    '<div class="lg-row"><i class="lg-dot" style="width:9px;height:9px;border:1.2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.2);background:#8A7355"></i>战役发生地（圆点）</div>'+
+    '<div class="lg-row"><i class="lg-sq" style="background:rgba(141,48,37,.13);border:1.4px dashed #B88B35"></i>三国疆域（示意）</div>';
+
+  function drawList(){
+    var L=curList();
+    document.getElementById("bCount").textContent=L.length;
+    blist.innerHTML=L.length?L.map(function(b){
+      return '<div class="bitem'+(state.sel===b?' b-on':'')+'" data-n="'+b.n+'">'+
+        '<i class="bi-bar" style="background:'+FS[b.f]+'"></i>'+
+        '<span class="bi-y">'+b.y+'</span><span class="bi-t">'+b.n+'</span></div>';
+    }).join(""):'<span class="det-empty">当前筛选下没有战役。</span>';
+  }
+
+  function showDetail(b){
+    if(!b){ detail.innerHTML='<span class="det-empty">尚未选中。点击地图上的圆点，或从下方战役列表中选择一场战役。</span>'; return; }
+    var c=FS[b.f]||"#716960";
+    detail.innerHTML='<div class="det-top"><span class="det-y">'+b.y+'</span><span class="det-n">'+b.n+'</span>'+
+      '<span class="det-tag" style="border-color:'+c+';color:'+c+'">'+FN[b.f]+'</span></div>'+
+      '<div class="det-sides">'+b.a[0]+' → '+b.a[1]+' · 胜方：'+b.w+'</div>'+
+      '<p class="det-d">'+b.d+'</p>';
+  }
+
+  function showCity(name){
+    var c=MG.CITIES.filter(function(x){return x.n===name;})[0];
+    if(!c)return;
+    var col=FS[c.f];
+    detail.innerHTML='<div class="det-top"><span class="det-n">'+c.n+'</span>'+
+      '<span class="det-tag" style="border-color:'+col+';color:'+col+'">'+FN[c.f]+'</span></div>'+
+      '<p class="det-d">'+c.y+'</p>';
+  }
+
+  function select(b){ state.sel=b; showDetail(b); drawList(); R.apply(); }
+
+  blist.addEventListener("click",function(e){
+    var el=e.target.closest(".bitem"); if(!el)return;
+    var b=curList().filter(function(x){return x.n===el.dataset.n;})[0];
+    if(b) select(b);
+  });
+
+  /* ==================== 工具条 ==================== */
+  var periods=[{id:"all",name:"全部时期"}].concat(T.map(function(p){return {id:p.id,name:p.name};}));
+  document.getElementById("t-periods").innerHTML=periods.map(function(p){
+    return '<button class="chip-btn'+(state.period===p.id?' on':'')+'" data-p="'+p.id+'">'+p.name+'</button>';
+  }).join("");
+  document.getElementById("t-periods").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    state.period=b.dataset.p; state.sel=null; showDetail(null);
+    [].slice.call(this.querySelectorAll("button")).forEach(function(x){x.classList.toggle("on",x.dataset.p===state.period);});
+    render();
+  });
+
+  document.getElementById("t-forces").innerHTML=Object.keys(FN).filter(function(k){return k!=="p";}).map(function(k){
+    return '<button class="chip-btn on" data-f="'+k+'" style="border-color:'+FS[k]+'"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+FS[k]+';margin-right:6px"></i>'+FN[k]+'</button>';
+  }).join("");
+  document.getElementById("t-forces").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    var k=b.dataset.f; state.forces[k]=state.forces[k]?0:1;
+    b.classList.toggle("on",!!state.forces[k]);
+    b.style.opacity=state.forces[k]?"1":".45";
+    render();
+  });
+
+  document.getElementById("t-layers").innerHTML=[
+    ["terr","疆域"],["city","都城"],["bat","战役"]
+  ].map(function(l){
+    return '<button class="chip-btn on" data-l="'+l[0]+'">'+l[1]+'</button>';
+  }).join("");
+  document.getElementById("t-layers").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    var k=b.dataset.l; state[k]=!state[k];
+    b.classList.toggle("on",state[k]);
+    render();
+  });
+
+  /* 底图切换：矢量 / 影像 / 示意图 */
+  var basemaps=[["vec","矢量地图"],["sat","卫星影像"],["svg","简版示意图"]];
+  document.getElementById("t-base").innerHTML=basemaps.map(function(b,i){
+    return '<button class="chip-btn'+(i===0?' on':'')+'" data-b="'+b[0]+'">'+b[1]+'</button>';
+  }).join("");
+  document.getElementById("t-base").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    setMode(b.dataset.b);
+    [].slice.call(this.querySelectorAll("button")).forEach(function(x){x.classList.toggle("on",x.dataset.b===mode);});
+  });
+
+  /* 快速定位 */
+  var LOC=["洛阳","长安","许昌","邺城","成都","建业","襄阳","官渡","赤壁","夷陵","五丈原","合肥","汉中","下邳","寿春","濮阳","定军山","街亭","濡须","南中"];
+  LOC=LOC.filter(function(k){return !!MG.PLACE[k];});
+  document.getElementById("t-locate").innerHTML=LOC.map(function(k){
+    return '<button class="lbtn" data-l="'+k+'">'+k+'</button>';
+  }).join("")+'<button class="lbtn" data-l="__all">回到全图</button>';
+  document.getElementById("t-locate").addEventListener("click",function(e){
+    var b=e.target.closest(".lbtn"); if(!b) return;
+    R.flyLoc(b.getAttribute("data-l"));
+  });
+
+  /* 缩放按钮 */
+  document.getElementById("zIn").addEventListener("click",function(){ R.zoomIn(); });
+  document.getElementById("zOut").addEventListener("click",function(){ R.zoomOut(); });
+  document.getElementById("zReset").addEventListener("click",function(){ R.reset(); });
+
+  /* ==================== 模式切换 ==================== */
+  var elToast=document.getElementById("mapToast"), toastT=null;
+  function toast(msg){
+    elToast.textContent=msg; elToast.style.display="block";
+    if(toastT) clearTimeout(toastT);
+    toastT=setTimeout(function(){ elToast.style.display="none"; },4200);
+  }
+
+  var mode=null, R=null;
+  var elLeaf=document.getElementById("leaf"), elSvgStage=document.getElementById("svgStage");
+
+  var AMAP_ATTR='底图 © 高德地图';
+
+  function tileUrl(kind){
+    return kind==="sat"
+      ? 'https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'
+      : 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}';
+  }
+
+  /* ---------- Leaflet 渲染器 ---------- */
+  function makeLeafRenderer(kind,broken){
+    var TILE_ERR=0, TILE_OK=false;
+    var map=L.map('leaf',{
+      zoomControl:false, attributionControl:true,
+      minZoom:3, maxZoom:14, zoomSnap:.25, zoomDelta:.5,
+      wheelPxPerZoomLevel:90, worldCopyJump:false, keepBuffer:4
+    });
+    map.attributionControl.setPrefix(false);
+
+    var tiles=L.tileLayer(tileUrl(kind),{
+      subdomains:['1','2','3','4'], maxZoom:18, attribution:AMAP_ATTR, crossOrigin:false,
+      updateWhenZooming:false
+    }).addTo(map);
+    /* 高德瓦片偶发限流：首错静默重试一次，再错才计入熔断 */
+    tiles.on('tileerror',function(e){
+      var t=e.tile;
+      if(t&&!t._retry){ t._retry=1; setTimeout(function(){ t.src=t.src+'&r='+Date.now(); },450); return; }
+      TILE_ERR++;
+      if(TILE_ERR>=8&&!TILE_OK&&mode!=='svg'){ broken&&broken(); }
+    });
+    tiles.on('tileload',function(){ TILE_OK=true; });
+
+    L.control.zoom({position:'bottomright'}).addTo(map);
+
+    var bounds=L.latLngBounds([[19.5,94],[42.5,125.5]]);
+    map.fitBounds(bounds,{padding:[6,6]});
+
+    /* 图层组 */
+    var gTerr=L.layerGroup().addTo(map),
+        gCity=L.layerGroup().addTo(map),
+        gBat=L.layerGroup().addTo(map);
+
+    /* 光标读数：省级行政区命中用隐藏 SVG 做 isPointInFill */
+    var NS='http://www.w3.org/2000/svg';
+    var hsvg=document.createElementNS(NS,'svg');
+    hsvg.setAttribute('viewBox','0 0 '+G.width+' '+G.height);
+    hsvg.style.cssText='position:absolute;left:-9999px;top:0;width:'+G.width+'px;height:'+G.height+'px;pointer-events:none;opacity:0';
+    var hit=G.provinces.map(function(p){
+      var el=document.createElementNS(NS,'path');
+      el.setAttribute('d',p.d); el.setAttribute('fill','#000');
+      hsvg.appendChild(el); return {n:p.name,el:el};
+    });
+    document.body.appendChild(hsvg);
+    function provAt(ll){
+      try{
+        var p=G.project(ll.lng,ll.lat);
+        var pt=hsvg.createSVGPoint(); pt.x=p[0]; pt.y=p[1];
+        for(var i=0;i<hit.length;i++){ if(hit[i].el.isPointInFill(pt)) return hit[i].n; }
+      }catch(e){}
+      return null;
+    }
+
+    /* 古地名索引（经纬度距离） */
+    var OLD=Object.keys(MG.PLACE).map(function(k){
+      return {n:k,lng:MG.PLACE[k][0],lat:MG.PLACE[k][1]};
+    });
+    function nearestOld(ll){
+      var cosx=Math.cos(35*Math.PI/180), near=null, best=1e9;
+      for(var i=0;i<OLD.length;i++){
+        var dx=(OLD[i].lng-ll.lng)*cosx, dy=OLD[i].lat-ll.lat, d=dx*dx+dy*dy;
+        if(d<best){best=d;near=OLD[i];}
+      }
+      return (near&&best<=Math.pow(0.55,2))?near.n:null;
+    }
+
+    var elZVal=document.getElementById("zVal"), elStZ=document.getElementById("stZ"),
+        elStC=document.getElementById("stC"), elProv=document.getElementById("stProv"),
+        elOld=document.getElementById("stOld"), elLL=document.getElementById("stLL");
+
+    function zoomText(){ return map.getZoom().toFixed(1)+" 级"; }
+    function centerText(){
+      var c=map.getCenter(), pn=provAt(c);
+      return (pn||"中国")+" "+c.lat.toFixed(1)+"°N "+c.lng.toFixed(1)+"°E";
+    }
+    function refreshChrome(){
+      var z=zoomText(); elZVal.textContent=z; elStZ.textContent=z;
+      elStC.textContent=centerText();
+    }
+
+    map.on('mousemove',function(e){
+      elProv.textContent=provAt(e.latlng)||"海面 / 境外";
+      elOld.textContent=nearestOld(e.latlng)||"—";
+      elLL.textContent=e.latlng.lat.toFixed(2)+"°N "+e.latlng.lng.toFixed(2)+"°E";
+    });
+    map.on('mouseout',function(){ elProv.textContent="—"; elOld.textContent="—"; elLL.textContent="—"; });
+    map.on('move zoom',refreshChrome);
+
+    /* ---- 图层绘制 ---- */
+    var batMarkers=[];
+    function drawTerr(){
+      gTerr.clearLayers();
+      if(!state.terr) return;
+      ["wei","shu","wu"].forEach(function(k){
+        if(!state.forces[k]) return;
+        L.polygon(MG.TERR[k].map(function(c){return [c[1],c[0]];}),{
+          color:FS[k], weight:1.8, dashArray:'6 4', opacity:.85,
+          fillColor:FS[k], fillOpacity:.15, interactive:false
+        }).addTo(gTerr);
+      });
+    }
+    function drawCity(){
+      gCity.clearLayers();
+      if(!state.city) return;
+      MG.CITIES.forEach(function(c){
+        if(!state.forces[c.f]) return;
+        var q=MG.PLACE[c.n]; if(!q) return;
+        var m=L.marker([q[1],q[0]],{
+          icon:L.divIcon({className:'', html:'<span class="citymk"><i style="background:'+FS[c.f]+'"></i>'+c.n+'</span>',
+                          iconSize:[0,0], iconAnchor:[6,6]}),
+          keyboard:false, riseOnHover:true
+        }).addTo(gCity);
+        m.on('click',function(){ state.sel=null; showCity(c.n); });
+      });
+    }
+    function drawBat(){
+      gBat.clearLayers(); batMarkers=[];
+      if(!state.bat) return;
+      var list=curList();
+      list.forEach(function(b){
+        var sel=state.sel===b;
+        var m=L.circleMarker([b.xy[1],b.xy[0]],{
+          radius:sel?7:5, color:sel?'#27231f':'#fff', weight:sel?2.6:1.3,
+          fillColor:FS[b.f], fillOpacity:.95
+        }).addTo(gBat);
+        m.bindTooltip('<b style="color:#8a6a1f">'+b.y+'</b> · '+b.n,
+          {direction:'top',offset:[0,-8],className:'sg-tip',opacity:1});
+        m.on('click',function(){ select(b); });
+        m.on('mouseover',function(){ if(state.sel!==b) m.setStyle({radius:7}); });
+        m.on('mouseout',function(){ if(state.sel!==b) m.setStyle({radius:5}); });
+        batMarkers.push(m);
+      });
+    }
+
+    var r={};
+    r.init=function(){ drawTerr(); drawCity(); drawBat(); refreshChrome(); };
+    r.apply=function(){
+      drawTerr(); drawCity(); drawBat();
+      if(state.sel){  /* 选中后居中，便于在密集处定位 */
+        var s=state.sel; map.panTo([s.xy[1],s.xy[0]],{animate:true,duration:.4});
+      }
+      refreshChrome();
+    };
+    r.zoomIn=function(){ map.zoomIn(); };
+    r.zoomOut=function(){ map.zoomOut(); };
+    r.reset=function(){ map.flyToBounds(bounds,{padding:[6,6],duration:.6}); };
+    r.flyLoc=function(k){
+      if(k==="__all"){ r.reset(); return; }
+      var q=MG.PLACE[k]; if(!q) return;
+      map.flyTo([q[1],q[0]],9,{duration:.7});
+    };
+    r.zoomText=zoomText;
+    r.destroy=function(){ map.remove(); if(hsvg.parentNode) hsvg.parentNode.removeChild(hsvg); };
+    return r;
+  }
+
+  /* ---------- SVG 示意图渲染器 ---------- */
+  function makeSvgRenderer(){
+    return window.makeSVGRenderer({
+      B:B, T:T, FS:FS, FN:FN, state:state,
+      curList:curList, select:select, showCity:showCity
+    });
+  }
+
+  /* ---------- Leaflet 按需加载 ---------- */
+  var lfState=0, lfCbs=[];
+  function loadLeaflet(cb){
+    if(typeof L!=="undefined"){ cb(true); return; }
+    if(lfState===2){ cb(true); return; }
+    if(lfState===3||window.__noLeaf){ cb(false); return; }
+    if(lfState===1){ lfCbs.push(cb); return; }
+    lfState=1; lfCbs.push(cb);
+    var s=document.createElement("script");
+    s.src="leaflet.js";
+    function fire(){ var q=lfCbs.slice(); lfCbs=[]; q.forEach(function(f){try{f(lfState===2);}catch(e){}}); }
+    s.onload=function(){ lfState=2; fire(); };
+    s.onerror=function(){ window.__noLeaf=1; lfState=3; fire(); };
+    document.head.appendChild(s);
+  }
+
+  function setMode(m){
+    if(m===mode) return;
+    /* 矢量/卫星依赖 Leaflet，首屏不下载；用户点选时才取，取不到就留在示意图 */
+    if(m!=="svg" && typeof L==="undefined"){
+      toast("地图组件加载中…");
+      loadLeaflet(function(ok){
+        if(!ok){ toast("未加载到地图组件，已使用简版示意图"); return; }
+        setMode(m);
+      });
+      return;
+    }
+    if(R&&R.destroy){ try{R.destroy();}catch(e){} R=null; }
+    mode=m;
+    elToast.style.display="none";
+    [].slice.call(document.getElementById("t-base").querySelectorAll("button")).forEach(function(x){x.classList.toggle("on",x.dataset.b===mode);});
+    if(m==="svg"){
+      elLeaf.style.display="none"; elSvgStage.style.display="block";
+      document.getElementById("mapHint").textContent="滚轮或双指缩放 · 拖动 · 点圆点看详情";
+      R=makeSvgRenderer(); R.init();
+    }else{
+      elSvgStage.style.display="none"; elLeaf.style.display="block";
+      document.getElementById("mapHint").textContent=(m==="sat"?"卫星影像 · ":"")+"滚轮或双指缩放 · 拖动 · 点圆点看详情";
+      if(typeof L==="undefined"){ toast('未加载到地图组件，已使用简版示意图'); setMode('svg'); return; }
+      try{ R=makeLeafRenderer(m,function(){ setTimeout(function(){ toast('地图瓦片加载失败，已切换为简版示意图'); setMode('svg'); },0); }); }catch(e){ toast('地图初始化失败，已使用简版示意图'); setMode('svg'); return; }
+      R.init();
+    }
+    var z=R.zoomText();
+    document.getElementById("zVal").textContent=z;
+    document.getElementById("stZ").textContent=z;
+    /* 图层开关对示意图模式同样生效 */
+    render();
+  }
+
+  /* ==================== 总渲染 ==================== */
+  function render(){
+    if(R) R.apply();
+    drawList();
+    if(state.sel) showDetail(state.sel);
+    var pn=T.filter(function(p){return p.id===state.period;})[0];
+    document.getElementById("mapTitle").textContent=
+      (pn? pn.name+" · " : "") + (state.period==="all"?"三国疆域与战役全图":"战役分布图");
+    if(R){ var z=R.zoomText(); document.getElementById("zVal").textContent=z; document.getElementById("stZ").textContent=z; }
+  }
+
+  /* 初始：直接用内置示意图（零外链、秒开）；矢量/卫星由用户点选时再加载 Leaflet */
+  setMode("svg");
+})();
+</script>
+<div id="wx-tip"><span>内容较多，首次加载约 2–3 秒。若显示异常，可点右上角「···」→ 在浏览器中打开。</span><span class="wx-x" role="button" aria-label="关闭">×</span></div>
+</body>
+</html>

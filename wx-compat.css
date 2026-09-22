@@ -1,0 +1,73 @@
+/* 微信内置浏览器（Android X5/XWEB、iOS WKWebView）适配补丁
+ * 仅做「不支持时的兜底」与「微信环境修正」，不改动既有视觉设计
+ */
+
+/* 微信「字体大小」设置与横竖屏切换会触发文本自动缩放，锁死为 100% */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* 微信 X5 内核对 100vh 的计算包含/排除地址栏不一致，用 JS 写入的 --vh 兜底 */
+.wx-vh {
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+/* 刘海屏 / 微信底部工具栏安全区 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .wx-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* backdrop-filter 在部分 X5 版本不生效 → 回退为不透明底色，避免出现半透明黑块 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .wx-glass {
+    background: #fffdf8 !important;
+  }
+}
+
+/* flex gap 兜底：老 X5 不支持时，由 wx-compat.js 给容器打上 data-wxgap 并注入 margin */
+[data-wxgap="row"] > *:not(:last-child) {
+  margin-right: var(--wx-gap-x, 0px);
+}
+[data-wxgap="col"] > *:not(:last-child) {
+  margin-bottom: var(--wx-gap-y, 0px);
+}
+[data-wxgap="both"] > * {
+  margin-right: var(--wx-gap-x, 0px);
+  margin-bottom: var(--wx-gap-y, 0px);
+}
+
+/* 微信内长按时不要弹出系统菜单打断阅读（保留图片长按保存） */
+body {
+  -webkit-touch-callout: default;
+}
+
+/* 微信内首次加载提示条 */
+#wx-tip {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(41, 36, 31, .92);
+  color: #f7f2e8;
+  font: 13px/1.5 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
+}
+#wx-tip.wx-show {
+  display: flex;
+}
+#wx-tip .wx-x {
+  margin-left: auto;
+  padding: 0 4px;
+  cursor: pointer;
+  opacity: .7;
+  font-size: 16px;
+}

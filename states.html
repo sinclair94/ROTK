@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>三国志 · 三国演义 · 群英谱</title>
+<style>
+:root{
+  --ink:#27231f; --muted:#716960; --paper:#fffdf8; --wash:#f2eee6;
+  --line:#ded6c9; --card-line:#e8e1d2;
+  --accent:#8d3025; --gold:#b88b35; --gold-d:#8a6a1f;
+  --dark:#29241f; --dark2:#342c25; --cream:#f7efe2; --goldlight:#d8bf86;
+  --divider:#eee7de; --track:#f3eee4;
+  --wei:#476b86; --shu:#8d3025; --wu:#527b5c; --qun:#b88b35; --jin:#8a6a1f; --folk:#8a7355;
+  --shadow:0 8px 24px rgba(42,31,21,.08);
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;
+  --sans:"Noto Sans SC","PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+
+.app-header{position:sticky;top:0;z-index:20;background:var(--dark);color:var(--cream)}
+.header-inner{max-width:1320px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand h1{font-family:var(--serif);font-size:21px;line-height:1.2;color:var(--cream);font-weight:700}
+.brand h1 a{color:inherit;text-decoration:none}
+.header-stat{color:#d8cabc;font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs a{border:1px solid transparent;border-radius:6px;background:#3d352e;color:#eadfd2;padding:7px 12px;font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap}
+.tabs a:hover{border-color:#c5a05f}
+.tabs a.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.shell{max-width:1320px;margin:auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:20px}
+.section-head h2{font-family:var(--serif);font-size:24px;color:#3a3029;font-weight:700}
+.section-head p{margin-top:4px;color:var(--muted);font-size:13px;line-height:22px;max-width:1000px}
+
+/* 国家切换 */
+.state-tabs{display:flex;gap:10px;flex-wrap:wrap}
+.state-tabs button{font-family:var(--serif);font-size:15px;font-weight:700;padding:10px 22px;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:#5d544b;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:.15s}
+.state-tabs button:hover{border-color:#c5a05f;background:#fff}
+.state-tabs button i{width:11px;height:11px;border-radius:2px;display:inline-block}
+.state-tabs button.on{color:#fff;border-color:transparent}
+
+/* 国家头 */
+.state-hero{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.hero-bar{height:6px}
+.hero-in{padding:18px 22px;display:flex;flex-direction:column;gap:12px}
+.hero-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.hero-name{font-family:var(--serif);font-size:30px;font-weight:700;line-height:1.15}
+.hero-en{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero-years{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--gold-d);margin-left:auto}
+.hero-intro{font-size:13.5px;line-height:24px;color:#4a4238;max-width:1040px}
+.hero-stats{display:flex;gap:10px;flex-wrap:wrap}
+.hstat{background:#fdfaf3;border:1px solid var(--card-line);border-radius:8px;padding:8px 14px;display:flex;flex-direction:column;gap:2px;min-width:150px}
+.hstat b{font-family:var(--serif);font-size:14px;color:#3a342c}
+.hstat span{font-size:11px;color:var(--muted)}
+
+/* 通用面板 */
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{padding:16px 22px 12px;border-bottom:1px solid var(--divider)}
+.panel-head h3{font-family:var(--serif);font-size:20px;font-weight:700}
+.panel-head p{margin-top:3px;color:var(--muted);font-size:12.5px}
+.panel-body{padding:16px 22px 20px;display:flex;flex-direction:column;gap:10px}
+
+/* 州郡 chips */
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{font-size:12px;padding:3px 11px;border-radius:999px;background:#faf6ee;border:1px solid var(--card-line);color:#5d544b}
+
+/* 地理条目 */
+.geo-list{display:flex;flex-direction:column;gap:11px}
+.geo-item{display:flex;gap:14px;align-items:flex-start}
+.geo-k{flex:none;width:96px;font-family:var(--serif);font-size:13.5px;font-weight:700;color:#3a342c}
+.geo-v{font-size:13px;line-height:22px;color:#615851}
+
+/* 制度改革 */
+.ref-list{display:flex;flex-direction:column}
+.ref-row{display:flex;gap:14px;padding:12px 2px;border-bottom:1px solid var(--divider)}
+.ref-row:last-child{border-bottom:none}
+.ref-y{flex:none;width:78px;font-family:var(--serif);font-size:13px;font-weight:700;color:var(--gold-d)}
+.ref-main{flex:1;display:flex;flex-direction:column;gap:4px}
+.ref-t{font-family:var(--serif);font-size:14.5px;font-weight:700;color:#33302a}
+.ref-d{font-size:12.5px;line-height:21px;color:#615851}
+.ref-row.neg .ref-t{color:var(--accent)}
+
+/* 优劣 */
+.gb-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gb-box{border:1px solid var(--card-line);border-radius:9px;overflow:hidden;background:#fff}
+.gb-good{border-top:3px solid var(--wu)}
+.gb-bad{border-top:3px solid var(--accent)}
+.gb-head{padding:10px 15px;font-family:var(--serif);font-size:15px;font-weight:700}
+.gb-good .gb-head{color:var(--wu)}
+.gb-bad .gb-head{color:var(--accent)}
+.gb-body{padding:4px 15px 14px;display:flex;flex-direction:column;gap:9px}
+.gb-item{display:flex;flex-direction:column;gap:2px}
+.gb-item b{font-size:13px;color:#3a342c}
+.gb-item span{font-size:12.5px;line-height:20px;color:#615851}
+
+/* 体例说明 */
+.notice{background:#fdf9ee;border:1px solid #e0cc96;border-radius:9px;padding:13px 18px;display:flex;gap:12px;align-items:flex-start}
+.notice i{flex:none;font-style:normal;font-size:15px;color:var(--gold-d);margin-top:1px}
+.notice p{font-size:12.5px;line-height:21px;color:#4a4238}
+.notice p b{font-family:var(--serif)}
+
+/* 章节导航 */
+.sec-nav{display:flex;gap:7px;flex-wrap:wrap;position:sticky;top:70px;z-index:8;background:var(--wash);padding:6px 0 8px;margin-top:-6px}
+.sec-nav a{font-size:12.5px;padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:#5d544b;text-decoration:none;white-space:nowrap}
+.sec-nav a:hover{border-color:#c5a05f;background:#fffdf5;color:#3a342c}
+
+/* 学术长文 */
+.panel-body.prose{display:flex;flex-direction:column;gap:13px}
+.p{font-size:13.5px;line-height:25px;color:#443c34;text-align:justify}
+.p b{font-family:var(--serif);color:#2f2a24}
+.p .y{font-family:var(--serif);color:var(--gold-d);font-weight:700}
+.p em{font-style:normal;color:var(--accent);font-weight:500}
+
+/* 争鸣卡 */
+.deb-list{display:flex;flex-direction:column;gap:12px}
+.deb{border:1px solid var(--card-line);border-left:3px solid var(--gold);border-radius:0 9px 9px 0;background:#fffdf6;padding:13px 16px}
+.deb-t{font-family:var(--serif);font-size:14.5px;font-weight:700;color:#33302a;margin-bottom:5px}
+.deb-b{font-size:12.8px;line-height:23px;color:#5b5349;text-align:justify}
+.deb-b b{font-family:var(--serif);color:#2f2a24}
+
+/* 文献 */
+.bib-group{margin-bottom:4px}
+.bib-h{font-family:var(--serif);font-size:15px;font-weight:700;color:#3a342c;padding:10px 0 6px;border-bottom:1px solid var(--divider);margin-bottom:8px}
+.bib-h span{font-family:var(--sans);font-size:11.5px;color:var(--muted);font-weight:400;margin-left:8px}
+.bib-list{display:flex;flex-direction:column;gap:9px}
+.bib-row{display:flex;gap:12px;align-items:flex-start;padding-bottom:9px;border-bottom:1px dotted var(--divider)}
+.bib-row:last-child{border-bottom:none;padding-bottom:0}
+.bib-no{flex:none;width:34px;font-family:var(--serif);font-size:12px;color:var(--gold-d);font-weight:700;padding-top:2px}
+.bib-main{flex:1;display:flex;flex-direction:column;gap:3px}
+.bib-t{font-size:13px;line-height:21px;color:#3a342c;font-weight:500}
+.bib-n{font-size:12px;line-height:20px;color:#6d6559}
+.bib-tip{font-size:11.5px;line-height:20px;color:var(--muted);background:#faf7ef;border:1px solid var(--card-line);border-radius:7px;padding:9px 13px}
+
+/* 对比表 */
+.cmp-wrap{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.cmp-scroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:13px;min-width:820px}
+table.cmp th,table.cmp td{border-bottom:1px solid var(--divider);padding:12px 16px;text-align:left;vertical-align:top;line-height:21px}
+table.cmp thead th{background:#faf6ee;font-family:var(--serif);font-size:14px;color:#3a342c;white-space:nowrap}
+table.cmp tbody th{width:132px;background:#fdfaf3;font-weight:700;color:#4a4238;font-size:12.5px}
+table.cmp td{color:#5b5349}
+table.cmp tr:last-child th,table.cmp tr:last-child td{border-bottom:none}
+
+.app-footer{background:var(--dark);color:var(--cream)}
+.footer-inner{max-width:1320px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.footer-brand strong{font-family:var(--serif);font-size:16px;color:var(--cream)}
+.footer-brand span{color:#d8cabc;font-size:12px;line-height:20px}
+.footer-right{color:var(--goldlight);font-size:12px;white-space:nowrap}
+
+@media(max-width:900px){.gb-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.hero-name{font-size:24px}.ref-y{width:60px}.geo-k{width:74px}}
+
+/* wx-gap-fallback */
+@supports not ((gap: 1px) or (row-gap: 1px)){.header-inner > *{margin-right:18px;margin-bottom:18px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.tabs > *{margin-right:6px;margin-bottom:6px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.shell > *:not(:last-child){margin-bottom:20px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 国家切换 */
+.state-tabs > *{margin-right:10px;margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.state-tabs button > *:not(:last-child){margin-right:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.hero-in > *:not(:last-child){margin-bottom:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.hero-top > *{margin-right:14px;margin-bottom:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.hero-stats > *{margin-right:10px;margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.hstat > *:not(:last-child){margin-bottom:2px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.panel-body > *:not(:last-child){margin-bottom:10px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 州郡 chips */
+.chips > *{margin-right:7px;margin-bottom:7px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 地理条目 */
+.geo-list > *:not(:last-child){margin-bottom:11px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.geo-item > *:not(:last-child){margin-right:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.ref-row > *:not(:last-child){margin-right:14px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.ref-main > *:not(:last-child){margin-bottom:4px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.gb-body > *:not(:last-child){margin-bottom:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.gb-item > *:not(:last-child){margin-bottom:2px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 体例说明 */
+.notice > *:not(:last-child){margin-right:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 章节导航 */
+.sec-nav > *{margin-right:7px;margin-bottom:7px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 学术长文 */
+.panel-body.prose > *:not(:last-child){margin-bottom:13px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){/* 争鸣卡 */
+.deb-list > *:not(:last-child){margin-bottom:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.bib-list > *:not(:last-child){margin-bottom:9px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.bib-row > *:not(:last-child){margin-right:12px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.bib-main > *:not(:last-child){margin-bottom:3px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.footer-inner > *{margin-right:18px;margin-bottom:18px;}}
+</style>
+<!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
+<link rel="stylesheet" href="mobile.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="三国演义 · 群英谱">
+<meta property="og:title" content="三国演义 · 群英谱">
+<meta property="og:description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#29241f">
+<link rel="stylesheet" href="wx-compat.css">
+<script src="wx-compat.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <h1><a href="index.html">三国演义 · 群英谱</a></h1>
+      <span class="header-stat">三国志 · 立国、疆域地理、制度改革与优劣对比</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <a href="index.html">总览</a>
+      <a href="timeline.html">时间轴</a>
+      <a href="people.html">人物名录</a>
+      <a href="network.html">关系网</a>
+      <a href="map.html">地图</a>
+      <a href="states.html" class="active">三国志</a>
+      <a href="game.html">解谜</a>
+      <a href="insights.html">论三国</a>
+      <a href="#chronicle">帝王年谱</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="section-head">
+    <h2>三国志 · 三国比较研究</h2>
+    <p>220 年曹丕代汉、221 年刘备续汉、229 年孙权称帝——三个政权各有各的立国之道。本单元<strong>以正史为据，不采演义情节</strong>，按<b>法统与立国、政治制度、经济与财政、军事与兵制、社会与民族、史学争鸣</b>六条线索逐国展开，并附疆域地理、制度改革与优劣对比。凡学界有分歧者，并列诸说而不强作定论；所引论著一律列于页末《引用文献》。</p>
+  </div>
+
+  <div class="notice">
+    <i>◈</i>
+    <p><b>体例说明</b>　史料以《三国志》及裴松之注、《后汉书》《晋书》《华阳国志》《资治通鉴》《通典》为本；户口、兵力等数字采<b>著籍口径</b>（国家直接控制的在册户口），不含士族豪强的荫附人口，故与实际人口存在系统性差距（参葛剑雄《中国人口史》）。正文提及的近现代论著，均见页末《引用文献》，编号 A 为史料、B 为专著、C 为论文与考古报告、D 为工具书。</p>
+  </div>
+
+  <nav class="state-tabs" id="st"></nav>
+  <div id="pane"></div>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>三国演义 · 群英谱</strong>
+      <span>三国志 · 制度、地理与国势比较 —— 人口、疆域为史载通行数据；制度改革以《三国志》及裴注为本，兼采演义叙事。</span>
+    </div>
+    <span class="footer-right">220 — 280 · 三国并立六十年</span>
+  </div>
+</footer>
+
+<script src="data-states.js"></script>
+<script src="data-scholar.js"></script>
+<script>
+(function(){
+  var S=window.STATES||[];
+  var SC=window.SCHOL||{}, REFS=window.REFS||[], CD=window.CMP_DATA||{rows:[]};
+  var st=document.getElementById("st"), pane=document.getElementById("pane");
+  var cur="wei";
+
+  st.innerHTML=S.map(function(s){
+    return '<button data-id="'+s.id+'"><i style="background:'+s.solid+'"></i>'+s.name+'</button>';
+  }).join("")
+   +'<button data-id="cmp" style="color:#5d544b"><i style="background:#b9ae98"></i>综合对比</button>'
+   +'<button data-id="bib" style="color:#5d544b"><i style="background:#8a6a1f"></i>引用文献 ('+REFS.length+')</button>';
+
+  function esc(t){return t;}
+
+  /* ---------- 学术章节 ---------- */
+  function secNav(sd){
+    if(!sd) return "";
+    return '<nav class="sec-nav">'+sd.sections.map(function(sec,i){
+      return '<a href="#sec'+i+'">'+sec.icon+' '+sec.k+'</a>';
+    }).join("")+'<a href="#sec-geo">◈ 疆域与地理</a><a href="#sec-ref">◈ 制度改革</a><a href="#sec-gb">◈ 优势与劣势</a></nav>';
+  }
+
+  function acadHTML(sd,color,from,to){
+    if(!sd) return "";
+    return sd.sections.slice(from||0,to).map(function(sec,i0){
+      var i=(from||0)+i0;
+      var inner="";
+      if(sec.body&&sec.body.length){
+        inner='<div class="panel-body prose">'+sec.body.map(function(b){
+          return '<p class="p">'+b+'</p>';
+        }).join("")+'</div>';
+      }
+      if(sec.debate&&sec.debate.length){
+        inner='<div class="panel-body"><div class="deb-list">'+sec.debate.map(function(d){
+          return '<div class="deb"><div class="deb-t">◆ '+d[0]+'</div><div class="deb-b">'+d[1]+'</div></div>';
+        }).join("")+'</div></div>';
+      }
+      return '<section class="panel" id="sec'+i+'">'+
+        '<div class="panel-head"><h3 style="color:'+color+'">'+sec.k+'</h3>'+
+        '<p>'+(sec.debate?"学界至今未有定论的主要分歧":"以史籍与近现代研究相互参证")+'</p></div>'+
+        inner+'</section>';
+    }).join("");
+  }
+
+  function stateHTML(s){
+    return '<section class="state-hero">'+
+      '<i class="hero-bar" style="background:'+s.solid+'"></i>'+
+      '<div class="hero-in">'+
+        '<div class="hero-top"><span class="hero-name" style="color:'+s.solid+'">'+s.name+'</span>'+
+        '<span class="hero-en">'+s.en+'</span>'+
+        '<span class="hero-years">'+s.years+'</span></div>'+
+        '<p class="hero-intro">'+s.intro+'</p>'+
+        '<div class="hero-stats">'+
+          '<div class="hstat"><b>'+s.founder+'</b><span>开国君主</span></div>'+
+          '<div class="hstat"><b>'+s.capital+'</b><span>都城</span></div>'+
+          '<div class="hstat"><b>'+s.pop+'</b><span>户口（史载通行数）</span></div>'+
+          '<div class="hstat"><b>'+s.area+'</b><span>疆域面积（约）</span></div>'+
+        '</div>'+
+      '</div>'+
+    '</section>'+
+
+    secNav(SC[s.id])+
+
+    '<section class="panel" id="sec-geo">'+
+      '<div class="panel-head"><h3>疆域与地理</h3><p>疆土构成、山川形胜与地缘上的致命弱点</p></div>'+
+      '<div class="panel-body">'+
+        '<div class="chips">'+s.regions.map(function(r){return '<span class="chip">'+r+'</span>';}).join("")+'</div>'+
+        '<div class="geo-list" style="margin-top:6px">'+s.geo.map(function(g){
+          return '<div class="geo-item"><span class="geo-k">'+g[0]+'</span><span class="geo-v">'+g[1]+'</span></div>';
+        }).join("")+'</div>'+
+      '</div>'+
+    '</section>'+
+
+    acadHTML(SC[s.id],s.solid,0,mi(SC[s.id]))+
+
+    '<section class="panel" id="sec-ref">'+
+      '<div class="panel-head"><h3>制度条目速览</h3><p>立国前后推行的经济、选官、法律与军事制度，可与上列各节互参</p></div>'+
+      '<div class="panel-body"><div class="ref-list">'+s.reforms.map(function(r){
+        return '<div class="ref-row'+(r.neg?' neg':'')+'"><span class="ref-y">'+r.y+'</span>'+
+          '<div class="ref-main"><span class="ref-t">'+r.t+'</span><span class="ref-d">'+r.d+'</span></div></div>';
+      }).join("")+'</div></div>'+
+    '</section>'+
+
+    '<section class="panel" id="sec-gb">'+
+      '<div class="panel-head"><h3>优势与劣势</h3><p>每一项长处，几乎都对应着一处死穴</p></div>'+
+      '<div class="panel-body"><div class="gb-grid">'+
+        '<div class="gb-box gb-good"><div class="gb-head">强在何处</div><div class="gb-body">'+
+          s.good.map(function(g){return '<div class="gb-item"><b>'+g[0]+'</b><span>'+g[1]+'</span></div>';}).join("")+
+        '</div></div>'+
+        '<div class="gb-box gb-bad"><div class="gb-head">败在何处</div><div class="gb-body">'+
+          s.bad.map(function(g){return '<div class="gb-item"><b>'+g[0]+'</b><span>'+g[1]+'</span></div>';}).join("")+
+        '</div></div>'+
+      '</div></div>'+
+    '</section>'+
+
+    acadHTML(SC[s.id],s.solid,mi(SC[s.id]))+
+
+    '<section class="panel"><div class="panel-head"><h3>延伸阅读</h3><p>本页相关论著在《引用文献》中的分组</p></div>'+
+      '<div class="panel-body"><div class="bib-tip">本页论述所依据的史料与近现代研究，均见页末《引用文献》。其中与本页关系最密者：<b>史料类 A</b> 全部条目；<b>专著类 B</b> 中陈寅恪、唐长孺、田余庆、何兹全、王仲荦、马植杰、柳春藩、张大可、仇鹿鸣、高敏诸种；<b>论文与考古类 C</b> 依国别各有侧重（魏：九品中正与士家制研究；蜀：南中与北伐研究；吴：走马楼吴简与山越研究）。</div></div>'+
+    '</section>';
+  }
+
+  /* 争鸣章节的起始下标 */
+  function mi(sd){
+    if(!sd) return 0;
+    for(var i=0;i<sd.sections.length;i++){ if(sd.sections[i].debate) return i; }
+    return sd.sections.length;
+  }
+
+  var ROWS=[
+    ["存续时间",function(s){return s.years;}],
+    ["开国君主",function(s){return s.founder;}],
+    ["都城",function(s){return s.capital;}],
+    ["户口",function(s){return s.pop;}],
+    ["疆域（约）",function(s){return s.area;}],
+    ["疆土构成",function(s){return s.regions.join("、");}],
+    ["地理根本",function(s){return s.geo[0][1];}],
+    ["制度关键词",function(s){return s.reforms.slice(0,5).map(function(r){return r.t.replace(/（.*?）/g,"").split(" · ")[0];}).join("、");}],
+    ["最大优势",function(s){return "<b>"+s.good[0][0]+"</b>："+s.good[0][1];}],
+    ["致命劣势",function(s){return "<b>"+s.bad[0][0]+"</b>："+s.bad[0][1];}]
+  ];
+
+  function cmpHTML(){
+    var cm=SC.cmp||{};
+    return '<section class="panel">'+
+      '<div class="panel-head"><h3>三分何以归晋 · 五种解释</h3><p>体量、动员、制度、地理、社会结构——学界解释三国统一的五条主要线索</p></div>'+
+      '<div class="panel-body prose">'+(cm.body||[]).map(function(b){return '<p class="p">'+b+'</p>';}).join("")+'</div>'+
+    '</section>'+
+
+    (CD.rows&&CD.rows.length?('<section class="cmp-wrap"><div class="cmp-scroll"><table class="cmp">'+
+      '<thead><tr>'+CD.heads.map(function(h,j){
+        var s=S[j-1];
+        return '<th'+(s?' style="color:'+s.solid+'"':'')+'>'+h+'</th>';
+      }).join("")+'</tr></thead>'+
+      '<tbody>'+CD.rows.map(function(r){
+        return '<tr><th>'+r[0]+'</th>'+r.slice(1).map(function(c){return '<td>'+c+'</td>';}).join("")+'</tr>';
+      }).join("")+'</tbody>'+
+    '</table></div></section>'):"")+
+
+    '<section class="cmp-wrap"><div class="cmp-scroll"><table class="cmp">'+
+      '<thead><tr><th>定性对照</th>'+S.map(function(s){
+        return '<th style="color:'+s.solid+'">'+s.name+'</th>';
+      }).join("")+'</tr></thead>'+
+      '<tbody>'+ROWS.map(function(r){
+        return '<tr><th>'+r[0]+'</th>'+S.map(function(s){return '<td>'+r[1](s)+'</td>';}).join("")+'</tr>';
+      }).join("")+'</tbody>'+
+    '</table></div></section>'+
+    '<section class="panel"><div class="panel-head"><h3>一句话总结</h3></div><div class="panel-body">'+
+      '<div class="geo-list">'+
+        '<div class="geo-item"><span class="geo-k">曹魏</span><span class="geo-v">以人口、土地与制度创新压倒对手，却因宗室孤弱、士族坐大而被人摘了桃子——<b>强在制度，也亡于制度</b>。</span></div>'+
+        '<div class="geo-item"><span class="geo-k">蜀汉</span><span class="geo-v">以一州之地把组织效率与地利之险推到极限，北伐是续命也是耗命——<b>强在效率，也亡于透支</b>。</span></div>'+
+        '<div class="geo-item"><span class="geo-k">东吴</span><span class="geo-v">以长江天险与水军优势支撑最长国祚，兵权私有化换来了效忠也耗尽了动员力——<b>强在守成，也亡于内耗</b>。</span></div>'+
+      '</div></div></section>';
+  }
+
+  /* ---------- 引用文献 ---------- */
+  var GNAME={A:"A · 基本史料",B:"B · 近现代专著",C:"C · 专题论文与考古报告",D:"D · 工具书与地图集"};
+  var GTIP={
+    A:"传世文献，一切论述的起点。",
+    B:"20 世纪以来中国史学界的主要成果，兼及日本学界的重要译著。",
+    C:"考古发现与专题考订，其中走马楼吴简是近三十年三国史研究最大的增长点。",
+    D:"疆域、职官与数据的检索依据。"
+  };
+  function bibHTML(){
+    var groups=["A","B","C","D"], no=0;
+    return '<section class="panel"><div class="panel-head"><h3>引用文献</h3>'+
+      '<p>共 '+REFS.length+' 种。凡正文直接引用者均标出处；概括转述者标注所据篇目，读者正式引用时请核对原书版本。</p></div>'+
+      '<div class="panel-body">'+
+        '<div class="bib-tip">选目原则：优先通行点校本与学界公认的代表作，不取以耸动结论博取关注的读物；同一问题并列不同学派之说（如山越的「民族说」与「阶级说」、九品中正的「初衷说」与「贵族化说」），而不以一说压另一说。</div>'+
+        groups.map(function(g){
+          var list=REFS.filter(function(r){return r.g===g;});
+          if(!list.length) return "";
+          return '<div class="bib-group"><div class="bib-h">'+GNAME[g]+'<span>'+GTIP[g]+'</span></div>'+
+            '<div class="bib-list">'+list.map(function(r,j){
+              return '<div class="bib-row"><span class="bib-no">['+g+(j+1)+']</span>'+
+                '<div class="bib-main"><span class="bib-t">'+r.t+'</span><span class="bib-n">'+r.n+'</span></div></div>';
+            }).join("")+'</div></div>';
+        }).join("")+
+      '</div></section>';
+  }
+
+  function render(){
+    [].slice.call(st.querySelectorAll("button")).forEach(function(b){
+      var on=b.dataset.id===cur;
+      b.classList.toggle("on",on);
+      var s=S.filter(function(x){return x.id===b.dataset.id;})[0];
+      b.style.background=on?(s?s.solid:"#8a7a5f"):"var(--paper)";
+      b.style.color=on?"#fff":"#5d544b";
+    });
+    pane.innerHTML=cur==="cmp"?cmpHTML():(cur==="bib"?bibHTML():stateHTML(S.filter(function(s){return s.id===cur;})[0]));
+  }
+
+  st.addEventListener("click",function(e){
+    var b=e.target.closest("button");
+    if(!b)return;
+    cur=b.dataset.id; render(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+  render();
+})();
+</script>
+<div id="wx-tip"><span>内容较多，首次加载约 2–3 秒。若显示异常，可点右上角「···」→ 在浏览器中打开。</span><span class="wx-x" role="button" aria-label="关闭">×</span></div>
+</body>
+</html>

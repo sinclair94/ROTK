@@ -3,7 +3,7 @@
  * 跨域请求（高德地图瓦片等）一律不拦截。版本变化即整体换缓存。
  * 本文件由 _ghbuild.js 生成，勿手改。
  */
-var VERSION = 'sg-20260922-1';
+var VERSION = 'sg-20260923-1';
 var PRECACHE = ["index.html","people.html","timeline.html","states.html","network.html","map.html","game.html","insights.html","mobile.css","wx-compat.css","wx-compat.js","map-svg.js","leaflet.css","leaflet.js","data-detail-index.js","data-geo.js","data-insights.js","data-map-b1.js","data-map-b2.js","data-map.js","data-more-jin.js","data-more-qun.js","data-more-qun2.js","data-more-qun3.js","data-more-qun4.js","data-more-qun5.js","data-more-qun6.js","data-more-qun7.js","data-more-qun8.js","data-more-qun9.js","data-more-shu.js","data-more-shu2.js","data-more-wei.js","data-more-wei2.js","data-more-wu.js","data-more-wu2.js","data-more-wu3.js","data-network.js","data-scholar.js","data-shu.js","data-states.js","data-timeline-more.js","data-timeline-p0.js","data-timeline-pol.js","data-timeline-pol2.js","data-timeline.js","data-timeline2.js","data-wei.js","data-wu-qun.js"];
 
 self.addEventListener('install', function (e) {

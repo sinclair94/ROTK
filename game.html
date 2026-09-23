@@ -91,6 +91,39 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 .hint-item b{color:#3a342c}
 .note{font-size:11.5px;color:var(--muted);line-height:19px}
 
+/* 模式切换 */
+.mode-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.mode-tabs button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 18px;font-size:13.5px;font-weight:700;color:#5d544b;cursor:pointer;font-family:var(--sans)}
+.mode-tabs button:hover{border-color:#c5a05f}
+.mode-tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.mode-tabs button em{font-style:normal;font-size:11px;font-weight:400;opacity:.72;margin-left:6px}
+
+/* 海龟汤回答色 */
+.msg.sys .bub .soup-a{font-family:var(--serif);font-weight:700}
+.soup-a.y{color:#2e7d4f}
+.soup-a.n{color:var(--accent)}
+.soup-a.na{color:#a89b88}
+.bub.win{margin-top:6px}
+
+/* 名言选项 */
+.qt-opt{min-width:140px;text-align:left}
+.qt-opt.correct{border-color:#2e7d4f;background:#f2f7f3;color:#2e7d4f}
+.qt-opt.wrong{border-color:var(--accent);background:#fdf3f1;color:var(--accent)}
+.qt-q{font-family:var(--serif);font-size:16px;line-height:26px;color:#3a3029}
+.qt-src{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* 谜语 */
+.rid-item{border-left:3px solid var(--gold);background:#fffdf5;border-radius:0 8px 8px 0;padding:10px 14px}
+.rid-item .r{font-family:var(--serif);font-size:15.5px;color:#3a3029;line-height:24px}
+.rid-item .a{font-size:12.5px;margin-top:5px;color:#2e7d4f}
+.rid-item .a b{font-size:14px}
+.rid-item .a.miss{color:var(--accent)}
+
+/* 参考来源 */
+.src-list{display:flex;flex-direction:column;gap:9px}
+.src-item{display:flex;gap:10px;font-size:12.5px;line-height:20px;color:#615851;border-left:2px solid var(--gold);padding-left:12px}
+.src-item b{flex:none;color:#3a342c}
+
 .app-footer{background:var(--dark);color:var(--cream)}
 .footer-inner{max-width:1320px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
 .footer-brand strong{font-family:var(--serif);font-size:16px;color:var(--cream)}
@@ -98,6 +131,11 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 .footer-right{color:var(--goldlight);font-size:12px}
 
 @media(max-width:1080px){ .game-wrap{grid-template-columns:1fr} .side{position:static} }
+@media(max-width:640px){
+  .mode-tabs button{padding:8px 12px;font-size:12.5px}
+  .mode-tabs button em{display:none}
+  .qt-opt{min-width:110px}
+}
 
 /* wx-gap-fallback */
 @supports not ((gap: 1px) or (row-gap: 1px)){.header-inner > *{margin-right:18px;margin-bottom:18px;}}
@@ -134,7 +172,7 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
   <div class="header-inner">
     <div class="brand">
       <h1><a href="index.html">三国演义 · 群英谱</a></h1>
-      <span class="header-stat">人物解谜 · 聊天式问答猜人物</span>
+      <span class="header-stat">解谜 · 人物问答 / 海龟汤 / 谜语 / 名言</span>
     </div>
     <nav class="tabs" id="tabs">
       <a href="index.html">总览</a>
@@ -145,17 +183,25 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
       <a href="states.html">三国志</a>
       <a href="game.html" class="active">解谜</a>
       <a href="insights.html">论三国</a>
-      <a href="#chronicle">帝王年谱</a>
+      <a href="index.html#chronicle">帝王年谱</a>
     </nav>
   </div>
 </header>
 
 <main class="shell">
   <div class="section-head">
-    <h2>人物解谜</h2>
-    <p>我心里想着一位三国人物。我会先给你一张身份卡（阵营、身份、年代、登场回目），然后你可以<strong>随便提问</strong>——是非题或具体问题都行，我会照实回答；也可以直接报名字来猜。猜中即通关，随时可以换一局新的。</p>
+    <h2>解谜 · 四种玩法</h2>
+    <p id="modeDesc">挑一种开始：猜人物、煮海龟汤、猜谜语、认名言。题库均取自本站《三国演义》人物与故事数据。</p>
   </div>
 
+  <div class="mode-tabs" id="modeTabs">
+    <button data-m="ask" class="on">人物解谜<em>聊天问答</em></button>
+    <button data-m="soup">海龟汤<em>情境推理</em></button>
+    <button data-m="riddle">人物谜语<em>灯谜猜人</em></button>
+    <button data-m="quote">名言归属<em>四选一</em></button>
+  </div>
+
+  <div id="g-ask">
   <div class="game-wrap">
     <section class="chat">
       <div class="chat-head">
@@ -210,13 +256,138 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
       </section>
     </aside>
   </div>
+  </div><!-- /g-ask -->
+
+  <!-- ============ 海龟汤 ============ -->
+  <div id="g-soup" style="display:none">
+    <div class="game-wrap">
+      <section class="chat">
+        <div class="chat-head">
+          <h3>第 <span id="soupNo">1</span> 汤</h3>
+          <span class="chat-meta">已提问 <span id="soupQ">0</span> 次 · 已用提示 <span id="soupH">0</span> 条</span>
+        </div>
+        <div class="chat-log" id="soupLog"></div>
+        <div class="chat-input">
+          <div class="quick" id="soupQuick"></div>
+          <div class="input-row">
+            <input id="soupInp" type="text" placeholder="提一个能用「是 / 否 / 无关」回答的问题……" autocomplete="off">
+            <button class="btn" id="soupSend">发送</button>
+          </div>
+        </div>
+      </section>
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-head"><h3>玩法</h3></div>
+          <div class="panel-body"><span class="note">
+            · 主持人给出一句话谜面（<b>汤面</b>），故事真相（<b>汤底</b>）由你推理。<br>
+            · 你只能提<b>能用「是 / 否 / 无关」回答</b>的问题，主持人照实作答。<br>
+            · 可以随时说出你还原的故事（直接描述即可），接近汤底时主持人会确认；也可以点「揭晓汤底」。<br>
+            · 卡住时点「要一条提示」。本版汤题全部改编自《三国演义》回目，含关键情节反转。
+          </span></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h3>操作</h3></div>
+          <div class="panel-body">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn ghost" id="soupHint" style="flex:1">要一条提示</button>
+              <button class="btn ghost" id="soupGive" style="flex:1">揭晓汤底</button>
+              <button class="btn gold" id="soupNew" style="flex:1 1 100%">换一汤</button>
+            </div>
+            <div class="hint-list" id="soupHints"></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div><!-- /g-soup -->
+
+  <!-- ============ 人物谜语 ============ -->
+  <div id="g-riddle" style="display:none">
+    <div class="game-wrap">
+      <section class="chat">
+        <div class="chat-head">
+          <h3>灯谜 · 打一三国人物</h3>
+          <span class="chat-meta">已猜 <span id="ridDone">0</span> / <span id="ridTotal">0</span> 条 · 答对 <span id="ridHit">0</span> 条</span>
+        </div>
+        <div class="chat-log" id="ridLog" style="height:auto;max-height:min(58vh,520px)"></div>
+        <div class="chat-input">
+          <div class="input-row">
+            <input id="ridInp" type="text" placeholder="写下你猜的人名……" autocomplete="off">
+            <button class="btn" id="ridSend">猜</button>
+            <button class="btn ghost" id="ridHint">提示</button>
+            <button class="btn ghost" id="ridGive">揭晓</button>
+          </div>
+        </div>
+      </section>
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-head"><h3>玩法</h3></div>
+          <div class="panel-body"><span class="note">
+            · 谜面多用<b>谐音、字义、典故</b>扣人名，例如「凿壁偷光」打一人物——答案「孔明」（凿壁引光，孔中透明）。<br>
+            · 名、字都算对；答案公布后会附一句出处解释。<br>
+            · 「提示」会先给阵营与身份，再给首字。
+          </span></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h3>操作</h3></div>
+          <div class="panel-body">
+            <button class="btn gold" id="ridNew" style="width:100%">换一组谜题</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div><!-- /g-riddle -->
+
+  <!-- ============ 名言归属 ============ -->
+  <div id="g-quote" style="display:none">
+    <div class="game-wrap">
+      <section class="chat">
+        <div class="chat-head">
+          <h3>这句话是谁说的？</h3>
+          <span class="chat-meta">第 <span id="qtNo">1</span> / <span id="qtTotal">10</span> 题 · 得分 <span id="qtScore">0</span></span>
+        </div>
+        <div class="chat-log" id="qtLog" style="height:auto;max-height:min(58vh,520px)"></div>
+        <div class="chat-input" id="qtFoot">
+          <div class="quick" style="display:flex;gap:8px;flex-wrap:wrap" id="qtOpts"></div>
+        </div>
+      </section>
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-head"><h3>玩法</h3></div>
+          <div class="panel-body"><span class="note">
+            · 每题给一句《三国演义》名句（或源自演义的俗语），四选一。<br>
+            · 答完立即显示出处（回目或语境），十题一局。
+          </span></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h3>操作</h3></div>
+          <div class="panel-body">
+            <button class="btn gold" id="qtNew" style="width:100%">重新开一局</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div><!-- /g-quote -->
+
+  <!-- ============ 参考来源 ============ -->
+  <section class="panel">
+    <div class="panel-head"><h3>玩法与题库参考来源</h3><p>海龟汤的规则与题面组织方式参考了下列公开站点；谜语与名言为民间流传内容及《三国演义》原文整理</p></div>
+    <div class="panel-body">
+      <div class="src-list">
+        <div class="src-item"><b>海龟汤 · 规则</b><span>OrcaSoup 海龟汤游戏规则页（turtlesoup.aurorum.co/rules）：汤面／汤底、提问限「是 / 否 / 无关」、逐步还原真相的流程说明</span></div>
+        <div class="src-item"><b>海龟汤 · 玩法详解</b><span>七度网《海龟汤怎么玩》（www.7do.net/news/5533.html）：出题者／猜题者分工、三种回答权限、术语与例题</span></div>
+        <div class="src-item"><b>海龟汤 · 题目风格</b><span>漫漫日和《海龟汤题目45道》（manmandays.com/situation-puzzle）与「汤很热」（tanghenre.com）：题面离奇、反转揭底的编写风格</span></div>
+        <div class="src-item"><b>谜语</b><span>民间灯谜流传版本整理（如「凿壁偷光—孔明」「孔雀收屏—关羽」等），谜底解释为编写时补注</span></div>
+        <div class="src-item"><b>名言</b><span>《三国演义》（罗贯中）原文及据此流传的俗语；诗句类注明篇名（如《诫子书》）</span></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="app-footer">
   <div class="footer-inner">
     <div class="footer-brand">
       <strong>三国演义 · 群英谱</strong>
-      <span>人物解谜 · 题库取自本站演义本人物名录，问答由前端规则匹配生成。</span>
+      <span>解谜 · 题库取自本站《三国演义》人物与故事数据；海龟汤规则参考见页面底部「玩法与题库参考来源」。</span>
     </div>
     <span class="footer-right">共 <span id="poolSize2">0</span> 位候选</span>
   </div>
@@ -547,6 +718,349 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 
   /* 开局 */
   newRound();
+})();
+</script>
+<script>
+/* ==================== 模式切换 + 新玩法 ==================== */
+(function(){
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  var $=function(id){return document.getElementById(id);};
+  var DESC={
+    ask:"我心里想着一位三国人物，先给你一张身份卡；之后随便提问，是非题或具体问题都行，也可以直接报名字来猜。",
+    soup:"主持人给出一句离奇的汤面，你用「是 / 否 / 无关」的问题把汤底推理出来。全部改编自《三国演义》情节。",
+    riddle:"灯谜扣人名，谐音、字义、典故皆有；名、字都算对，猜错不扣分。",
+    quote:"《三国演义》名句（或据此流传的俗语）四选一，答完即见出处。"
+  };
+
+  /* ---------- 模式切换 ---------- */
+  var MODES=["ask","soup","riddle","quote"];
+  $("modeTabs").addEventListener("click",function(e){
+    var b=e.target.closest?e.target.closest("button"):null; if(!b)return;
+    var m=b.getAttribute("data-m");
+    MODES.forEach(function(k){
+      $("g-"+k).style.display=(k===m)?"":"none";
+      if(k===m) $("modeDesc").textContent=DESC[k];
+    });
+    Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+  });
+
+  function sayTo(logId,html,cls){
+    var d=document.createElement("div");
+    d.className="msg "+(cls||"sys");
+    d.innerHTML='<span class="ava">'+(cls==="me"?"我":"汤")+'</span><span class="bub">'+html+'</span>';
+    $(logId).appendChild(d);
+    $(logId).scrollTop=$(logId).scrollHeight;
+    return d;
+  }
+
+  /* ================================================================
+     海龟汤 · 三国版
+     规则参考：OrcaSoup(turtlesoup.aurorum.co/rules)、七度网(7do.net/news/5533.html)
+     题面风格参考：漫漫日和(manmandays.com/situation-puzzle)、汤很热(tanghenre.com)
+     每题 keys 有序判定：命中关键词 → 给出 是/否/无关 + 补充；都不中 → 无关
+     near: 玩家语句命中这些词时视为「接近汤底」
+  ================================================================ */
+  var SOUPS=[
+    {surface:"城门大开，几个老兵在扫地。城头上一人披鹤氅、焚香弹琴。城下十五万大军听了一个字，掉头就撤。",
+     truth:"这是「空城计」。诸葛亮驻西城，主力尽出，城中只剩两千五百老弱兵。司马懿十五万大军突至，诸葛亮索性大开城门、派人扫地装百姓，自己登城焚香操琴。司马懿生平谨慎，见状疑城中有伏兵，竟全军退去——待醒悟回兵，诸葛亮已撤离。",
+     near:["空城","孔明","诸葛亮","司马","疑兵","伏兵","琴","诸葛亮不害怕","没有伏兵"],
+     keys:[
+       {k:["诸葛亮","孔明","卧龙"],a:"y",r:"正是此人。"},
+       {k:["司马懿","仲达"],a:"y",r:"撤兵的正是他的兵。"},
+       {k:["空城计"],a:"y",r:"汤底已经很近了！"},
+       {k:["伏兵","埋伏","疑兵","诈"],a:"y",r:"——至少司马懿是这么疑的。"},
+       {k:["琴","弹琴","鹤氅"],a:"y",r:"对，这个姿势是故意的。"},
+       {k:["兵少","没兵","兵力空虚","老弱","两千五"],a:"y",r:"对，城里其实没什么兵。"},
+       {k:["曹操"],a:"n",r:"不是他。"},
+       {k:["关羽","张飞","赵云","刘备"],a:"n",r:"不是他们。"},
+       {k:["真的有埋伏","确实埋伏","伏兵是真的"],a:"n",r:"恰恰相反——这一局全靠「无」中生有。"},
+       {k:["大雨","大雾","风向"],a:"n",r:"天气帮不上忙。"}
+     ],
+     hints:["弹琴的人和撤兵的统帅，是多年的老对手。","城里其实几乎没有兵——败露之前，气势就是全部的兵力。"]},
+    {surface:"二十条小船趁大雾开向敌军水寨，船上插满稻草人。回来时船长说「谢丞相赠箭」，一清点，每条船都满了。",
+     truth:"「草船借箭」。周瑜限诸葛亮十日造十万支箭，诸葛亮只说三日即可，立军令状。第三日四更大雾，他率二十只扎满草人的船逼近曹军水寨，令士兵擂鼓呐喊。曹操疑有埋伏，只令弓弩手放箭——箭全钉在稻草人上，一夜之间「借」得十余万支。",
+     near:["草船","借箭","诸葛亮","曹操射箭","稻草","雾"],
+     keys:[
+       {k:["借箭","草船"],a:"y",r:"汤底就是这四个字。"},
+       {k:["诸葛亮","孔明"],a:"y",r:"正是他的手笔。"},
+       {k:["曹操"],a:"y",r:"箭是他「送」的。"},
+       {k:["雾","大雾"],a:"y",r:"对，雾是必要条件——看不清，才不敢出寨。"},
+       {k:["稻草","草人"],a:"y",r:"箭都钉在它们身上。"},
+       {k:["周瑜","都督"],a:"n",r:"他不是借箭的人——倒是为难人的正是他。"},
+       {k:["火攻","烧"],a:"n",r:"这一局一支箭都没射出去点火。"},
+       {k:["鲁肃"],a:"y",r:"对，他陪同上船，全程吓得不敢作声。"}
+     ],
+     hints:["周瑜要求十日造十万支箭，此人只说三天就够。","他不带多少兵，却带了二十条扎满稻草人的船，专挑大雾天出门。"]},
+    {surface:"一场酒宴上，老将被主帅当众痛打，皮开肉绽。当晚，这位挨了打的老人却出现在敌营里请降，敌营上下都信了他。",
+     truth:"「苦肉计」+「诈降」。赤壁之战前，周瑜与老将黄盖预设圈套：黄盖故意顶撞军令，周瑜当众将其打得皮开肉绽。曹操闻讯，深信黄盖怀恨来降。黄盖率装满干柴、浇透油脂的船只假降，趁东南风直扑曹军水寨——赤壁一把大火，正是从这里点起来的。",
+     near:["苦肉计","周瑜打黄盖","黄盖诈降","火攻"],
+     keys:[
+       {k:["苦肉计"],a:"y",r:"汤底正是这两个字。"},
+       {k:["黄盖"],a:"y",r:"挨打的老人就是他。"},
+       {k:["周瑜"],a:"y",r:"打人的正是他——但两人是串通好的。"},
+       {k:["曹操"],a:"y",r:"他信了，所以败了。"},
+       {k:["火","烧","火攻","赤壁"],a:"y",r:"对，这一打是为了后来的那把火。"},
+       {k:["许攸","反叛"],a:"n",r:"不是。"},
+       {k:["真恨","真的翻脸"],a:"n",r:"恰恰相反——打是假，降也是假，全是演的。"}
+     ],
+     hints:["打人者和挨打者其实是同一阵营。","「周瑜打黄盖——一个愿打，一个愿挨」，这句歇后语说的就是这一幕。"]},
+    {surface:"一个从敌方阵营里跑来投诚的人，给统帅出了一道「把船都连起来」的题。统帅照做了。后来的一夜大风，让统帅永远记住了这道题。",
+     truth:"「连环计」。庞统（凤雏）借蒋干引荐见到曹操，献计将大小战船以铁环连锁、上铺阔板——北方士兵在船上便如履平地。曹操大喜照办。周瑜火攻时，曹军战船因锁死无法散开，一船起火，满寨皆焚。",
+     near:["连环计","庞统","铁索连舟","凤雏"],
+     keys:[
+       {k:["连环计","铁索","连舟","连锁"],a:"y",r:"汤底就在这几个字里。"},
+       {k:["庞统","凤雏"],a:"y",r:"出题的人是他。"},
+       {k:["曹操"],a:"y",r:"照做的统帅正是他。"},
+       {k:["火","烧","火攻"],a:"y",r:"对，连起来的船烧起来才快。"},
+       {k:["蒋干"],a:"y",r:"对，把此人引荐过去的正是他。"},
+       {k:["周瑜","黄盖"],a:"y",r:"他们等着的就是这一刻。"},
+       {k:["晕船","不习水战","北方兵"],a:"y",r:"对——这个真实难题，正是这条计策的诱饵。"}
+     ],
+     hints:["献计的人自己并不属于曹营，是「客人」上门送主意。","船连起来后平稳如地，是化解了一个真实的难题——也埋了一个更大的祸。"]},
+    {surface:"亡国之君被请上宴席，看歌舞、喝美酒。主人故意问他想不想故国，他笑着说：这里很好，不想。席间有人叹气，主人却放心了。",
+     truth:"「乐不思蜀」。蜀汉亡后，后主刘禅迁居洛阳，司马昭设宴，故意安排蜀地歌舞，又问「颇思蜀否」。刘禅答「此间乐，不思蜀」。旧臣郤正教他装作流泪说「先人坟墓远在陇蜀，乃心西悲，无日不思」，再问时刘禅照背一遍，司马昭追问「何乃似郤正语」，刘禅惊曰「诚如尊命」，左右皆笑。司马昭从此认定此人无害，得以善终。",
+     near:["乐不思蜀","刘禅","阿斗","此间乐"],
+     keys:[
+       {k:["乐不思蜀","此间乐"],a:"y",r:"汤底就是这四个字。"},
+       {k:["刘禅","阿斗","后主"],a:"y",r:"正是他。"},
+       {k:["司马昭"],a:"y",r:"设宴的主人就是他。"},
+       {k:["郤正","教他","装"],a:"y",r:"对，有人教过他标准答案，可惜当面穿帮了。"},
+       {k:["傻","真傻","装傻"],a:"y",r:"——是傻是智，两千年也没吵明白。"},
+       {k:["诸葛亮"],a:"n",r:"此时诸葛亮已去世多年。"},
+       {k:["表演歌舞"],a:"y",r:"对，歌舞偏偏是蜀地的，这是故意的。"}
+     ],
+     hints:["主人真正想知道的只有一件事：这个人还有没有威胁。","「扶不起的阿斗」，说的就是这位宴席上的客人。"]},
+    {surface:"一个人为了请一位睡懒觉的先生出门，白跑了两次。第三次先生午睡，他就站在台阶下等，一等站了几个时辰，直到先生醒来。",
+     truth:"「三顾茅庐」。刘备经徐庶、司马徽推荐，携关张二访隆中诸葛亮：一顾不遇，二顾冒雪仅见其弟诸葛均，三顾正值诸葛亮昼寝，刘备拱立阶下不让惊动，直至其醒更衣方才相见。诸葛亮感其诚，隆中对策，出山辅佐。",
+     near:["三顾茅庐","刘备","诸葛亮","隆中"],
+     keys:[
+       {k:["三顾","茅庐","隆中"],a:"y",r:"汤底就是这四个字。"},
+       {k:["刘备"],a:"y",r:"站着等的人是他。"},
+       {k:["诸葛亮","孔明","卧龙"],a:"y",r:"睡觉的先生正是他。"},
+       {k:["张飞"],a:"y",r:"他第三次差点放火烧屋——被刘备拦下了。"},
+       {k:["关羽"],a:"y",r:"他当时也不太乐意来。"},
+       {k:["徐庶","水镜","司马徽"],a:"y",r:"对，推荐人正是他们。"},
+       {k:["冬天","雪"],a:"y",r:"第二次正是踏雪而去。"}
+     ],
+     hints:["睡醒的先生后来掏出一张天下三分的图纸。","这位等待者当时已经快五十岁，而睡觉的先生才二十七岁。"]}
+  ];
+
+  var soupIdx=-1, soupQ=0, soupH=0, soupDone=false;
+  function normTxt(s){ return String(s).replace(/[，。？！、：；「」『』（）()\s,.\?!]/g,""); }
+  function soupStart(){
+    soupIdx=(soupIdx+1+Math.floor(Math.random()*(SOUPS.length-1)))%SOUPS.length;
+    var P=SOUPS[soupIdx];
+    soupQ=0; soupH=0; soupDone=false;
+    $("soupNo").textContent=soupIdx+1;
+    $("soupQ").textContent=0; $("soupH").textContent=0;
+    $("soupLog").innerHTML="";
+    $("soupHints").innerHTML="";
+    $("soupInp").value="";
+    sayTo("soupLog",'<b>【汤面】</b>'+esc(P.surface),'sys');
+    sayTo("soupLog","可以用「是 / 否 / 无关」回答的问题来推理；说出你还原的故事，或者点右侧「揭晓汤底」。","sys");
+    $("soupQuick").innerHTML='<button class="qbtn" data-q="和诸葛亮有关吗">和诸葛亮有关吗</button>'
+      +'<button class="qbtn" data-q="和曹操有关吗">和曹操有关吗</button>'
+      +'<button class="qbtn" data-q="是计谋吗">是计谋吗</button>'
+      +'<button class="qbtn" data-q="和火有关吗">和火有关吗</button>';
+  }
+  function soupJudge(text){
+    var P=SOUPS[soupIdx], t=normTxt(text);
+    soupQ++; $("soupQ").textContent=soupQ;
+    for(var i=0;i<P.keys.length;i++){
+      var ks=P.keys[i];
+      for(var j=0;j<ks.k.length;j++){
+        if(t.indexOf(normTxt(ks.k[j]))>=0){
+          var cls=ks.a==="y"?"y":(ks.a==="n"?"n":"na");
+          var word=ks.a==="y"?"是":(ks.a==="n"?"不是":"无关");
+          sayTo("soupLog",'<span class="soup-a '+cls+'">'+word+'</span>。'+esc(ks.r||""));
+          return;
+        }
+      }
+    }
+    var nearHit=P.near.some(function(w){return t.indexOf(normTxt(w))>=0;});
+    if(nearHit){ sayTo("soupLog",'<span class="soup-a y">接近了</span>——你已经摸到汤底边上，把故事讲完整吧。'); return; }
+    sayTo("soupLog",'<span class="soup-a na">无关</span>。换个方向试试。');
+  }
+  $("soupSend").addEventListener("click",function(){
+    var v=$("soupInp").value; if(!v.trim())return;
+    sayTo("soupLog",esc(v),"me");
+    $("soupInp").value="";
+    soupJudge(v);
+  });
+  $("soupInp").addEventListener("keydown",function(e){ if(e.key==="Enter"||e.keyCode===13){ $("soupSend").click(); }});
+  $("soupQuick").addEventListener("click",function(e){
+    var b=e.target.closest?e.target.closest(".qbtn"):null; if(!b)return;
+    sayTo("soupLog",esc(b.getAttribute("data-q")),"me");
+    soupJudge(b.getAttribute("data-q"));
+  });
+  $("soupHint").addEventListener("click",function(){
+    if(soupDone)return;
+    var P=SOUPS[soupIdx];
+    if(soupH>=P.hints.length){ sayTo("soupLog","提示已经全部用完啦，再想想，或者点「揭晓汤底」。"); return; }
+    soupH++; $("soupH").textContent=soupH;
+    var d=document.createElement("div");
+    d.className="hint-item";
+    d.innerHTML='<b>提示 '+soupH+'：</b>'+esc(P.hints[soupH-1]);
+    $("soupHints").appendChild(d);
+  });
+  $("soupGive").addEventListener("click",function(){
+    var P=SOUPS[soupIdx];
+    soupDone=true;
+    sayTo("soupLog",'<b>【汤底】</b>'+esc(P.truth),'sys');
+    sayTo("soupLog",'共提问 '+soupQ+' 次、用提示 '+soupH+' 条。<b>换一汤</b>可继续。','sys');
+  });
+  $("soupNew").addEventListener("click",soupStart);
+  soupStart();
+
+  /* ================================================================
+     人物谜语（民间灯谜整理）
+  ================================================================ */
+  var RIDDLES=[
+    {r:"凿壁偷光",a:"孔明",alias:["诸葛亮","卧龙","孔明"],hint:"他姓葛，名里带「亮」。",expl:"凿壁引光——孔中透亮，扣「孔明」。"},
+    {r:"孔雀收屏",a:"关羽",alias:["关羽","云长","关云长"],hint:"他是五虎上将之首。",expl:"孔雀收屏，羽毛收拢——「关」住「羽」毛。"},
+    {r:"展翅翱翔",a:"张飞",alias:["张飞","翼德","翼徳"],hint:"他的字里有一对翅膀。",expl:"展翅翱翔，张开翅膀而飞——「翼」德「张」飞。"},
+    {r:"汉朝文书",a:"刘表",alias:["刘表","景升"],hint:"他是荆州之主。",expl:"汉朝（刘氏）之表章文书——「刘」「表」。"},
+    {r:"四面囤粮",a:"周仓",alias:["周仓"],hint:"他是关羽的扛刀部将。",expl:"四周都是仓——「周」围皆「仓」。"},
+    {r:"五官端正",a:"颜良",alias:["颜良"],hint:"他是袁绍麾下名将。",expl:"容貌（颜）俊美（良）——颜良。"},
+    {r:"慢慢富起来",a:"徐庶",alias:["徐庶","元直"],hint:"他进曹营一言不发。",expl:"「徐」者缓也，「庶」者富也——慢慢地富庶起来。"},
+    {r:"轻骑飞跃",a:"马超",alias:["马超","孟起"],hint:"他是五虎上将，西凉锦袍。",expl:"骑「马」飞「超」——马超。"},
+    {r:"事事齐全说汉高",a:"刘备",alias:["刘备","玄德"],hint:"汉高祖是刘邦。",expl:"汉高祖刘邦的事迹一应俱「备」——刘「备」。"}
+  ];
+  var ridOrder=[], ridPos=0, ridHit=0;
+  function shuffle(arr){
+    var a=arr.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; }
+    return a;
+  }
+  function ridRender(){
+    var P=RIDDLES[ridOrder[ridPos]];
+    $("ridLog").innerHTML="";
+    sayTo("ridLog",'<span class="qt-q">谜面：<b>'+esc(P.r)+'</b>（打一三国人物）</span>',"sys");
+    var foot=document.createElement("div");
+    foot.className="msg sys";
+    foot.innerHTML='<span class="ava">谜</span><span class="bub">谜底揭晓后附解释；猜不出就点「提示」。</span>';
+    $("ridLog").appendChild(foot);
+  }
+  function ridStart(){
+    ridOrder=shuffle(RIDDLES.map(function(_,i){return i;}));
+    ridPos=0; ridHit=0;
+    $("ridTotal").textContent=RIDDLES.length;
+    $("ridDone").textContent=0; $("ridHit").textContent=0;
+    ridRender();
+  }
+  function ridCheck(name){
+    var P=RIDDLES[ridOrder[ridPos]];
+    var ok=P.alias.some(function(x){return normTxt(name)===normTxt(x)||normTxt(name).indexOf(normTxt(x))>=0;});
+    var d=document.createElement("div");
+    d.className="rid-item";
+    d.innerHTML='<div class="r">'+esc(P.r)+'</div><div class="a'+(ok?"":" miss")+'">'
+      +(ok?'<b>答对了！</b>':'<b>谜底是「'+esc(P.a)+'」。</b>')+' '+esc(P.expl)+'</div>';
+    $("ridLog").appendChild(d);
+    $("ridLog").scrollTop=$("ridLog").scrollHeight;
+    ridPos++;
+    $("ridDone").textContent=Math.min(ridPos,RIDDLES.length);
+    if(ok){ ridHit++; $("ridHit").textContent=ridHit; }
+    if(ridPos>=RIDDLES.length){
+      var e=document.createElement("div");
+      e.className="msg sys";
+      e.innerHTML='<span class="ava">谜</span><span class="bub win">本组 '+RIDDLES.length+' 条谜语你答对 '+ridHit+' 条！点「换一组谜题」再来。</span>';
+      $("ridLog").appendChild(e);
+    } else setTimeout(ridRender,700);
+  }
+  $("ridSend").addEventListener("click",function(){
+    if(ridPos>=RIDDLES.length){ return; }
+    var v=$("ridInp").value; if(!v.trim())return;
+    sayTo("ridLog",esc(v),"me");
+    $("ridInp").value="";
+    ridCheck(v);
+  });
+  $("ridInp").addEventListener("keydown",function(e){ if(e.key==="Enter"||e.keyCode===13){ $("ridSend").click(); }});
+  $("ridHint").addEventListener("click",function(){
+    if(ridPos>=RIDDLES.length)return;
+    sayTo("ridLog","提示："+esc(RIDDLES[ridOrder[ridPos]].hint),"sys");
+  });
+  $("ridGive").addEventListener("click",function(){
+    if(ridPos>=RIDDLES.length)return;
+    sayTo("ridLog","直接揭晓吧——","me");
+    ridCheck("");
+  });
+  $("ridNew").addEventListener("click",ridStart);
+  ridStart();
+
+  /* ================================================================
+     名言归属（四选一）
+  ================================================================ */
+  var QUOTES=[
+    {q:"宁教我负天下人，休教天下人负我。",a:"曹操",opts:["曹操","董卓","袁绍","吕布"],src:"《三国演义》第四回——曹操误杀吕伯奢一家后对陈宫语"},
+    {q:"既生瑜，何生亮！",a:"周瑜",opts:["周瑜","孙策","鲁肃","吕蒙"],src:"《三国演义》第五十七回——周瑜临终长叹"},
+    {q:"鞠躬尽瘁，死而后已。",a:"诸葛亮",opts:["诸葛亮","郭嘉","荀彧","司马懿"],src:"《后出师表》（演义所引）——诸葛亮北伐前上表"},
+    {q:"生子当如孙仲谋。",a:"曹操",opts:["曹操","孙坚","刘备","袁绍"],src:"《三国演义》第六十一回——曹操见孙权军容整肃而叹"},
+    {q:"天下英雄，唯使君与操耳。",a:"曹操",opts:["曹操","刘备","董承","袁术"],src:"《三国演义》第二十一回——青梅煮酒论英雄"},
+    {q:"卧龙凤雏，二人得一，可安天下。",a:"司马徽",opts:["司马徽","徐庶","诸葛亮","庞德公"],src:"《三国演义》第三十五回——水镜先生语"},
+    {q:"吾观颜良，如插标卖首耳！",a:"关羽",opts:["关羽","张飞","赵云","许褚"],src:"《三国演义》第二十五回——白马阵前"},
+    {q:"大丈夫生于乱世，当带三尺剑立不世之功。",a:"太史慈",opts:["太史慈","孙策","甘宁","周泰"],src:"《三国演义》第五十三回——太史慈临终语"},
+    {q:"内事不决问张昭，外事不决问周瑜。",a:"孙策",opts:["孙策","孙权","周瑜","张昭"],src:"《三国演义》第二十九回——孙策临终托孤"},
+    {q:"勿以恶小而为之，勿以善小而不为。",a:"刘备",opts:["刘备","诸葛亮","刘禅","关羽"],src:"《三国演义》第八十五回——刘备白帝城遗诏敕刘禅"},
+    {q:"非淡泊无以明志，非宁静无以致远。",a:"诸葛亮",opts:["诸葛亮","庞统","司马懿","陆逊"],src:"诸葛亮《诫子书》（演义人物传世名篇）"},
+    {q:"吾手中宝刀却不老！",a:"黄忠",opts:["黄忠","严颜","魏延","程普"],src:"《三国演义》第七十回——黄忠阵前请战"},
+    {q:"赔了夫人又折兵。",a:"周瑜",opts:["周瑜","吕蒙","孙权","陆逊"],src:"《三国演义》第五十五回回目俗语——「周郎妙计安天下」的下联"},
+    {q:"扶不起的阿斗",a:"刘禅",opts:["刘禅","刘璋","刘表","刘度"],src:"据《三国演义》流传的后世俗语——「阿斗」即后主刘禅"}
+  ];
+  var qtSet=[], qtPos=0, qtScore=0, qtLock=false;
+  function qtRender(){
+    var P=QUOTES[qtSet[qtPos]];
+    qtLock=false;
+    $("qtLog").innerHTML="";
+    var d=document.createElement("div");
+    d.className="msg sys";
+    d.innerHTML='<span class="ava">句</span><span class="bub"><span class="qt-q">'+esc(P.q)+'</span></span>';
+    $("qtLog").appendChild(d);
+    $("qtLog").scrollTop=$("qtLog").scrollHeight;
+    var opts=shuffle(P.opts);
+    $("qtOpts").innerHTML=opts.map(function(o){
+      return '<button class="btn ghost qt-opt" data-o="'+esc(o)+'">'+esc(o)+'</button>';
+    }).join("");
+    $("qtNo").textContent=qtPos+1;
+  }
+  function qtStart(){
+    qtSet=shuffle(QUOTES.map(function(_,i){return i;})).slice(0,10);
+    qtPos=0; qtScore=0;
+    $("qtTotal").textContent=qtSet.length;
+    $("qtScore").textContent=0;
+    qtRender();
+  }
+  $("qtOpts").addEventListener("click",function(e){
+    var b=e.target.closest?e.target.closest(".qt-opt"):null; if(!b||qtLock)return;
+    qtLock=true;
+    var P=QUOTES[qtSet[qtPos]], pick=b.getAttribute("data-o"), ok=(pick===P.a);
+    Array.prototype.forEach.call(this.querySelectorAll(".qt-opt"),function(x){
+      var o=x.getAttribute("data-o");
+      if(o===P.a) x.classList.add("correct");
+      else if(x===b) x.classList.add("wrong");
+      x.disabled=true;
+    });
+    if(ok){ qtScore++; $("qtScore").textContent=qtScore; }
+    var d=document.createElement("div");
+    d.className="msg sys";
+    d.innerHTML='<span class="ava">句</span><span class="bub'+(ok?" win":" lose")+'">'
+      +(ok?"<b>答对了。</b>":"<b>正确答案：「"+esc(P.a)+"」。</b>")
+      +'<div class="qt-src">出处：'+esc(P.src)+'</div></span>';
+    $("qtLog").appendChild(d);
+    $("qtLog").scrollTop=$("qtLog").scrollHeight;
+    qtPos++;
+    setTimeout(function(){
+      if(qtPos>=qtSet.length){
+        var e2=document.createElement("div");
+        e2.className="msg sys";
+        e2.innerHTML='<span class="ava">句</span><span class="bub win">本局 '+qtSet.length+' 题共得 <b>'+qtScore+'</b> 分。点「重新开一局」换十道新题。</span>';
+        $("qtLog").appendChild(e2);
+        $("qtLog").scrollTop=$("qtLog").scrollHeight;
+        $("qtOpts").innerHTML="";
+      } else qtRender();
+    },900);
+  });
+  $("qtNew").addEventListener("click",qtStart);
+  qtStart();
 })();
 </script>
 <div id="wx-tip"><span>内容较多，首次加载约 2–3 秒。若显示异常，可点右上角「···」→ 在浏览器中打开。</span><span class="wx-x" role="button" aria-label="关闭">×</span></div>

@@ -203,7 +203,7 @@ svg.map.grabbing{cursor:grabbing}
       <a href="states.html">三国志</a>
       <a href="game.html">解谜</a>
       <a href="insights.html">论三国</a>
-      <a href="#chronicle">帝王年谱</a>
+      <a href="index.html#chronicle">帝王年谱</a>
     </nav>
   </div>
 </header>
@@ -211,7 +211,7 @@ svg.map.grabbing{cursor:grabbing}
 <main class="shell">
   <div class="section-head">
     <h2>地图 · 疆域与战役地理</h2>
-    <p>以<strong>高德地图</strong>为底图，在真实地理上标注三国疆域、都城建制与主要战役发生地。可按时期与势力筛选，点圆点查看战役详情；教室无网络时可一键切换为<strong>简版示意图</strong>。三国疆界为示意画法，不代表精确历史边界，战役定位以古今地名对照推定。</p>
+    <p>以<strong>高德矢量地图</strong>为底图，在真实地理上标注三国疆域、都城建制与主要战役发生地。可按时期与势力筛选，点圆点查看战役详情。三国疆界为示意画法，不代表精确历史边界，战役定位以古今地名对照推定。</p>
   </div>
 
   <div class="toolbar">
@@ -219,9 +219,6 @@ svg.map.grabbing{cursor:grabbing}
     <div class="tb-row"><span class="tb-label">势力</span><span id="t-forces" style="display:flex;gap:8px;flex-wrap:wrap"></span>
       <span class="tb-sep"></span>
       <span id="t-layers" style="display:flex;gap:8px;flex-wrap:wrap"></span>
-    </div>
-    <div class="tb-row"><span class="tb-label">底图</span><span id="t-base" style="display:flex;gap:8px;flex-wrap:wrap"></span>
-      <span style="font-size:11.5px;color:var(--muted)">影像模式更接近地形实感；示意图为离线可用版</span>
     </div>
     <div class="tb-row"><span class="tb-label">定位</span><span id="t-locate" class="locate-row"></span></div>
   </div>
@@ -242,7 +239,6 @@ svg.map.grabbing{cursor:grabbing}
       </div>
       <div class="map-stage">
         <div id="leaf"></div>
-        <div id="svgStage" style="display:none"><svg class="map" id="svg" viewBox="0 0 1000 841" role="img" aria-label="三国疆域与战役示意图"></svg></div>
         <div class="map-toast" id="mapToast"></div>
       </div>
       <div class="map-status">
@@ -272,7 +268,7 @@ svg.map.grabbing{cursor:grabbing}
       </section>
 
       <section class="panel">
-        <div class="panel-body"><span class="note">底图服务：高德地图矢量 / 影像瓦片（GCJ-02 坐标系）；简版示意图底图数据源为阿里云 DataV.GeoAtlas（民政部行政区划标准地图），Albers 等积圆锥投影。三国疆界与战役定位为历史地理示意，非精确边界。</span></div>
+        <div class="panel-body"><span class="note">底图服务：高德地图矢量瓦片（GCJ-02 坐标系）；省级行政区命中判定数据源为阿里云 DataV.GeoAtlas（民政部行政区划标准地图），Albers 等积圆锥投影。三国疆界与战役定位为历史地理示意，非精确边界。</span></div>
       </section>
     </aside>
   </div>
@@ -295,7 +291,7 @@ svg.map.grabbing{cursor:grabbing}
 <script src="data-timeline.js"></script>
 <script src="data-timeline2.js"></script>
 <script src="data-timeline-p0.js"></script>
-<!-- Leaflet（147KB）改为按需加载：首屏直接用零外链的内置示意图，用户点「矢量/卫星」时才取。
+<!-- Leaflet（147KB）：唯一底图模式，直接加载。
      打包离线版时 _bundle.js 会把这个 data-src 内联，离线版里 L 直接可用。 -->
 <script data-src="leaflet.js"></script>
 <script src="map-svg.js"></script>
@@ -400,17 +396,6 @@ svg.map.grabbing{cursor:grabbing}
     render();
   });
 
-  /* 底图切换：矢量 / 影像 / 示意图 */
-  var basemaps=[["vec","矢量地图"],["sat","卫星影像"],["svg","简版示意图"]];
-  document.getElementById("t-base").innerHTML=basemaps.map(function(b,i){
-    return '<button class="chip-btn'+(i===0?' on':'')+'" data-b="'+b[0]+'">'+b[1]+'</button>';
-  }).join("");
-  document.getElementById("t-base").addEventListener("click",function(e){
-    var b=e.target.closest("button"); if(!b)return;
-    setMode(b.dataset.b);
-    [].slice.call(this.querySelectorAll("button")).forEach(function(x){x.classList.toggle("on",x.dataset.b===mode);});
-  });
-
   /* 快速定位 */
   var LOC=["洛阳","长安","许昌","邺城","成都","建业","襄阳","官渡","赤壁","夷陵","五丈原","合肥","汉中","下邳","寿春","濮阳","定军山","街亭","濡须","南中"];
   LOC=LOC.filter(function(k){return !!MG.PLACE[k];});
@@ -435,8 +420,9 @@ svg.map.grabbing{cursor:grabbing}
     toastT=setTimeout(function(){ elToast.style.display="none"; },4200);
   }
 
-  var mode=null, R=null;
-  var elLeaf=document.getElementById("leaf"), elSvgStage=document.getElementById("svgStage");
+  /* ==================== 模式（唯一：高德矢量） ==================== */
+  var mode="vec", R=null;
+  var elLeaf=document.getElementById("leaf");
 
   var AMAP_ATTR='底图 © 高德地图';
 
@@ -602,15 +588,9 @@ svg.map.grabbing{cursor:grabbing}
     return r;
   }
 
-  /* ---------- SVG 示意图渲染器 ---------- */
-  function makeSvgRenderer(){
-    return window.makeSVGRenderer({
-      B:B, T:T, FS:FS, FN:FN, state:state,
-      curList:curList, select:select, showCity:showCity
-    });
-  }
+  function makeSvgRenderer(){ return null; }  /* 保留占位：示意图模式已移除 */
 
-  /* ---------- Leaflet 按需加载 ---------- */
+  /* ---------- Leaflet 按需加载（唯一底图） ---------- */
   var lfState=0, lfCbs=[];
   function loadLeaflet(cb){
     if(typeof L!=="undefined"){ cb(true); return; }
@@ -626,36 +606,18 @@ svg.map.grabbing{cursor:grabbing}
     document.head.appendChild(s);
   }
 
-  function setMode(m){
-    if(m===mode) return;
-    /* 矢量/卫星依赖 Leaflet，首屏不下载；用户点选时才取，取不到就留在示意图 */
-    if(m!=="svg" && typeof L==="undefined"){
-      toast("地图组件加载中…");
-      loadLeaflet(function(ok){
-        if(!ok){ toast("未加载到地图组件，已使用简版示意图"); return; }
-        setMode(m);
+  function initMap(){
+    elLeaf.style.display="block";
+    document.getElementById("mapHint").textContent="滚轮或双指缩放 · 拖动 · 点圆点看详情";
+    try{
+      R=makeLeafRenderer("vec",function(){
+        setTimeout(function(){ toast('地图瓦片加载失败，请检查网络后刷新重试'); },0);
       });
-      return;
-    }
-    if(R&&R.destroy){ try{R.destroy();}catch(e){} R=null; }
-    mode=m;
-    elToast.style.display="none";
-    [].slice.call(document.getElementById("t-base").querySelectorAll("button")).forEach(function(x){x.classList.toggle("on",x.dataset.b===mode);});
-    if(m==="svg"){
-      elLeaf.style.display="none"; elSvgStage.style.display="block";
-      document.getElementById("mapHint").textContent="滚轮或双指缩放 · 拖动 · 点圆点看详情";
-      R=makeSvgRenderer(); R.init();
-    }else{
-      elSvgStage.style.display="none"; elLeaf.style.display="block";
-      document.getElementById("mapHint").textContent=(m==="sat"?"卫星影像 · ":"")+"滚轮或双指缩放 · 拖动 · 点圆点看详情";
-      if(typeof L==="undefined"){ toast('未加载到地图组件，已使用简版示意图'); setMode('svg'); return; }
-      try{ R=makeLeafRenderer(m,function(){ setTimeout(function(){ toast('地图瓦片加载失败，已切换为简版示意图'); setMode('svg'); },0); }); }catch(e){ toast('地图初始化失败，已使用简版示意图'); setMode('svg'); return; }
-      R.init();
-    }
+    }catch(e){ toast('地图初始化失败，请刷新重试'); return; }
+    R.init();
     var z=R.zoomText();
     document.getElementById("zVal").textContent=z;
     document.getElementById("stZ").textContent=z;
-    /* 图层开关对示意图模式同样生效 */
     render();
   }
 
@@ -670,8 +632,14 @@ svg.map.grabbing{cursor:grabbing}
     if(R){ var z=R.zoomText(); document.getElementById("zVal").textContent=z; document.getElementById("stZ").textContent=z; }
   }
 
-  /* 初始：直接用内置示意图（零外链、秒开）；矢量/卫星由用户点选时再加载 Leaflet */
-  setMode("svg");
+  /* 初始：加载 Leaflet 后直接呈现高德矢量底图 */
+  if(typeof L!=="undefined"){ initMap(); }
+  else{
+    loadLeaflet(function(ok){
+      if(ok) initMap();
+      else toast("地图组件加载失败，请检查网络后刷新重试");
+    });
+  }
 })();
 </script>
 <div id="wx-tip"><span>内容较多，首次加载约 2–3 秒。若显示异常，可点右上角「···」→ 在浏览器中打开。</span><span class="wx-x" role="button" aria-label="关闭">×</span></div>

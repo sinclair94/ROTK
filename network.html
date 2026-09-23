@@ -41,11 +41,18 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 13px;font-size:12.5px;color:#5d544b;cursor:pointer;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px}
 .chip:hover{border-color:var(--gold)}
 .chip.on{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700}
+.chip.off{opacity:.42}
 .chip i.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip i.bar{width:16px;height:0;border-top-width:3px;border-top-style:solid;display:inline-block}
+.chip em{font-style:normal;font-size:11px;opacity:.75;font-variant-numeric:tabular-nums}
 .tb-sep{width:1px;height:20px;background:var(--line);margin:0 4px}
 .mini-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 12px;font-size:12.5px;color:#5d544b;cursor:pointer;font-family:var(--sans)}
 .mini-btn:hover{border-color:var(--gold);color:var(--gold-d)}
 .mini-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.search{display:flex;gap:8px;align-items:center}
+.search input{border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-size:13px;font-family:var(--sans);width:150px;color:var(--ink);background:#fff}
+.search input:focus{outline:none;border-color:var(--gold)}
+.search .hint{font-size:11.5px;color:var(--muted);max-width:230px;line-height:17px}
 
 .net-wrap{display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:start}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
@@ -56,23 +63,29 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 
 .net-stage{position:relative;background:#fbf8f1;padding:6px}
 svg.net{width:100%;height:auto;display:block;touch-action:none}
-.link{stroke:#c9bda9;stroke-opacity:.55}
-.link.hi{stroke:var(--gold);stroke-opacity:.95;stroke-width:2.2}
-.link.dim{stroke-opacity:.12}
-.node{cursor:pointer;stroke:#fff;stroke-width:1.6}
-.node.dim{opacity:.2}
-.node.sel{stroke:var(--dark);stroke-width:3}
-.nlabel{font-size:11px;fill:#4a4238;font-family:var(--sans);font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
-.nlabel.dim{opacity:.18}
-.zoombar{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
-.zoombar button{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:15px;color:#5d544b;cursor:pointer;line-height:1}
-.zoombar button:hover{border-color:var(--gold);color:var(--gold-d)}
-
+.link{fill:none;stroke-linecap:round}
+.link.dim{stroke-opacity:.06}
+.node{cursor:pointer}
+.node circle.hit{fill:transparent}
+.node circle.dot{stroke:#fffdf8;stroke-width:1.4}
+.node circle.ring{fill:none;stroke:#fffdf8;stroke-width:1.2;opacity:.85}
+.node circle.crown{fill:none;stroke:#fffdf8;stroke-width:1.1;opacity:.75;stroke-dasharray:2.5 2.5}
+.node text.nl{font-size:11.5px;fill:#40382e;font-family:var(--sans);font-weight:700;paint-order:stroke;stroke:#fffdf8;stroke-width:3.2px;stroke-linejoin:round;pointer-events:none}
+.node.sel circle.dot{stroke:var(--dark);stroke-width:2.6}
+.node.sel text.nl{font-size:13px;fill:#241f1a}
+.node.dim{opacity:.16}
+.node.hover circle.dot{stroke:var(--gold-d);stroke-width:2.2}
+.hubhalo{fill:none;stroke:#cbb079;stroke-width:1.1;opacity:.55}
 .legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 20px 14px;font-size:12px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.legend i.ln{width:18px;height:0;border-top-style:solid;border-top-width:3px;border-radius:0}
+.legend .tip{margin-left:auto;color:#a89b88}
 
 .side{display:flex;flex-direction:column;gap:18px}
+.rank-tabs{display:flex;gap:6px;margin-bottom:8px}
+.rank-tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 4px;font-size:12px;color:#5d544b;cursor:pointer;font-family:var(--sans)}
+.rank-tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 .rank-list{display:flex;flex-direction:column;gap:2px;max-height:420px;overflow-y:auto}
 .rank-row{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:7px;cursor:pointer;border-left:3px solid transparent}
 .rank-row:hover{background:#faf6ee}
@@ -92,15 +105,26 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
 .dt-stat b{display:block;font-size:17px;color:#3a3029;font-variant-numeric:tabular-nums}
 .dt-stat span{font-size:11px;color:var(--muted)}
 .dt-rel{margin-top:12px;border-top:1px solid var(--divider);padding-top:10px}
-.dt-rel h4{font-size:12.5px;color:var(--muted);letter-spacing:1px;margin-bottom:7px}
+.dt-rel h4{font-size:12.5px;color:var(--muted);letter-spacing:1px;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.dt-rel h4 em{font-style:normal;font-size:11px;color:#a89b88;font-weight:400}
+.rel-group{margin-bottom:10px}
+.rel-gt{font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.rel-gt i{width:14px;height:0;border-top-style:solid;border-top-width:3px;display:inline-block}
 .rel-item{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:3px 0;cursor:pointer}
 .rel-item:hover{color:var(--accent)}
+.rel-item b{font-variant-numeric:tabular-nums}
 .rel-item i{width:8px;height:8px;border-radius:50%;flex:none}
 .rel-c{font-size:11px;color:#a89b88;margin-left:auto}
+.rel-more{font-size:11.5px;color:var(--gold-d);cursor:pointer;padding:2px 0}
+.rel-more:hover{text-decoration:underline}
 .dt-link{margin-top:12px;display:inline-block;background:var(--accent);color:#fff;border-radius:8px;padding:8px 16px;font-size:12.5px;text-decoration:none;font-weight:700}
 .note{font-size:12.5px;color:var(--muted);line-height:21px}
 .note b{color:#3a3029}
+.note ol{margin:4px 0 0 18px}
+.note li{margin-bottom:3px}
 .empty{color:var(--muted);font-size:13px;padding:14px 0;text-align:center}
+.busy{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(251,248,241,.86);font-size:13px;color:var(--muted);z-index:5;display:none}
+.busy.on{display:flex}
 
 @media(max-width:1080px){ .net-wrap{grid-template-columns:1fr} }
 @media(max-width:640px){
@@ -111,7 +135,8 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
   .net-stage{padding:3px}
   .rank-list{max-height:280px}
   .dt-stats{grid-template-columns:1fr 1fr}
-  .nlabel{font-size:13px}
+  .search input{width:120px}
+  .search .hint{display:none}
 }
 
 /* wx-gap-fallback */
@@ -121,7 +146,6 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
 @supports not ((gap: 1px) or (row-gap: 1px)){.toolbar > *:not(:last-child){margin-bottom:12px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.tb-row > *{margin-right:10px;margin-bottom:10px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.chip > *:not(:last-child){margin-right:6px;}}
-@supports not ((gap: 1px) or (row-gap: 1px)){.zoombar > *:not(:last-child){margin-bottom:6px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.legend > *{margin-right:14px;margin-bottom:14px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.legend span > *:not(:last-child){margin-right:5px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.side > *:not(:last-child){margin-bottom:18px;}}
@@ -129,6 +153,7 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
 @supports not ((gap: 1px) or (row-gap: 1px)){.rank-row > *:not(:last-child){margin-right:9px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.dt-tags > *{margin-right:6px;margin-bottom:6px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.rel-item > *:not(:last-child){margin-right:7px;}}
+@supports not ((gap: 1px) or (row-gap: 1px)){.search > *:not(:last-child){margin-right:8px;}}
 @media(max-width:640px){@supports not ((gap: 1px) or (row-gap: 1px)){.shell > *:not(:last-child){margin-right:14px;}}}
 </style>
 <!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
@@ -148,7 +173,7 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
   <div class="header-inner">
     <div class="brand">
       <h1><a href="index.html">三国演义 · 群英谱</a></h1>
-      <span class="header-stat">关系网 · 人物权重与共现网络</span>
+      <span class="header-stat">关系网 · 语义化的共现网络</span>
     </div>
     <nav class="tabs" id="tabs">
       <a href="index.html">总览</a>
@@ -159,7 +184,7 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
       <a href="states.html">三国志</a>
       <a href="game.html">解谜</a>
       <a href="insights.html">论三国</a>
-      <a href="#chronicle">帝王年谱</a>
+      <a href="index.html#chronicle">帝王年谱</a>
     </nav>
   </div>
 </header>
@@ -167,7 +192,7 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
 <main class="shell">
   <div class="section-head">
     <h2>关系网 · 谁才是这段历史的中枢</h2>
-    <p>把 699 位人物的小传与年表事件全部拆开，统计<strong>每个人被多少其他人提到、提到多少次</strong>，以及与谁出现在同一件事里。被提及次数越多，说明此人在整个叙事网络中越处于枢纽位置；两点之间的连线表示二人曾在同一条目中共现，线越粗则共现越频繁。</p>
+    <p>把全部 699 位人物的小传、年表，以及时间轴上的 58 场战役记录全部拆开统计：<strong>谁被谁提到、谁和谁出现在同一件事里</strong>，并对每一条连线判定关系性质——<strong>亲属、君臣、敌对、同盟、同役</strong>。节点越大说明此人在叙事网络中越枢纽；连线的颜色说明二人以何种身份相连。</p>
   </div>
 
   <div class="toolbar">
@@ -177,25 +202,32 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
       <span class="tb-label">时期</span>
       <span id="f-era" style="display:flex;gap:8px;flex-wrap:wrap"></span>
     </div>
-    <div class="tb-row"><span class="tb-label">节点数</span>
+    <div class="tb-row"><span class="tb-label">关系</span>
+      <span id="f-rel" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+    </div>
+    <div class="tb-row"><span class="tb-label">规模</span>
       <span id="f-n" style="display:flex;gap:8px;flex-wrap:wrap"></span>
       <span class="tb-sep"></span>
-      <button class="mini-btn" id="btnReplay">重新布局</button>
-      <button class="mini-btn" id="btnReset">恢复默认</button>
-      <span id="stat" style="font-size:12px;color:var(--muted);margin-left:auto"></span>
+      <span class="search">
+        <input id="q" type="search" placeholder="找人：姓名或字" autocomplete="off">
+        <span class="hint">回车定位到第一位匹配结果</span>
+      </span>
+      <button class="mini-btn" id="btnReset" style="margin-left:auto">恢复默认</button>
     </div>
+    <div class="tb-row"><span id="stat" style="font-size:12px;color:var(--muted)"></span></div>
   </div>
 
   <div class="net-wrap">
     <section class="panel">
       <div class="panel-head"><h3 id="netTitle">关系网络图</h3>
-        <p>点选节点查看此人的关联对象；可拖动节点调整位置；鼠标滚轮或右上角按钮缩放</p></div>
+        <p>布局一次性算好后静态呈现，不会再飘动。点节点查看此人的关系构成；拖背景可平移，滚轮或右上角按钮缩放；拖节点可手动微调。</p></div>
       <div class="net-stage">
         <svg class="net" id="svg" viewBox="0 0 1000 720" role="img" aria-label="三国人物关系网络图"></svg>
-        <div class="zoombar">
-          <button id="zIn" title="放大">＋</button>
-          <button id="zOut" title="缩小">－</button>
-          <button id="zFit" title="复位">◎</button>
+        <div class="busy" id="busy">正在计算布局…</div>
+        <div class="zoombar" style="position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px">
+          <button id="zIn" title="放大" style="width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:15px;color:#5d544b;cursor:pointer;line-height:1">＋</button>
+          <button id="zOut" title="缩小" style="width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:15px;color:#5d544b;cursor:pointer;line-height:1">－</button>
+          <button id="zFit" title="复位" style="width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:15px;color:#5d544b;cursor:pointer;line-height:1">◎</button>
         </div>
       </div>
       <div class="legend" id="legend"></div>
@@ -203,8 +235,15 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
 
     <aside class="side">
       <section class="panel">
-        <div class="panel-head"><h3>权重榜</h3><p>按「被其他人物提及次数」排序，点一行可定位</p></div>
-        <div class="panel-body" style="padding:10px 12px"><div class="rank-list" id="rank"></div></div>
+        <div class="panel-head"><h3>排行榜</h3><p>三种口径：叙事权重 / 关联广度 / 枢纽度</p></div>
+        <div class="panel-body" style="padding:10px 12px">
+          <div class="rank-tabs" id="rankTabs">
+            <button data-m="w" class="on">被提及次数</button>
+            <button data-m="deg">关联人数</button>
+            <button data-m="btw">枢纽度</button>
+          </div>
+          <div class="rank-list" id="rank"></div>
+        </div>
       </section>
 
       <section class="panel">
@@ -216,11 +255,17 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
         <div class="panel-head"><h3>这张图怎么读</h3></div>
         <div class="panel-body">
           <p class="note">
-            · <b>节点大小</b>＝被提及次数（跨全部人物的小传与年表累计）。<br>
-            · <b>连线粗细</b>＝二人共现于同一条目的次数。<br>
-            · <b>权重</b>高说明此人是叙事网络的枢纽，并不直接等于其历史重要性——演义着墨多的人天然占优。<br>
-            · 数据由程序从本站人物数据自动抽取，属<b>文本共现统计</b>，仅供结构参考，不作史实论断。<br>
-            · 395 位未被他人提及的人物（多为仅存姓名的武将、地方官员）默认不进入图中。
+            <b>节点</b><br>
+            · <b>大小</b>＝被提及次数（跨全部人物小传、年表与战役记录累计）。<br>
+            · <b>颜色</b>＝所属阵营；帝王额外套一圈虚线环；关联最广的十人加一圈淡金色光环。<br>
+            <b>连线</b><br>
+            · <b>颜色</b>＝关系性质，<b>粗细</b>＝二人共现于同一条目的次数。<br>
+            · 连线略带弧度，避免两点之间多条关系互相压住。<br>
+            <b>枢纽度</b>＝图上版图里的<b>加权介数中心性</b>：一个人处在多少条最短关系路径的中间。它比单纯的“被提及次数”更能说明谁是把各方串起来的人。<br>
+            <b>关于数据</b><br>
+            · 关系性质的判定分两层：<b>文本抽取</b>（在小传／年表／战役记录里识别亲属词、拜授词、交兵词等上下文）+ <b>人工校订</b>（对父子、兄弟、义兄弟、核心君臣、宿敌等明确关系，以及演义关键情节，逐条核校，共 239 条，标 ★）。<br>
+            · 总体上仍是<b>基于文本的统计推断</b>，不是史料考订。演义着墨多的人天然占优，判定也可能出错；仅供观察结构之用。<br>
+            · <span id="noteIso"></span>
           </p>
         </div>
       </section>
@@ -231,30 +276,50 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
 <script src="data-network.js"></script>
 <script>
 (function(){
-  var FS={wei:"var(--wei)",shu:"var(--shu)",wu:"var(--wu)",qun:"var(--qun)",jin:"var(--jin)"};
-  var FHEX={wei:"#476b86",shu:"#8d3025",wu:"#527b5c",qun:"#b88b35",jin:"#8a6a1f"};
-  var FN={wei:"曹魏",shu:"蜀汉",wu:"东吴",qun:"群雄 · 汉",jin:"西晋"};
+  var FHEX={wei:"#476b86",shu:"#8d3025",wu:"#527b5c",qun:"#b88b35",jin:"#8a6a1f",folk:"#8a7355"};
+  var FN={wei:"曹魏",shu:"蜀汉",wu:"东吴",qun:"群雄 · 汉",jin:"西晋",folk:"其他"};
   var CN={d:"帝王",w:"文臣",m:"武将",p:"平民 · 方外"};
 
-  var NODES=window.NET_NODES||[], LINKS=window.NET_LINKS||[], ERAS=window.NET_ERA||[];
+  var NODES=window.NET_NODES||[], LINKS=window.NET_LINKS||[], ERAS=window.NET_ERA||[],
+      TYPES=window.NET_TYPES||{}, CURATED=window.NET_CURATED||[];
   var byName={}; NODES.forEach(function(n){byName[n.n]=n;});
   var maxW=1; NODES.forEach(function(n){if(n.w>maxW)maxW=n.w;});
+  var isoCount=NODES.filter(function(n){return !n.w;}).length;
+  document.getElementById("noteIso").textContent =
+    isoCount+" 位从未被他人提及的人物（多为仅存姓名的武将、地方官员）默认不进入图中。";
 
-  var W=1000,H=720;
+  var W=1000,H=720,PAD=54;
   var svg=document.getElementById("svg");
-  var state={f:"all",era:"all",topN:50,sel:null,zoom:1,cx:W/2,cy:H/2};
+  var busy=document.getElementById("busy");
+  var TT={k:"k",v:"v",f:"f",a:"a",b:"b",o:"o"};
+  var TORD=["k","v","a","f","b","o"];
+  var state={f:"all",era:"all",topN:60,sel:null,rel:{k:1,v:1,a:1,f:1,b:1,o:1},rankMetric:"w"};
+  var nodesG=[],linksG=[],adj={},cur={}, G={}, IN={}, IDX={}, labelWant={};
+  var view={k:1,x:0,y:0};   // 缩放与平移
 
-  /* ---------- 筛选控件 ---------- */
-  function chips(host,items,cur,onPick){
-    var el=document.getElementById(host);
-    el.innerHTML=items.map(function(it){
-      return '<button class="chip'+(it.v===cur?' on':'')+'" data-v="'+it.v+'">'
-        +(it.c?'<i class="dot" style="background:'+it.c+'"></i>':'')+it.t+'</button>';
+  var SVGNS="http://www.w3.org/2000/svg";
+  function el(tag,attrs){
+    var e=document.createElementNS(SVGNS,tag);
+    for(var k in attrs) if(attrs.hasOwnProperty(k)) e.setAttribute(k,attrs[k]);
+    return e;
+  }
+
+  /* ---------------- 筛选控件 ---------------- */
+  function chips(host,items,def,onPick,multi){
+    var box=document.getElementById(host);
+    box.innerHTML=items.map(function(it){
+      var isOn = multi? (def[it.v]?1:0) : (it.v===def);
+      return '<button class="chip'+(isOn?' on':'')+'" data-v="'+it.v+'">'
+        +(it.c&&it.c.charAt(0)==="#"?'<i class="dot" style="background:'+it.c+'"></i>':'')
+        +(it.c&&it.c.charAt(0)!=="#"?'<i class="bar" style="border-top-color:'+it.c+';'+(it.dash?'border-top-style:dashed;':'')+'"></i>':'')
+        +it.t+(it.n!=null?'<em>'+it.n+'</em>':'')+'</button>';
     }).join("");
-    el.addEventListener("click",function(e){
-      var b=e.target.closest(".chip"); if(!b)return;
-      onPick(b.getAttribute("data-v"));
-      Array.prototype.forEach.call(el.querySelectorAll(".chip"),function(x){x.classList.toggle("on",x===b);});
+    box.addEventListener("click",function(e){
+      var b=e.target.closest?e.target.closest(".chip"):null; if(!b)return;
+      var v=b.getAttribute("data-v");
+      if(multi){ def[v]=def[v]?0:1; b.classList.toggle("on",!!def[v]); }
+      else{ Array.prototype.forEach.call(box.querySelectorAll(".chip"),function(x){x.classList.toggle("on",x===b);}); }
+      onPick(multi?def:v);
     });
   }
   chips("f-force",[{v:"all",t:"全部"},{v:"wei",t:"曹魏",c:FHEX.wei},{v:"shu",t:"蜀汉",c:FHEX.shu},
@@ -262,230 +327,565 @@ svg.net{width:100%;height:auto;display:block;touch-action:none}
     "all",function(v){state.f=v;build();});
   chips("f-era",[{v:"all",t:"全期"}].concat(ERAS.map(function(e){return {v:e.id,t:e.name};})),
     "all",function(v){state.era=v;build();});
-  chips("f-n",[{v:"30",t:"30 人"},{v:"50",t:"50 人"},{v:"80",t:"80 人"},{v:"120",t:"120 人"}],
-    "50",function(v){state.topN=+v;build();});
+  chips("f-rel",TORD.map(function(t){
+    var n=0; LINKS.forEach(function(l){if(l[3]===t)n++;});
+    return {v:t,t:TYPES[t]?TYPES[t].name:t,c:TYPES[t]?TYPES[t].color:"#999",dash:TYPES[t]&&TYPES[t].dash,n:n};
+  }),state.rel,function(){build();},true);
+  chips("f-n",[{v:"40",t:"40 人"},{v:"60",t:"60 人"},{v:"100",t:"100 人"},{v:"160",t:"160 人"},{v:"352",t:"全部"}],
+    "60",function(v){state.topN=+v;build();});
 
   document.getElementById("legend").innerHTML=
-    Object.keys(FN).map(function(k){
+    Object.keys(FN).filter(function(k){return k!=="folk";}).map(function(k){
       return '<span><i style="background:'+FHEX[k]+'"></i>'+FN[k]+'</span>';
-    }).join("")+'<span>· 连线粗细＝共现频次</span>';
+    }).join("")
+    +'<span class="tip">线条颜色＝关系性质：'
+    + TORD.map(function(t){
+        var T=TYPES[t]||{};
+        return '<span style="margin-left:8px"><i class="ln" style="border-top-color:'+(T.color||"#999")+';'
+          +((T.dash)?"border-top-style:dashed;":"")+'"></i>'+(T.name||t)+'</span>';
+      }).join("") + '</span>';
 
-  /* ---------- 构图 ---------- */
-  var nodesG=[], linksG=[], adj={};
+  /* ---------------- 构图 ---------------- */
   function build(){
-    // 取候选节点
+    busy.className="busy on";
     var cand=NODES.filter(function(n){
       if(n.w<=0) return false;
       if(state.f!=="all"&&n.f!==state.f) return false;
       if(state.era!=="all"&&n.era!==state.era) return false;
       return true;
-    }).slice(0,state.topN);
+    }).sort(function(a,b){return b.w-a.w;}).slice(0,state.topN);
 
-    var inSet={}; cand.forEach(function(n){inSet[n.n]=1;});
-    // 边：两端都在集合内；再剔除子图内度为 0 的节点
-    var deg={};
-    var ls=LINKS.filter(function(l){return inSet[l[0]]&&inSet[l[1]];});
-    ls.forEach(function(l){deg[l[0]]=(deg[l[0]]||0)+1;deg[l[1]]=(deg[l[1]]||0)+1;});
-    nodesG=cand.filter(function(n){return deg[n.n];}).map(function(n){
-      return {n:n.n,z:n.z,f:n.f,c:n.c,w:n.w,era:n.era,deg:deg[n.n]||0,x:0,y:0,vx:0,vy:0};
+    IN={}; cand.forEach(function(n){IN[n.n]=1;});
+    cur={}; CURATED.forEach(function(c){var p=c.split("|");if(IN[p[0]]&&IN[p[1]])cur[p[0]+"|"+p[1]]=1;});
+
+    var raw={};
+    LINKS.forEach(function(l){
+      if(!IN[l[0]]||!IN[l[1]]) return;
+      if(!state.rel[l[3]]) return;
+      var key=l[0]<l[1]?l[0]+"|"+l[1]:l[1]+"|"+l[0];
+      if(!raw[key]) raw[key]={a:l[0],b:l[1],c:l[2],t:l[3]};
     });
-    var ok={}; nodesG.forEach(function(n){ok[n.n]=1;});
-    linksG=ls.filter(function(l){return ok[l[0]]&&ok[l[1]];}).map(function(l){return {a:l[0],b:l[1],c:l[2]};});
+    linksG=Object.keys(raw).map(function(k){return raw[k];});
 
-    adj={}; nodesG.forEach(function(n){adj[n.n]=[];});
-    linksG.forEach(function(l){adj[l.a].push({to:l.b,c:l.c});adj[l.b].push({to:l.a,c:l.c});});
+    var deg={};
+    linksG.forEach(function(l){deg[l.a]=1;deg[l.b]=1;});
+    G=cand.filter(function(n){return deg[n.n];});
+    var ok={}; G.forEach(function(n){ok[n.n]=1;});
+    linksG=linksG.filter(function(l){return ok[l.a]&&ok[l.b];});
+
+    G.forEach(function(n,i){ n.deg=0; n.i=i; n.x=0; n.y=0; n.vx=0; n.vy=0; n.btw=0; });
+    IDX={}; G.forEach(function(n,i){IDX[n.n]=i;});
+    linksG.forEach(function(l){G[IDX[l.a]].deg++;G[IDX[l.b]].deg++;});
+    adj={}; G.forEach(function(n){adj[n.n]=[];});
+    linksG.forEach(function(l){
+      adj[l.a].push({to:l.b,c:l.c,t:l.t,cur:!!cur[l.a+"|"+l.b]});
+      adj[l.b].push({to:l.a,c:l.c,t:l.t,cur:!!cur[l.b+"|"+l.a]});
+    });
 
     state.sel=null;
-    document.getElementById("stat").textContent="节点 "+nodesG.length+" · 连线 "+linksG.length
-      +"（候选 "+cand.length+" 人，已剔除孤立项）";
     document.getElementById("netTitle").textContent=
       (state.f==="all"?"三国人物":FN[state.f])+"关系网络 · "+(state.era==="all"?"全期":eraName(state.era));
-    layout(); draw(); drawRank(); showDetail(null);
-  }
-  function eraName(id){ var e=ERAS.filter(function(x){return x.id===id;})[0]; return e?e.name:id; }
+    document.getElementById("stat").textContent=
+      "节点 "+G.length+" 人 · 连线 "+linksG.length+" 条（候选 "+cand.length+" 人，已剔除在当前关系筛选下无连线的孤立项）";
 
-  /* ---------- 力导向布局 ---------- */
-  var raf=null, iter=0, IT=260;
-  function layout(){
-    var n=nodesG.length; if(!n) return;
-    var groups={}; nodesG.forEach(function(nd){(groups[nd.f]=groups[nd.f]||[]).push(nd);});
-    var keys=Object.keys(groups), gi=0;
-    nodesG.forEach(function(nd,i){
-      var a=(i/n)*Math.PI*2 + keys.indexOf(nd.f)*0.7;
-      nd.x=W/2+Math.cos(a)*(W*0.26); nd.y=H/2+Math.sin(a)*(H*0.26); nd.vx=0; nd.vy=0;
-    });
-    iter=0; if(raf)cancelAnimationFrame(raf); step();
+    // 同步计算布局后一次性渲染：保证每次打开同一组筛选都得到完全相同的一张图
+    setTimeout(function(){
+      computeLayout();
+      betweenness();
+      render();
+      drawRank();
+      showDetail(null);
+      busy.className="busy";
+    },16);
   }
-  function step(){
-    var n=nodesG.length; if(!n) return;
-    var k=Math.sqrt((W*H)/n)*0.62;
-    var idx={}; nodesG.forEach(function(nd,i){idx[nd.n]=i;});
-    var E=linksG.map(function(l){return [idx[l.a],idx[l.b],l.c];}).filter(function(e){return e[0]>=0&&e[1]>=0;});
-    iter++;
-    var t=Math.max(0.02,0.9*(1-iter/IT));
-    // 斥力
-    for(var i=0;i<n;i++){
-      for(var j=i+1;j<n;j++){
-        var dx=nodesG[i].x-nodesG[j].x, dy=nodesG[i].y-nodesG[j].y;
-        var d2=dx*dx+dy*dy; if(d2<1)d2=1;
-        var d=Math.sqrt(d2), f=(k*k)/d2;
-        var fx=dx/d*f, fy=dy/d*f;
-        nodesG[i].vx+=fx; nodesG[i].vy+=fy;
-        nodesG[j].vx-=fx; nodesG[j].vy-=fy;
+  function eraName(id){ var e=null; ERAS.forEach(function(x){if(x.id===id)e=x;}); return e?e.name:id; }
+  function radius(nd){ return Math.min(30, 4.6+Math.sqrt(nd.w)*1.5); }
+
+  /* ---------------- 确定性布局（无随机数、无逐帧动画） ---------------- */
+  function computeLayout(){
+    var n=G.length; if(!n) return;
+    var order=G.slice().sort(function(a,b){
+      if(b.deg!==a.deg) return b.deg-a.deg;
+      if(b.w!==a.w) return b.w-a.w;
+      return a.n<b.n?-1:1;
+    });
+    var R=Math.min(W,H)*0.42, GA=2.399963229728653;
+    order.forEach(function(nd,i){
+      var rr=R*Math.sqrt((i+0.6)/n);
+      nd.x=W/2+Math.cos(i*GA)*rr; nd.y=H/2+Math.sin(i*GA)*rr;
+      nd.vx=0; nd.vy=0;
+    });
+    var itr = n<=60?520 : n<=120?440 : n<=220?360 : 280;
+    var k0=Math.sqrt((W*H)/n)*0.72;
+    var E=linksG.map(function(l){return [IDX[l.a],IDX[l.b],Math.min(l.c,8)];});
+    for(var it=0; it<itr; it++){
+      var a=1-it/itr, cool=0.06+a*0.9;
+      // 斥力
+      for(var i=0;i<n;i++){
+        var A=order[i];
+        for(var j=i+1;j<n;j++){
+          var B=order[j];
+          var dx=A.x-B.x, dy=A.y-B.y, d2=dx*dx+dy*dy;
+          if(d2<0.01){ dx=(i%7-3)*0.7+0.3; dy=(j%5-2)*0.7+0.3; d2=dx*dx+dy*dy; }
+          var d=Math.sqrt(d2), f=(k0*k0)/d2;
+          var fx=dx/d*f, fy=dy/d*f;
+          A.vx+=fx; A.vy+=fy; B.vx-=fx; B.vy-=fy;
+        }
+      }
+      // 引力：共现越多越近
+      for(var m=0;m<E.length;m++){
+        var p=order[E[m][0]], q=order[E[m][1]];
+        var ex=q.x-p.x, ey=q.y-p.y, ed=Math.sqrt(ex*ex+ey*ey)||1;
+        var g=(ed*ed)/k0*(0.38+E[m][2]*0.075);
+        var gx=ex/ed*g, gy=ey/ed*g;
+        p.vx+=gx; p.vy+=gy; q.vx-=gx; q.vy-=gy;
+      }
+      // 轻向心 + 位移
+      for(var t=0;t<n;t++){
+        var nd=order[t];
+        nd.vx+=(W/2-nd.x)*0.035; nd.vy+=(H/2-nd.y)*0.035;
+        nd.x+=Math.max(-30,Math.min(30,nd.vx*cool*0.22));
+        nd.y+=Math.max(-30,Math.min(30,nd.vy*cool*0.22));
+        nd.vx*=0.76; nd.vy*=0.76;
       }
     }
-    // 引力（共现越多越近）
-    for(var m=0;m<E.length;m++){
-      var A=nodesG[E[m][0]],B=nodesG[E[m][1]];
-      var ex=B.x-A.x, ey=B.y-A.y, ed=Math.sqrt(ex*ex+ey*ey)||1;
-      var g=(ed*ed)/k*(0.35+Math.min(E[m][2],6)*0.09);
-      var gx=ex/ed*g, gy=ey/ed*g;
-      A.vx+=gx; A.vy+=gy; B.vx-=gx; B.vy-=gy;
+    // 归一化：居中并等比铺满画布 → 位置永远稳定可复现
+    var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+    G.forEach(function(nd){
+      var r=radius(nd)+16;
+      if(nd.x-r<minx)minx=nd.x-r; if(nd.x+r>maxx)maxx=nd.x+r;
+      if(nd.y-r<miny)miny=nd.y-r; if(nd.y+r>maxy)maxy=nd.y+r;
+    });
+    var sc=Math.min((W-PAD*2)/(maxx-minx||1),(H-PAD*2)/(maxy-miny||1));
+    sc=Math.min(sc,3.2);
+    var cx=(minx+maxx)/2, cy=(miny+maxy)/2;
+    G.forEach(function(nd){
+      nd.x=(nd.x-cx)*sc+W/2; nd.y=(nd.y-cy)*sc+H/2;
+    });
+    // 去重叠：按半径把挨太近的点轻轻推开（同样确定性）
+    for(var pass=0;pass<60;pass++){
+      var moved=0;
+      for(var u=0;u<n;u++){
+        for(var w=u+1;w<n;w++){
+          var a1=G[u],b1=G[w];
+          var ddx=b1.x-a1.x, ddy=b1.y-a1.y;
+          var need=radius(a1)+radius(b1)+5.5;
+          var dd=Math.sqrt(ddx*ddx+ddy*ddy);
+          if(dd>0 && dd<need){
+            var push=(need-dd)/2*0.5;
+            var ux=ddx/dd*push, uy=ddy/dd*push;
+            a1.x-=ux; a1.y-=uy; b1.x+=ux; b1.y+=uy; moved=1;
+          }
+        }
+      }
+      if(!moved) break;
     }
-    // 向心 + 位移
-    for(var q=0;q<n;q++){
-      var nd=nodesG[q];
-      nd.vx+=(W/2-nd.x)*0.02; nd.vy+=(H/2-nd.y)*0.02;
-      nd.x+=Math.max(-24,Math.min(24,nd.vx*t)); nd.y+=Math.max(-24,Math.min(24,nd.vy*t));
-      nd.vx*=0.72; nd.vy*=0.72;
-      var r=radius(nd)+6;
-      nd.x=Math.max(r,Math.min(W-r,nd.x)); nd.y=Math.max(r+2,Math.min(H-r-2,nd.y));
-    }
-    draw();
-    if(iter<IT) raf=requestAnimationFrame(step);
-  }
-  function radius(nd){ return Math.min(26, 4.2+Math.sqrt(nd.w)*1.55); }
-
-  /* ---------- 绘制 ---------- */
-  function vb(){ var w=W/state.zoom,h=H/state.zoom;
-    return [(state.cx-w/2).toFixed(1),(state.cy-h/2).toFixed(1),w.toFixed(1),h.toFixed(1)]; }
-  function draw(){
-    if(!nodesG.length){
-      svg.innerHTML='<rect width="'+W+'" height="'+H+'" fill="#fbf8f1"/>'
-        +'<text x="'+W/2+'" y="'+H/2+'" text-anchor="middle" fill="#a89b88" font-size="15">当前筛选下没有可连边的人物，请放宽条件</text>';
-      return;
-    }
-    var idx={}; nodesG.forEach(function(nd,i){idx[nd.n]=i;});
-    var sel=state.sel, near={};
-    if(sel){ near[sel]=1; (adj[sel]||[]).forEach(function(r){near[r.to]=1;}); }
-    var s='<rect x="-2000" y="-2000" width="6000" height="6000" fill="#fbf8f1"/>';
-    s+='<g class="links">'+linksG.map(function(l){
-      var A=nodesG[idx[l.a]],B=nodesG[idx[l.b]];
-      var hi=sel&&(l.a===sel||l.b===sel);
-      var cls="link"+(hi?" hi":(sel?" dim":""));
-      var wdt=0.6+Math.min(l.c,8)*0.28;
-      return '<line class="'+cls+'" x1="'+A.x.toFixed(1)+'" y1="'+A.y.toFixed(1)+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke-width="'+wdt.toFixed(2)+'"/>';
-    }).join("")+'</g>';
-    s+='<g class="nodes">'+nodesG.map(function(nd,i){
-      var r=radius(nd), col=FHEX[nd.f]||"#8a7355";
-      var cls="node"+(sel?(near[nd.n]?"":" dim"):"")+(nd.n===sel?" sel":"");
-      var showLabel=(!sel&&(nd.w>=18||nd.deg>=14))||nd.n===sel||(sel&&near[nd.n]);
-      var lab=showLabel? '<text class="nlabel'+(sel&&!near[nd.n]?" dim":"")+'" x="'+(nd.x+r+4).toFixed(1)+'" y="'+(nd.y+4).toFixed(1)+'">'+nd.n+'</text>':'';
-      return '<circle class="'+cls+'" cx="'+nd.x.toFixed(1)+'" cy="'+nd.y.toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+col+'" data-n="'+nd.n+'"><title>'
-        +nd.n+'｜'+FN[nd.f]+' · '+CN[nd.c]+'｜被提及 '+nd.w+' 次 · 关联 '+nd.deg+' 人</title></circle>'+lab;
-    }).join("")+'</g>';
-    var v=vb();
-    svg.setAttribute("viewBox",v[0]+" "+v[1]+" "+v[2]+" "+v[3]);
-    svg.innerHTML=s;
+    // 去重叠会改变包络 → 再次居中并铺满画布
+    minx=1e9;maxx=-1e9;miny=1e9;maxy=-1e9;
+    G.forEach(function(nd){
+      var r=radius(nd)+14;
+      if(nd.x-r<minx)minx=nd.x-r; if(nd.x+r>maxx)maxx=nd.x+r;
+      if(nd.y-r<miny)miny=nd.y-r; if(nd.y+r>maxy)maxy=nd.y+r;
+    });
+    sc=Math.min((W-PAD*2)/(maxx-minx||1),(H-PAD*2)/(maxy-miny||1));
+    sc=Math.min(sc,3.2);
+    cx=(minx+maxx)/2; cy=(miny+maxy)/2;
+    G.forEach(function(nd){
+      nd.x=(nd.x-cx)*sc+W/2; nd.y=(nd.y-cy)*sc+H/2;
+    });
   }
 
-  /* ---------- 交互 ---------- */
+  /* ---------------- 加权介数中心性（Brandes，距离＝1/共现次数） ---------------- */
+  function betweenness(){
+    var n=G.length; if(!n) return;
+    var V=G.map(function(nd){return nd.n;});
+    var nb=V.map(function(){return [];});
+    linksG.forEach(function(l){
+      var i=IDX[l.a], j=IDX[l.b], wt=1/Math.max(1,l.c);
+      nb[i].push({v:j,w:wt}); nb[j].push({v:i,w:wt});
+    });
+    var bc=new Array(n), dist, sigma, delta, prev, queue;
+    for(var i=0;i<n;i++) bc[i]=0;
+    var order=new Array(n), sp=new Array(n);
+    for(var s=0;s<n;s++){
+      dist=new Array(n); sigma=new Array(n); delta=new Array(n); prev=[];
+      for(var t=0;t<n;t++){dist[t]=-1;sigma[t]=0;delta[t]=0;prev[t]=[];}
+      dist[s]=0; sigma[s]=1;
+      queue=[s]; var head=0, cnt=0; order.length=0;
+      while(head<queue.length){
+        var v=queue[head++]; order[cnt++]=v;
+        for(var e=0;e<nb[v].length;e++){
+          var to=nb[v][e].v, wv=nb[v][e].w;
+          var nd2=dist[v]+wv;
+          if(dist[to]<0){ dist[to]=nd2; sigma[to]=sigma[v]; prev[to]=[v]; queue.push(to); }
+          else if(Math.abs(dist[to]-nd2)<1e-9){ sigma[to]+=sigma[v]; prev[to].push(v); }
+        }
+      }
+      var invd={}; for(var q=0;q<cnt;q++) invd[order[q]]=q;
+      for(var a=0;a<cnt;a++){ var w=order[cnt-1-a];
+        for(var b=0;b<prev[w].length;b++){ var pu=prev[w][b];
+          delta[pu]+=(sigma[pu]/sigma[w])*(1+delta[w]);
+        }
+        if(w!==s) bc[w]+=delta[w];
+      }
+    }
+    var pairs=(n-1)*(n-2);
+    G.forEach(function(nd,i){ nd.btw = pairs>0 ? bc[i]/pairs : 0; });
+    var mx=0; G.forEach(function(nd){ if(nd.btw>mx)mx=nd.btw; });
+    G.forEach(function(nd){ nd.btwN = mx>0 ? nd.btw/mx : 0; });
+  }
+
+  /* ---------------- 渲染（一次建 DOM，后续只改属性） ---------------- */
+  var root=null, linkEls=[], nodeEls={}, labelEls={};
+  function curve(l){
+    var A=G[IDX[l.a]], B=G[IDX[l.b]];
+    var mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+    var dx=B.x-A.x, dy=B.y-A.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+    var off=Math.min(d*0.13,16);
+    return "M"+A.x.toFixed(1)+","+A.y.toFixed(1)+" Q"+(mx-dy/d*off).toFixed(1)+","+(my+dx/d*off).toFixed(1)+" "+B.x.toFixed(1)+","+B.y.toFixed(1);
+  }
+  function render(){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    linkEls=[]; nodeEls={}; labelEls={};
+    svg.appendChild(el("rect",{x:0,y:0,width:W,height:H,fill:"#fbf8f1","data-bg":"1"}));
+    root=el("g",{id:"root"});
+    var glinks=el("g",{}), ghalo=el("g",{}), gnodes=el("g",{});
+    root.appendChild(glinks); root.appendChild(ghalo); root.appendChild(gnodes);
+    svg.appendChild(root);
+
+    linksG.forEach(function(l){
+      var T=TYPES[l.t]||{color:"#b3a693",dash:""};
+      var p=el("path",{class:"link",d:curve(l),stroke:T.color,
+        "stroke-width":(0.7+Math.min(l.c,8)*0.3).toFixed(2),
+        "stroke-opacity":(0.16+Math.min(l.c,8)*0.055).toFixed(3)});
+      if(T.dash) p.setAttribute("stroke-dasharray",T.dash);
+      p.setAttribute("data-a",l.a); p.setAttribute("data-b",l.b);
+      glinks.appendChild(p); linkEls.push(p);
+    });
+
+    var hub=G.slice().sort(function(a,b){return b.deg-a.deg;}).slice(0,10);
+    hub.forEach(function(nd){ ghalo.appendChild(el("circle",{class:"hubhalo",cx:nd.x,cy:nd.y,r:radius(nd)+6})); });
+
+    // 标签优先级 + 防重叠（平时只显示权重最高的一批，悬停/选中时再展开邻居）
+    var prio=G.slice().sort(function(a,b){
+      if(b.deg!==a.deg) return b.deg-a.deg;
+      return b.w-a.w;
+    });
+    var base = G.length<=60?14 : G.length<=120?10 : 7;
+    labelWant={};
+    prio.forEach(function(nd,i){ if(i<base) labelWant[nd.n]=1; });
+    var boxes=[];
+    function labelPos(nd){
+      var r=radius(nd);
+      if(r>=12.5) return {x:nd.x, y:nd.y+r+13, mid:1};
+      return {x:nd.x+r+5, y:nd.y+4.2, mid:0};
+    }
+
+    G.forEach(function(nd){
+      var r=radius(nd), col=FHEX[nd.f]||FHEX.folk;
+      var g=el("g",{class:"node","data-n":nd.n});
+      g.appendChild(el("circle",{class:"hit",cx:nd.x,cy:nd.y,r:Math.max(r+8,14)}));
+      if(nd.c==="d") g.appendChild(el("circle",{class:"ring",cx:nd.x,cy:nd.y,r:r+3.4}));
+      if(nd.c==="d") g.appendChild(el("circle",{class:"crown",cx:nd.x,cy:nd.y,r:r+6.6}));
+      g.appendChild(el("circle",{class:"dot",cx:nd.x,cy:nd.y,r:r,fill:col}));
+      var tx=el("text",{class:"nl"});
+      var lp=labelPos(nd);
+      tx.setAttribute("x",lp.x); tx.setAttribute("y",lp.y);
+      if(lp.mid) tx.setAttribute("text-anchor","middle");
+      tx.textContent=nd.n;
+      g.appendChild(tx);
+      gnodes.appendChild(g);
+      nodeEls[nd.n]=g; labelEls[nd.n]=tx;
+      var vis=!!labelWant[nd.n];
+      tx.setAttribute("visibility",vis?"visible":"hidden");
+      if(vis){
+        var lp2=labelPos(nd);
+        var bw=nd.n.length*12.5, bh=13;
+        var box={x:(lp2.mid?nd.x-bw/2:lp2.x-2), y:lp2.y-bh+3, w:bw, h:bh};
+        var hit=false;
+        for(var i=0;i<boxes.length;i++){
+          var o=boxes[i];
+          if(box.x<o.x+o.w&&o.x<box.x+box.w&&box.y<o.y+o.h&&o.y<box.y+box.h){hit=true;break;}
+        }
+        if(hit) tx.setAttribute("visibility","hidden"); else boxes.push(box);
+      }
+      var tip=nd.n+"｜"+(FN[nd.f]||"其他")+" · "+(CN[nd.c]||"")+"\n被提及 "+nd.w+" 次 · 直接关联 "+nd.deg+" 人"
+        +" · 枢纽度 "+(nd.btwN*100).toFixed(1);
+      g.appendChild(el("title",{})).textContent=tip;
+    });
+    applyView(); paint();
+  }
+  function applyView(){
+    if(!root) return;
+    root.setAttribute("transform","translate("+view.x.toFixed(2)+","+view.y.toFixed(2)+") scale("+view.k.toFixed(3)+")");
+  }
+  function fitView(){ view={k:1,x:0,y:0}; applyView(); }
+
+  var hover=null;
+  function paint(){
+    var sel=state.sel, focus=sel||hover, near={};
+    if(focus){ near[focus]=1; (adj[focus]||[]).forEach(function(r){near[r.to]=1;}); }
+    G.forEach(function(nd){
+      var g=nodeEls[nd.n]; if(!g) return;
+      var cls="node";
+      if(focus){ if(!near[nd.n]) cls+=" dim"; else if(nd.n!==focus) cls+=" near"; }
+      if(nd.n===sel) cls+=" sel";
+      if(nd.n===hover) cls+=" hover";
+      g.setAttribute("class",cls);
+      var lb=labelEls[nd.n];
+      var show = focus ? !!near[nd.n] : !!labelWant[nd.n];
+      lb.setAttribute("visibility", show?"visible":"hidden");
+      lb.setAttribute("font-size", nd.n===focus?"13.5":"11.5");
+    });
+    linkEls.forEach(function(p){
+      var a=p.getAttribute("data-a"), b=p.getAttribute("data-b");
+      var hi=focus&&(a===focus||b===focus);
+      if(!p.getAttribute("data-op")) p.setAttribute("data-op",p.getAttribute("stroke-opacity"));
+      if(!p.getAttribute("data-bw")) p.setAttribute("data-bw",p.getAttribute("stroke-width"));
+      if(focus){
+        p.setAttribute("stroke-opacity", hi?"0.95":"0.05");
+        if(hi) p.setAttribute("stroke-width",(parseFloat(p.getAttribute("data-bw"))+0.8).toFixed(2));
+        else p.setAttribute("stroke-width",p.getAttribute("data-bw"));
+      }else{
+        p.setAttribute("stroke-opacity", p.getAttribute("data-op"));
+        p.setAttribute("stroke-width", p.getAttribute("data-bw"));
+      }
+    });
+  }
+
+  /* ---------------- 交互 ---------------- */
   svg.addEventListener("click",function(e){
-    var c=e.target.closest(".node"); if(!c)return;
-    state.sel=c.getAttribute("data-n"); draw(); drawRank(); showDetail(state.sel);
+    var t=e.target;
+    var g=(t.closest&&t.closest(".node"))||null;
+    if(!g){ return; }
+    var n=g.getAttribute("data-n");
+    state.sel = (state.sel===n)?null:n;
+    paint(); drawRank(); showDetail(state.sel);
   });
+  svg.addEventListener("pointerover",function(e){
+    var g=e.target.closest?e.target.closest(".node"):null;
+    if(!g) return; hover=g.getAttribute("data-n"); if(!state.sel) paint();
+    else paint();
+  });
+  svg.addEventListener("pointerout",function(){ hover=null; paint(); });
+
   svg.addEventListener("wheel",function(e){
     e.preventDefault();
-    state.zoom=Math.max(0.6,Math.min(4,state.zoom*(e.deltaY<0?1.12:0.89)));
-    draw();
+    var r=svg.getBoundingClientRect();
+    var px=(e.clientX-r.left)/r.width*W, py=(e.clientY-r.top)/r.height*H;
+    var old=view.k, nk=Math.max(0.5,Math.min(6,old*(e.deltaY<0?1.14:1/1.14)));
+    view.x=px-(px-view.x)*(nk/old); view.y=py-(py-view.y)*(nk/old); view.k=nk;
+    applyView();
   },{passive:false});
-  // 拖动节点
-  var drag=null;
-  function pt(e){
-    var r=svg.getBoundingClientRect(), v=vb();
-    var sx=(e.clientX-r.left)/r.width*parseFloat(v[2])+parseFloat(v[0]);
-    var sy=(e.clientY-r.top)/r.height*parseFloat(v[3])+parseFloat(v[1]);
-    return [sx,sy];
+
+  function svgPt(e){
+    var r=svg.getBoundingClientRect();
+    return { x:((e.clientX-r.left)/r.width*W-view.x)/view.k, y:((e.clientY-r.top)/r.height*H-view.y)/view.k };
   }
+  var drag=null, pan=null;
   svg.addEventListener("pointerdown",function(e){
-    var c=e.target.closest(".node"); if(!c)return;
-    var nd=nodesG.filter(function(x){return x.n===c.getAttribute("data-n");})[0];
-    if(!nd)return; drag=nd; if(raf)cancelAnimationFrame(raf); svg.setPointerCapture&&svg.setPointerCapture(e.pointerId);
+    var g=e.target.closest?e.target.closest(".node"):null;
+    if(g){ drag=G[IDX[g.getAttribute("data-n")]]; }
+    else { pan={sx:e.clientX,sy:e.clientY,vx:view.x,vy:view.y}; }
+    if(svg.setPointerCapture){ try{svg.setPointerCapture(e.pointerId);}catch(x){} }
   });
   svg.addEventListener("pointermove",function(e){
-    if(!drag)return; var p=pt(e); drag.x=p[0]; drag.y=p[1]; drag.vx=0; drag.vy=0; draw();
+    if(drag){
+      var p=svgPt(e);
+      for(var i=0;i<G.length;i++){ if(G[i]!==drag){
+        var dd=Math.sqrt(Math.pow(G[i].x-drag.x,2)+Math.pow(G[i].y-drag.y,2));
+        if(dd<radius(G[i])+radius(drag)+2){ /* 允许短暂重叠，松开后不回弹 */ }
+      }}
+      drag.x=p.x; drag.y=p.y; moveNode(drag);
+    } else if(pan){
+      var r=svg.getBoundingClientRect();
+      view.x=pan.vx+(e.clientX-pan.sx)/r.width*W;
+      view.y=pan.vy+(e.clientY-pan.sy)/r.height*H;
+      applyView();
+    }
   });
-  svg.addEventListener("pointerup",function(){drag=null;});
-  svg.addEventListener("pointercancel",function(){drag=null;});
+  svg.addEventListener("pointerup",function(){drag=null;pan=null;});
+  svg.addEventListener("pointercancel",function(){drag=null;pan=null;});
 
-  document.getElementById("zIn").onclick=function(){state.zoom=Math.min(4,state.zoom*1.25);draw();};
-  document.getElementById("zOut").onclick=function(){state.zoom=Math.max(0.6,state.zoom/1.25);draw();};
-  document.getElementById("zFit").onclick=function(){state.zoom=1;state.cx=W/2;state.cy=H/2;draw();};
-  document.getElementById("btnReplay").onclick=function(){layout();};
+  function moveNode(nd){
+    var g=nodeEls[nd.n]; if(!g) return;
+    var cs=g.childNodes, r=radius(nd);
+    for(var i=0;i<cs.length;i++){
+      var c=cs[i], tag=c.tagName;
+      if(tag==="circle"){ c.setAttribute("cx",nd.x); c.setAttribute("cy",nd.y); }
+      else if(tag==="text"){
+        var rr=radius(nd);
+        if(rr>=12.5){ c.setAttribute("x",nd.x); c.setAttribute("y",nd.y+rr+13); c.setAttribute("text-anchor","middle"); }
+        else { c.setAttribute("x",nd.x+rr+5); c.setAttribute("y",nd.y+4.2); c.removeAttribute("text-anchor"); }
+      }
+    }
+    linksG.forEach(function(l,k){
+      if(l.a===nd.n||l.b===nd.n) linkEls[k].setAttribute("d",curve(l));
+    });
+    var hh=root.querySelectorAll(".hubhalo");
+    var top=G.slice().sort(function(a,b){return b.deg-a.deg;}).slice(0,10);
+    var pos=function(name){var x=G[IDX[name]];return x;};
+    for(var q=0;q<hh.length&&q<top.length;q++){ hh[q].setAttribute("cx",top[q].x); hh[q].setAttribute("cy",top[q].y); hh[q].setAttribute("r",radius(top[q])+6); }
+  }
+
+  function zoomBy(f){
+    var old=view.k, nk=Math.max(0.5,Math.min(6,old*f));
+    view.x=W/2-(W/2-view.x)*(nk/old); view.y=H/2-(H/2-view.y)*(nk/old); view.k=nk;
+    applyView();
+  }
+  document.getElementById("zIn").onclick=function(){zoomBy(1.25);};
+  document.getElementById("zOut").onclick=function(){zoomBy(1/1.25);};
+  document.getElementById("zFit").onclick=function(){fitView();};
+
   document.getElementById("btnReset").onclick=function(){
-    state.f="all";state.era="all";state.topN=50;state.zoom=1;state.cx=W/2;state.cy=H/2;
+    state.f="all";state.era="all";state.topN=60;state.sel=null;
+    state.rel={k:1,v:1,a:1,f:1,b:1,o:1};
     ["f-force","f-era","f-n"].forEach(function(id){
-      var el=document.getElementById(id), def=id==="f-n"?"50":"all";
-      Array.prototype.forEach.call(el.querySelectorAll(".chip"),function(x){
+      var box=document.getElementById(id), def=id==="f-n"?"60":"all";
+      Array.prototype.forEach.call(box.querySelectorAll(".chip"),function(x){
         x.classList.toggle("on",x.getAttribute("data-v")===def);});
     });
-    build();
+    Array.prototype.forEach.call(document.getElementById("f-rel").querySelectorAll(".chip"),function(x){x.classList.add("on");});
+    fitView(); build();
   };
 
-  /* ---------- 权重榜 ---------- */
+  // 搜索定位
+  var qEl=document.getElementById("q");
+  function locate(){
+    var q=(qEl.value||"").replace(/\s+/g,"");
+    if(!q) return;
+    var hit=null, pool=G.length?G:NODES.filter(function(n){return n.w>0;});
+    pool.forEach(function(nd){
+      if(hit) return;
+      if(nd.n.indexOf(q)===0||(nd.z&&nd.z.indexOf(q)===0)) hit=nd;
+    });
+    if(!hit) pool.forEach(function(nd){ if(!hit&&nd.n.indexOf(q)>=0) hit=nd; });
+    if(!hit){ alert("没找到“"+q+"”，试试“曹操”“诸葛”或字“孔明”。"); return; }
+    if(!IDX.hasOwnProperty(hit.n)){
+      // 不在当前图里 → 放宽到「全部」规模再找
+      Array.prototype.forEach.call(document.getElementById("f-n").querySelectorAll(".chip"),function(x){
+        x.classList.toggle("on",x.getAttribute("data-v")==="352");});
+      state.topN=352; build();
+      setTimeout(function(){ selectByName(hit.n); },260);
+      return;
+    }
+    selectByName(hit.n);
+  }
+  qEl.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.keyCode===13){ locate(); } });
+
+  function selectByName(name){
+    state.sel=name;
+    var nd=G[IDX[name]];
+    if(nd){ view.k=1.35; view.x=W/2-nd.x*view.k; view.y=H/2-nd.y*view.k; applyView(); }
+    paint(); drawRank(); showDetail(name);
+    var rw=document.getElementById("rank").querySelector('.rank-row[data-n="'+name+'"]');
+    if(rw&&rw.scrollIntoView) try{rw.scrollIntoView({block:"center"});}catch(x){}
+  }
+
+  /* ---------------- 排行榜 ---------------- */
+  var METRIC={w:{label:"次",get:function(n){return n.w;},max:function(){return maxW;}},
+              deg:{label:"人",get:function(n){return n.deg;},max:function(){var m=1;G.forEach(function(n){if(n.deg>m)m=n.deg;});return m;}},
+              btw:{label:"",get:function(n){return n.btwN;},max:function(){return 1;}}};
+  document.getElementById("rankTabs").addEventListener("click",function(e){
+    var b=e.target.closest?e.target.closest("button"):null; if(!b)return;
+    state.rankMetric=b.getAttribute("data-m");
+    Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+    drawRank();
+  });
   function drawRank(){
-    var list=nodesG.slice().sort(function(a,b){return b.w-a.w;}).slice(0,40);
     var host=document.getElementById("rank");
-    if(!list.length){host.innerHTML='<div class="empty">无数据</div>';return;}
+    if(!G.length){host.innerHTML='<div class="empty">无数据</div>';return;}
+    var M=METRIC[state.rankMetric], mx=M.max()||1;
+    var list=G.slice().sort(function(a,b){return M.get(b)-M.get(a);}).slice(0,40);
     host.innerHTML=list.map(function(nd,i){
-      var col=FHEX[nd.f]||"#8a7355";
+      var col=FHEX[nd.f]||FHEX.folk, v=M.get(nd);
+      var txt = state.rankMetric==="btw" ? (v*100).toFixed(1) : v+(state.rankMetric==="w"?" 次":" 人");
       return '<div class="rank-row'+(nd.n===state.sel?' on':'')+'" data-n="'+nd.n+'">'
         +'<span class="rank-no">'+(i+1)+'</span>'
         +'<span class="rank-n" style="color:'+col+'">'+nd.n+'</span>'
-        +'<span class="rank-bar"><i style="width:'+Math.round(nd.w/maxW*100)+'%;background:'+col+'"></i></span>'
-        +'<span class="rank-w">'+nd.w+' 次</span></div>';
+        +'<span class="rank-bar"><i style="width:'+Math.max(2,Math.round(v/mx*100))+'%;background:'+col+'"></i></span>'
+        +'<span class="rank-w">'+txt+'</span></div>';
     }).join("");
   }
   document.getElementById("rank").addEventListener("click",function(e){
-    var r=e.target.closest(".rank-row"); if(!r)return;
-    var n=r.getAttribute("data-n");
-    state.sel=n; draw(); drawRank(); showDetail(n);
+    var r=e.target.closest?e.target.closest(".rank-row"):null; if(!r)return;
+    selectByName(r.getAttribute("data-n"));
   });
 
-  /* ---------- 详情 ---------- */
+  /* ---------------- 详情面板 ---------------- */
   function showDetail(name){
     var host=document.getElementById("detail");
     if(!name){host.innerHTML='<div class="empty">尚未选择人物</div>';return;}
-    var nd=nodesG.filter(function(x){return x.n===name;})[0]||byName[name];
-    if(!nd){host.innerHTML='<div class="empty">未找到该人物</div>';return;}
-    var col=FHEX[nd.f]||"#8a7355";
-    var rels=(adj[name]||[]).slice().sort(function(a,b){return b.c-a.c;}).slice(0,12);
+    var nd=G[IDX[name]]||byName[name];
+    if(!nd){host.innerHTML='<div class="empty">此人不在当前筛选范围内，请放宽规模或阵营条件</div>';return;}
+    var col=FHEX[nd.f]||FHEX.folk;
+    var rels=(adj[name]||[]).slice();
     var h='<div class="dt-name" style="color:'+col+'">'+nd.n+'</div>';
-    h+='<div class="dt-sub">'+(nd.z?'字 '+nd.z+' · ':'')+FN[nd.f]+' · '+CN[nd.c]+' · 主要活跃于 '+eraName(nd.era)+'</div>';
-    h+='<div class="dt-tags"><span class="dt-tag">权重排名 '+rankOf(name)+'</span>'
-      +'<span class="dt-tag">'+eraName(nd.era)+'</span></div>';
+    h+='<div class="dt-sub">'+(nd.z?'字 '+nd.z+' · ':'')+(FN[nd.f]||"其他")+' · '+(CN[nd.c]||"")
+      +' · 主要活跃于 '+eraName(nd.era)+'</div>';
+    h+='<div class="dt-tags"><span class="dt-tag">'+eraName(nd.era)+'</span>'
+      +'<span class="dt-tag">'+(CN[nd.c]||"")+'</span>'
+      +'<span class="dt-tag">全局权重第 '+globalRank(name)+' 位</span></div>';
     h+='<div class="dt-stats">'
       +'<div class="dt-stat"><b>'+nd.w+'</b><span>被提及次数</span></div>'
-      +'<div class="dt-stat"><b>'+nd.deg+'</b><span>关联人物数</span></div></div>';
-    h+='<div class="dt-rel"><h4>关联最密的人物</h4>'
-      +rels.map(function(r){
-        var o=byName[r.to]||{f:"qun"};
-        return '<div class="rel-item" data-n="'+r.to+'"><i style="background:'+(FHEX[o.f]||"#8a7355")+'"></i>'
-          +r.to+'<span class="rel-c">共现 '+r.c+' 次</span></div>';
-      }).join("")+'</div>';
-    h+='<a class="dt-link" href="people.html?p='+encodeURIComponent(name)+'" target="_blank">查看生平 →</a>';
+      +'<div class="dt-stat"><b>'+nd.deg+'</b><span>图上直接关联</span></div>'
+      +'<div class="dt-stat"><b>'+(nd.btwN*100).toFixed(1)+'</b><span>枢纽度 · 百分位</span></div>'
+      +'<div class="dt-stat"><b>'+rels.length+'</b><span>关系条目总数</span></div>'
+      +'</div>';
+    var total = rels.reduce(function(s,r){return s+r.c;},0);
+    h+='<div class="dt-rel">';
+    var any=false;
+    TORD.forEach(function(t){
+      var arr=rels.filter(function(r){return r.t===t;}).sort(function(a,b){return b.c-a.c;});
+      if(!arr.length) return;
+      any=true;
+      var T=TYPES[t]||{name:t,color:"#999"};
+      var share=Math.round(arr.reduce(function(s,r){return s+r.c;},0)/Math.max(1,total)*100);
+      h+='<div class="rel-group"><div class="rel-gt" style="color:'+T.color+'">'
+        +'<i style="border-top-color:'+T.color+';'+((T.dash)?"border-top-style:dashed;":"")+'"></i>'
+        +T.name+' · '+arr.length+' 人 <span style="color:#a89b88;font-weight:400">占 ' + share + '%</span></div>';
+      arr.slice(0,6).forEach(function(r){
+        var o=byName[r.to]||{f:"folk"};
+        h+='<div class="rel-item" data-n="'+r.to+'"><i style="background:'+(FHEX[o.f]||FHEX.folk)+'"></i>'
+          +r.to+(r.cur?' <b style="color:var(--gold-d)" title="人工校订的核心关系">★</b>':'')
+          +'<span class="rel-c">共现 '+r.c+' 次</span></div>';
+      });
+      if(arr.length>6) h+='<div class="rel-more" data-more="'+t+'">展开其余 '+(arr.length-6)+' 人 ↓</div>';
+      h+='</div>';
+    });
+    if(!any) h+='<div class="note">在当前关系类型筛选下没有可见连线。</div>';
+    h+='</div>';
+    h+='<a class="dt-link" href="people.html?p='+encodeURIComponent(name)+'" target="_blank">查看生平详解 →</a>';
     host.innerHTML=h;
   }
-  function rankOf(name){
+  document.getElementById("detail").addEventListener("click",function(e){
+    var more=e.target.closest?e.target.closest(".rel-more"):null;
+    if(more){ toggleMore(more,more.getAttribute("data-more")); return; }
+    var it=e.target.closest?e.target.closest(".rel-item"):null; if(!it)return;
+    var n=it.getAttribute("data-n");
+    if(IDX.hasOwnProperty(n)) selectByName(n);
+    else showDetail(n);
+  });
+  function toggleMore(btn,t){
+    var name=state.sel; if(!name) return;
+    var rels=(adj[name]||[]).filter(function(r){return r.t===t;}).sort(function(a,b){return b.c-a.c;});
+    var wrap=btn.parentNode;
+    wrap.removeChild(btn);
+    rels.slice(6).forEach(function(r){
+      var o=byName[r.to]||{f:"folk"};
+      var d=document.createElement("div");
+      d.className="rel-item"; d.setAttribute("data-n",r.to);
+      d.innerHTML='<i style="background:'+(FHEX[o.f]||FHEX.folk)+'"></i>'+r.to
+        +(r.cur?' <b style="color:var(--gold-d)">★</b>':'')
+        +'<span class="rel-c">共现 '+r.c+' 次</span>';
+      wrap.appendChild(d);
+    });
+  }
+  function globalRank(name){
     var sorted=NODES.slice().sort(function(a,b){return b.w-a.w;});
-    for(var i=0;i<sorted.length;i++) if(sorted[i].n===name) return "第 "+(i+1)+" 位 / "+sorted.length;
+    for(var i=0;i<sorted.length;i++) if(sorted[i].n===name) return i+1;
     return "—";
   }
-  document.getElementById("detail").addEventListener("click",function(e){
-    var it=e.target.closest(".rel-item"); if(!it)return;
-    var n=it.getAttribute("data-n");
-    if(byName[n]&&nodesG.some(function(x){return x.n===n;})){ state.sel=n; draw(); drawRank(); showDetail(n); }
-  });
 
   build();
 })();

@@ -98,6 +98,19 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 .mode-tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .mode-tabs button em{font-style:normal;font-size:11px;font-weight:400;opacity:.72;margin-left:6px}
 
+/* 选玩法首页 */
+.pick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1080px){.pick-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.pick-grid{grid-template-columns:1fr}}
+.pick-card{text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:18px 18px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-height:196px;font-family:var(--sans);transition:transform .12s ease,border-color .12s ease}
+.pick-card:hover{border-color:#c5a05f;transform:translateY(-2px)}
+.pick-card .pc-ava{flex:none;width:38px;height:38px;border-radius:50%;background:var(--dark2);color:var(--cream);font-family:var(--serif);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pick-card b{font-family:var(--serif);font-size:18px;font-weight:700;color:#3a3029}
+.pick-card em{font-style:normal;font-size:11.5px;color:var(--gold-d);font-weight:700}
+.pick-card p{font-size:12.5px;line-height:20px;color:var(--muted);flex:1;margin:0}
+.pick-card .pc-meta{font-size:11.5px;color:#5d544b;border-top:1px dashed var(--card-line);padding-top:9px}
+.pick-tip{font-size:12.5px;color:var(--muted);line-height:20px;background:#fffdf5;border:1px solid var(--card-line);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 14px}
+
 /* 海龟汤回答色 */
 .msg.sys .bub .soup-a{font-family:var(--serif);font-weight:700}
 .soup-a.y{color:#2e7d4f}
@@ -195,13 +208,40 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
   </div>
 
   <div class="mode-tabs" id="modeTabs">
-    <button data-m="ask" class="on">人物解谜<em>聊天问答</em></button>
+    <button data-m="home" class="on">选玩法<em>四种任选</em></button>
+    <button data-m="ask">人物解谜<em>聊天问答</em></button>
     <button data-m="soup">海龟汤<em>情境推理</em></button>
     <button data-m="riddle">人物谜语<em>灯谜猜人</em></button>
     <button data-m="quote">名言归属<em>四选一</em></button>
   </div>
 
-  <div id="g-ask">
+  <div id="g-home">
+    <div class="pick-grid">
+      <button class="pick-card" data-m="ask">
+        <span class="pc-ava">猜</span><b>人物解谜</b><em>聊天式问答</em>
+        <p>我心里想着一位三国人物，先给你一张身份卡；之后随便提问，或直接报名字来猜。猜中即通关。</p>
+        <span class="pc-meta" data-cnt="ask">题库：全站 699 位人物 · 无限局</span>
+      </button>
+      <button class="pick-card" data-m="soup">
+        <span class="pc-ava">汤</span><b>海龟汤</b><em>情境推理</em>
+        <p>一句离奇汤面，你用「是／否／无关」的问题把汤底推出来。可要提示，也可直接揭晓。</p>
+        <span class="pc-meta" data-cnt="soup">共 50 道</span>
+      </button>
+      <button class="pick-card" data-m="riddle">
+        <span class="pc-ava">谜</span><b>人物谜语</b><em>灯谜猜人</em>
+        <p>灯谜扣人名，谐音、字义、典故皆有；名、字都算对，每题附谜底解释与提示。</p>
+        <span class="pc-meta" data-cnt="riddle">共 50 条</span>
+      </button>
+      <button class="pick-card" data-m="quote">
+        <span class="pc-ava">句</span><b>名言归属</b><em>四选一</em>
+        <p>《演义》名句四选一，答完即见回目出处；每局抽 10 题，可反复重开。</p>
+        <span class="pc-meta" data-cnt="quote">共 50 题</span>
+      </button>
+    </div>
+    <div class="pick-tip" style="margin-top:14px">四种玩法彼此独立，随时可以点上方「选玩法」回来换一种。题库均取自本站《三国演义》人物与故事数据；海龟汤规则与题面风格参考已列在本页底部。</div>
+  </div>
+
+  <div id="g-ask" style="display:none">
   <div class="game-wrap">
     <section class="chat">
       <div class="chat-head">
@@ -720,29 +760,42 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
   newRound();
 })();
 </script>
+<script src="data-soup-a.js"></script>
+<script src="data-soup-b.js"></script>
+<script src="data-riddles.js"></script>
+<script src="data-quotes.js"></script>
 <script>
 /* ==================== 模式切换 + 新玩法 ==================== */
 (function(){
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
   var $=function(id){return document.getElementById(id);};
   var DESC={
+    home:"四种玩法彼此独立，挑一个开始；随时点上方「选玩法」回来换一种。",
     ask:"我心里想着一位三国人物，先给你一张身份卡；之后随便提问，是非题或具体问题都行，也可以直接报名字来猜。",
     soup:"主持人给出一句离奇的汤面，你用「是 / 否 / 无关」的问题把汤底推理出来。全部改编自《三国演义》情节。",
     riddle:"灯谜扣人名，谐音、字义、典故皆有；名、字都算对，猜错不扣分。",
     quote:"《三国演义》名句（或据此流传的俗语）四选一，答完即见出处。"
   };
 
-  /* ---------- 模式切换 ---------- */
-  var MODES=["ask","soup","riddle","quote"];
+  /* ---------- 模式切换（含首页） ---------- */
+  var MODES=["home","ask","soup","riddle","quote"];
+  function go(m){
+    MODES.forEach(function(k){ $("g-"+k).style.display=(k===m)?"":"none"; });
+    $("modeDesc").textContent=DESC[m]||DESC.home;
+    Array.prototype.forEach.call($("modeTabs").querySelectorAll("button"),function(x){
+      x.classList.toggle("on",x.getAttribute("data-m")===m);
+    });
+    if(window.pageYOffset>260) window.scrollTo(0,0);
+  }
   $("modeTabs").addEventListener("click",function(e){
     var b=e.target.closest?e.target.closest("button"):null; if(!b)return;
-    var m=b.getAttribute("data-m");
-    MODES.forEach(function(k){
-      $("g-"+k).style.display=(k===m)?"":"none";
-      if(k===m) $("modeDesc").textContent=DESC[k];
-    });
-    Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+    go(b.getAttribute("data-m"));
   });
+  $("g-home").addEventListener("click",function(e){
+    var c=e.target.closest?e.target.closest(".pick-card"):null; if(!c)return;
+    go(c.getAttribute("data-m"));
+  });
+  go("home");
 
   function sayTo(logId,html,cls){
     var d=document.createElement("div");
@@ -845,6 +898,10 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
      hints:["睡醒的先生后来掏出一张天下三分的图纸。","这位等待者当时已经快五十岁，而睡觉的先生才二十七岁。"]}
   ];
 
+  /* 题库外置：优先使用 data-soup-a/b.js（50+ 道），加载不到时回退到下面内联的 6 道 */
+  if(window.SOUPS_A){ SOUPS=(window.SOUPS_A||[]).concat(window.SOUPS_B||[]); }
+  (function(){ var e=document.querySelector('[data-cnt="soup"]'); if(e) e.textContent="共 "+SOUPS.length+" 道汤 · 随机不重复"; })();
+
   var soupIdx=-1, soupQ=0, soupH=0, soupDone=false;
   function normTxt(s){ return String(s).replace(/[，。？！、：；「」『』（）()\s,.\?!]/g,""); }
   function soupStart(){
@@ -926,6 +983,10 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
     {r:"轻骑飞跃",a:"马超",alias:["马超","孟起"],hint:"他是五虎上将，西凉锦袍。",expl:"骑「马」飞「超」——马超。"},
     {r:"事事齐全说汉高",a:"刘备",alias:["刘备","玄德"],hint:"汉高祖是刘邦。",expl:"汉高祖刘邦的事迹一应俱「备」——刘「备」。"}
   ];
+  /* 题库外置：优先使用 data-riddles.js（50 条） */
+  if(window.GAME_RIDDLES){ RIDDLES=window.GAME_RIDDLES; }
+  (function(){ var e=document.querySelector('[data-cnt="riddle"]'); if(e) e.textContent="共 "+RIDDLES.length+" 条谜 · 每局打乱全出"; })();
+
   var ridOrder=[], ridPos=0, ridHit=0;
   function shuffle(arr){
     var a=arr.slice();
@@ -1006,6 +1067,10 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
     {q:"赔了夫人又折兵。",a:"周瑜",opts:["周瑜","吕蒙","孙权","陆逊"],src:"《三国演义》第五十五回回目俗语——「周郎妙计安天下」的下联"},
     {q:"扶不起的阿斗",a:"刘禅",opts:["刘禅","刘璋","刘表","刘度"],src:"据《三国演义》流传的后世俗语——「阿斗」即后主刘禅"}
   ];
+  /* 题库外置：优先使用 data-quotes.js（50 题），每局抽 10 题 */
+  if(window.GAME_QUOTES){ QUOTES=window.GAME_QUOTES; }
+  (function(){ var e=document.querySelector('[data-cnt="quote"]'); if(e) e.textContent="共 "+QUOTES.length+" 题 · 每局抽 10 题"; })();
+
   var qtSet=[], qtPos=0, qtScore=0, qtLock=false;
   function qtRender(){
     var P=QUOTES[qtSet[qtPos]];

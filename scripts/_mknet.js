@@ -5,11 +5,13 @@
      k=亲属·宗族  v=君臣·统属  f=敌对·交兵  a=同盟·协作  o=其他共现
    输出 data-network.js */
 const fs = require('fs');
+const path = require('path');
+const SRC = path.join(__dirname, '..', 'docs');   // 站点源目录
 
 global.window = {};
-const html = fs.readFileSync('people.html', 'utf8');
+const html = fs.readFileSync(path.join(SRC, 'people.html'), 'utf8');
 const srcs = [...html.matchAll(/<script src="(data-[^"]+)"/g)].map(m => m[1]);
-srcs.forEach(f => require('./' + f));
+srcs.forEach(f => require(path.join(SRC, f)));
 
 // 复刻 people.html 的 ALL 组装逻辑
 const W = global.window;
@@ -119,7 +121,7 @@ ALL.forEach(p => {
    是质量更高的共现来源：同一场战役、同一条大事记中出现的人，视为一次共现。 */
 const TL_FILES = ['data-timeline.js', 'data-timeline2.js', 'data-timeline-p0.js',
   'data-timeline-pol.js', 'data-timeline-pol2.js', 'data-timeline-more.js'];
-TL_FILES.forEach(f => { try { require('./' + f); } catch (e) { console.log('跳过', f, e.message); } });
+TL_FILES.forEach(f => { try { require(path.join(SRC, f)); } catch (e) { console.log('跳过', f, e.message); } });
 
 const TL_ITEMS = [];
 ['TL_A', 'TL_B', 'TL_C', 'TL_P0', 'TL_POL', 'TL_POL2', 'TL_MORE',
@@ -294,5 +296,5 @@ const out = '/* 关系网数据（由 _mknet.js 从全量人物数据自动抽�
   + 'window.NET_ERA=' + JSON.stringify(ERA) + ';\n'
   + 'window.NET_TYPES=' + JSON.stringify(TYPES) + ';\n'
   + 'window.NET_CURATED=' + JSON.stringify(Object.keys(curated)) + ';\n';
-fs.writeFileSync('data-network.js', out, 'utf8');
+fs.writeFileSync(path.join(SRC, 'data-network.js'), out, 'utf8');
 console.log('\n输出 data-network.js ' + (fs.statSync('data-network.js').size / 1024).toFixed(0) + ' KB');

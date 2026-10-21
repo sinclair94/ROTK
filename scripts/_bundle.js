@@ -1,42 +1,43 @@
 /* 将整站打包为单文件离线版：7 页内联数据/样式，外壳 hash 路由 + srcdoc iframe */
 const fs = require('fs');
 const path = require('path');
-const DIR = __dirname;
+const DIR = __dirname;                            // 脚本所在目录（scripts/）
+const SRC = path.join(__dirname, '..', 'docs');    // 站点源目录
 
 const PAGES = ['index.html', 'people.html', 'timeline.html', 'states.html', 'network.html', 'map.html', 'game.html', 'insights.html'];
 
 function inlinePage(file) {
-  let s = fs.readFileSync(path.join(DIR, file), 'utf8');
+  let s = fs.readFileSync(path.join(SRC, file), 'utf8');
   // 内联 mobile.css / wx-compat.css（CSS 注释里的 </style> 字样必须转义，否则会提前闭合标签）
   s = s.replace(/<link rel="stylesheet" href="(mobile|wx-compat)\.css">/g, (m, f) => {
-    const css = fs.readFileSync(path.join(DIR, f + '.css'), 'utf8')
+    const css = fs.readFileSync(path.join(SRC, f + '.css'), 'utf8')
       .replace(/<\/(style)/gi, '<\\/$1');
     return '<style>\n' + css + '\n</style>';
   });
   // 内联 Leaflet 样式与脚本、简版示意图渲染器（本地库一并打包，离线可用）
   s = s.replace(/<link rel="stylesheet" href="(leaflet\.css)">/g, (m, f) => {
-    const p = path.join(DIR, f);
+    const p = path.join(SRC, f);
     if (!fs.existsSync(p)) { console.log('  ⚠ 缺少 ' + f); return m; }
     const css = fs.readFileSync(p, 'utf8').replace(/<\/(style)/gi, '<\\/$1');
     return '<style>\n' + css + '\n</style>';
   });
   // 内联全部数据脚本（同理防 </script> 提前闭合）
   s = s.replace(/<script src="(data-[^"]+\.js)"><\/script>/g, (m, f) => {
-    const p = path.join(DIR, f);
+    const p = path.join(SRC, f);
     if (!fs.existsSync(p)) { console.log('  ⚠ 缺少 ' + f); return m; }
     const js = fs.readFileSync(p, 'utf8').replace(/<\/(script)/gi, '<\\/$1');
     return '<script>\n' + js + '\n</script>';
   });
   // 内联本地库脚本（leaflet.js、map-svg.js、wx-compat.js）；内联后 onerror 无意义，直接去掉
   s = s.replace(/<script src="(leaflet\.js|map-svg\.js|wx-compat\.js)"[^>]*><\/script>/g, (m, f) => {
-    const p = path.join(DIR, f);
+    const p = path.join(SRC, f);
     if (!fs.existsSync(p)) { console.log('  ⚠ 缺少 ' + f); return m; }
     const js = fs.readFileSync(p, 'utf8').replace(/<\/(script)/gi, '<\\/$1');
     return '<script>\n' + js + '\n</script>';
   });
   // 内联按需加载脚本（data-src）：线上按用户操作动态取，离线版直接内联，保证功能完整不降级
   s = s.replace(/<script data-src="([^"]+\.js)"><\/script>/g, (m, f) => {
-    const p = path.join(DIR, f);
+    const p = path.join(SRC, f);
     if (!fs.existsSync(p)) { console.log('  ⚠ 缺少 ' + f); return m; }
     const js = fs.readFileSync(p, 'utf8').replace(/<\/(script)/gi, '<\\/$1');
     return '<script>\n' + js + '\n</script>';
@@ -111,7 +112,7 @@ route();
 </body>
 </html>`;
 
-const OUT = path.join(DIR, '三国群英谱-离线版.html');
+const OUT = path.join(__dirname, '..', '三国群英谱-离线版.html');   // 仓库根，已被 .gitignore 忽略
 fs.writeFileSync(OUT, shell, 'utf8');
 console.log('----');
 console.log('输出 ' + OUT);

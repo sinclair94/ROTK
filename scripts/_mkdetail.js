@@ -1,6 +1,7 @@
 /* 生成「事件详解」人选清单：按关系网权重取前 150 人，导出每个人的事件数组供撰写详解 */
 const fs=require('fs'),path=require('path'),vm=require('vm');
-const DIR=__dirname;
+const DIR=__dirname;                                  // 脚本所在目录（scripts/）
+const SRC=path.join(__dirname,'..','docs');            // 站点源目录
 const ctx={window:{}};
 vm.createContext(ctx);
 /* 按 people.html 的装载顺序执行，避免基础数组覆盖 concat 结果 */
@@ -9,10 +10,10 @@ const ORDER=['data-wei.js','data-shu.js','data-wu-qun.js','data-more-wei.js','da
 'data-more-jin.js','data-more-qun.js','data-more-qun2.js','data-more-qun3.js','data-more-qun4.js',
 'data-more-qun5.js','data-more-qun6.js','data-more-qun7.js','data-more-qun8.js','data-more-qun9.js'];
 for(const f of ORDER){
-  try{ vm.runInContext(fs.readFileSync(path.join(DIR,f),'utf8'),ctx,{filename:f}); }
+  try{ vm.runInContext(fs.readFileSync(path.join(SRC,f),'utf8'),ctx,{filename:f}); }
   catch(e){ console.log('skip',f,e.message.slice(0,80)); }
 }
-vm.runInContext(fs.readFileSync(path.join(DIR,'data-network.js'),'utf8'),ctx,{filename:'data-network.js'});
+vm.runInContext(fs.readFileSync(path.join(SRC,'data-network.js'),'utf8'),ctx,{filename:'data-network.js'});
 const W=ctx.window;
 
 /* 汇总全部人物 */
@@ -36,7 +37,7 @@ const manifest=top.map((p,i)=>{
   return {rank:i+1,name:p.n,zi:p.z||'',fac:FNc[p.f]||p.f,w:weight[p.n]||0,nev:p.e.length,
           evs:p.e.map(e=>[e[0],e[1]])};
 });
-fs.writeFileSync(path.join(DIR,'_detail_manifest.json'),JSON.stringify(manifest,null,1),'utf8');
+fs.writeFileSync(path.join(__dirname,'_detail_manifest.json'),JSON.stringify(manifest,null,1),'utf8');
 console.log('前 150 人事件总数:',evTotal);
 console.log('权重分布: 头部前10 =',top.slice(0,10).map(p=>p.n+':'+weight[p.n]).join(' | '));
 console.log('末位10 =',top.slice(-10).map(p=>p.n+':'+(weight[p.n]||0)).join(' | '));

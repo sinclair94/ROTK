@@ -1,6 +1,8 @@
 /* people.html：把事件详解从「首屏全量加载」改为「按批次按需加载」 */
 const fs = require('fs');
-const F = 'people.html';
+const path = require('path');
+const SRC = path.join(__dirname, '..', 'docs');   // 站点源目录
+const F = path.join(SRC, 'people.html');
 let s = fs.readFileSync(F, 'utf8');
 
 /* 第一步：15 个详解脚本改为 data-src（浏览器不会自动请求），并插入索引脚本 */

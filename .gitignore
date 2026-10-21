@@ -1,6 +1,7 @@
 # 构建产物（由脚本生成，不入库）
 gh-pages/
 三国群英谱-离线版.html
+sanguo-offline.html
 sanguo-site.zip
 
 # 本地备份
@@ -12,6 +13,12 @@ _commits.json
 _tree.json
 _stat*.js
 _think*.js
+
+# 脚本运行生成的草稿 / 清单 / 临时抓取
+_detail_manifest.json
+scripts/_detail_manifest.json
+_plan.json
+_rmt/
 
 # 环境
 node_modules/

@@ -49,18 +49,23 @@ python -m http.server 8000
 
 ## 目录结构
 
-**仓库是扁平的**，站点文件、数据、脚本都放在根目录。原因是本站通过 GitHub 网页上传维护，网页上传会把子目录拍平（`lib/x.js` 传上去变成 `x.js`，相对路径全断），所以不建子目录。
+仓库按用途分三层；GitHub Pages 以 `docs/` 为发布源，因此站点根 URL（`https://sinclair94.github.io/ROTK/`）保持不变。
 
 ```
-*.html              站点页面（8 个板块页 + about.html）
-mobile.css          站内样式
-wx-compat.css/js    微信内置浏览器适配（视口修正、老内核兜底）
-leaflet.css/js      地图库，本地内置，不依赖 CDN
-map-svg.js          地图渲染与省级命中判定
-data-*.js           全部数据，按主题分片（命名规则见下）
-sw.js               Service Worker，由 _ghbuild.js 生成，勿手改
-_*.js               构建 / 生成脚本，下划线前缀 = 不参与站点运行
-.nojekyll           跳过 Jekyll 处理，保证原始字节不被改写
+ROTK/
+├── README.md  DATA.md  CHANGELOG.md  LICENSE   ← 仓库说明（根目录，GitHub 直接渲染）
+├── docs/                ← 站点本体（GitHub Pages 的发布源）
+│   ├── index.html … about.html        9 个板块页
+│   ├── mobile.css  wx-compat.css  leaflet.css   样式（leaflet 为本地内置，不依赖 CDN）
+│   ├── wx-compat.js  leaflet.js  map-svg.js     本地库脚本
+│   ├── sw.js  .nojekyll               Service Worker 与跳过 Jekyll（由脚本生成，勿手改）
+│   └── data-*.js                      全部数据，按主题分片（命名规则见下）
+└── scripts/             ← 构建 / 生成脚本（下划线前缀 = 不参与站点运行）
+    ├── _ghbuild.js        生成 docs/sw.js、docs/.nojekyll，并做页内引用体检
+    ├── _bundle.js         打包单文件离线版（输出到仓库根，不入库，由 Release 附件提供）
+    ├── _mknet.js          由人物小传 + 年表 + 战役重算 docs/data-network.js
+    ├── _relations_curated.js   人工校订关系表（被 _mknet.js 引用）
+    └── _mkdetail.js  _mkidx.js  _patch_people.js   详解分片与人物页改造
 ```
 
 数据分片命名规则：
@@ -83,13 +88,16 @@ _*.js               构建 / 生成脚本，下划线前缀 = 不参与站点运
 
 ## 构建与维护
 
+环境：Node.js（仅用于生成 `sw.js`、离线版与重算数据；站点本身零构建、零框架）。脚本都放在 `scripts/`，运行时已把源目录指到 `../docs`。
+
 ```sh
-node _ghbuild.js    # 生成 gh-pages/ 部署目录（含 sw.js、.nojekyll），并做页内引用体检
-node _bundle.js     # 打包单文件离线版（约 1.9 MB，供微信传文件 / 断网使用）
-node _mknet.js      # 由人物小传 + 年表 + 战役重新生成 data-network.js
+node scripts/_ghbuild.js   # 生成 docs/sw.js、docs/.nojekyll，并做页内引用体检
+node scripts/_bundle.js    # 打包单文件离线版（输出到仓库根，约 1.9 MB，不入库，由 Release 附件提供）
+node scripts/_mknet.js     # 由人物小传 + 年表 + 战役重新生成 docs/data-network.js
 ```
 
-部署：把 `gh-pages/` 里的文件上传到仓库根目录即可（GitHub Pages 从 `main` 分支根目录发布）。`_ghbuild.js` 会顺带校验每个页面引用的资源是否都存在，缺文件会直接报出来。
+部署：直接把 `main` 分支推送到 GitHub 即可——GitHub Pages 的配置是「从 `main` 分支的 `/docs` 目录发布」。
+`_ghbuild.js` 会把 `sw.js` 与 `.nojekyll` 写进 `docs/`，并校验每个页面引用的资源是否都存在，缺文件会直接报出来。
 
 ## 数据来源
 

@@ -1,36 +1,21 @@
-/* 构建 GitHub Pages 部署目录 gh-pages/
- * 站点本身是零构建的多页静态站，这里只做：筛选文件 → 生成 sw.js / .nojekyll / README → 体检
+/* 构建 GitHub Pages 所需的 Service Worker 与 .nojekyll，并做页内引用体检。
+ * 站点源文件位于 ../docs（仓库的 docs/ 目录，由 GitHub Pages 以 /docs 为源发布）。
+ * 本脚本只做：扫描 docs/ 下的页面与数据 → 生成 docs/sw.js、docs/.nojekyll → 体检。
+ * 不再产出 gh-pages/ 目录：docs/ 即是最终发布内容，改动后 git 提交 + 推送即可上线。
  */
 const fs = require('fs');
 const path = require('path');
-const DIR = __dirname;
-const OUT = path.join(DIR, 'gh-pages');
+const SRC = path.join(__dirname, '..', 'docs');   // 站点源目录
+const OUT = SRC;                                   // 产出也落在 docs/（与源同目录，Pages 直接发布）
+
+if (!fs.existsSync(SRC)) { console.error('✗ 找不到 docs/ 目录（应在仓库根下的 docs/）'); process.exit(1); }
 
 const PAGES = ['index.html', 'people.html', 'timeline.html', 'states.html',
   'network.html', 'map.html', 'game.html', 'insights.html', 'about.html'];
 const CORE = ['mobile.css', 'wx-compat.css', 'wx-compat.js', 'map-svg.js'];
-/* 全平铺：不建子目录（GitHub 网页上传会把子目录拍平，lib/ 路径会断） */
 const LIBS = ['leaflet.css', 'leaflet.js'];
 
-if (fs.existsSync(OUT)) fs.rmSync(OUT, { recursive: true, force: true });
-fs.mkdirSync(OUT, { recursive: true });
-
-const dataFiles = fs.readdirSync(DIR).filter(f => /^data-.*\.js$/.test(f)).sort();
-const copied = [];
-function cp(rel, dest) {
-  const src = path.join(DIR, rel);
-  if (!fs.existsSync(src)) { console.log('  ⚠ 缺少 ' + rel); return; }
-  const target = path.join(OUT, dest || rel);
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, fs.readFileSync(src));
-  copied.push(dest || rel);
-}
-PAGES.forEach(f => cp(f));
-CORE.forEach(f => cp(f));
-LIBS.forEach(f => cp(f));
-dataFiles.forEach(f => cp(f));
-/* 离线单文件版不再进部署目录：1.9 MB 由 Release 附件提供，见 README「构建与维护」。
-   本地生成：node _bundle.js → 三国群英谱-离线版.html */
+const dataFiles = fs.readdirSync(SRC).filter(f => /^data-.*\.js$/.test(f)).sort();
 
 /* ---- sw.js：预缓存核心资源；事件详解分片与 Leaflet 走运行时缓存（用到才存） ---- */
 const VERSION = 'sg-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-1';
@@ -94,13 +79,10 @@ self.addEventListener('fetch', function (e) {
 fs.writeFileSync(path.join(OUT, 'sw.js'), sw, 'utf8');
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '', 'utf8');   /* 跳过 Jekyll，保证 _ 开头与原始字节不被处理 */
 
-/* 仓库文档一并进部署目录：页脚与 README 互相链接，Pages 上可直接访问 */
-['README.md', 'DATA.md', 'CHANGELOG.md', 'LICENSE'].forEach(f => cp(f));
-
-/* ---- 体检：页内引用的资源必须都在目录里 ---- */
+/* ---- 体检：页内引用的资源必须都在 docs/ 里 ---- */
 let bad = 0;
 PAGES.forEach(f => {
-  const s = fs.readFileSync(path.join(DIR, f), 'utf8');
+  const s = fs.readFileSync(path.join(SRC, f), 'utf8');
   const refs = new Set();
   [...s.matchAll(/<script src="([^"]+)"/g)].forEach(m => refs.add(m[1]));
   [...s.matchAll(/<link[^>]+href="([^"]+\.css)"/g)].forEach(m => refs.add(m[1]));
@@ -120,9 +102,9 @@ function walk(d) {
 }
 walk(OUT);
 
-console.log('输出目录: ' + OUT);
+console.log('站点目录: ' + SRC);
 console.log('文件数: ' + fs.readdirSync(OUT, { recursive: true }).filter(p => fs.statSync(path.join(OUT, p)).isFile()).length);
-console.log('总体积: ' + (total / 1024).toFixed(0) + ' KB  (离线单文件版已改由 Release 附件提供，不在此目录)');
+console.log('总体积: ' + (total / 1024).toFixed(0) + ' KB  (离线单文件版由 Release 附件提供，不进仓库)');
 console.log('预缓存: ' + precache.length + ' 项；运行时缓存: 15 个详解分片 + Leaflet');
 console.log('引用体检: ' + (bad ? bad + ' 处缺失' : '全部通过 ✓'));
 

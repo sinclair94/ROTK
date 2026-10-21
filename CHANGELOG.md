@@ -10,6 +10,7 @@
 - 采用 CC BY-NC-SA 4.0 许可
 - 1.9 MB 的单文件离线版从仓库移除，改由 Release 附件提供（`_bundle.js` 可本地重新生成）
 - 核心构建脚本（`_ghbuild.js`、`_bundle.js`、`_mknet.js`、`_relations_curated.js` 等）纳入仓库
+- 仓库目录结构化：站点整体移入 `docs/`（GitHub Pages 改以 `main` 分支的 `/docs` 为发布源，站点根 URL 不变），构建脚本移入 `scripts/`，根目录仅保留说明文档；`_ghbuild.js` 等脚本的源目录同步指到 `../docs`
 
 ## 2026-09-25 · 人物问答引擎修复
 

@@ -1,0 +1,19 @@
+# 构建产物（由脚本生成，不入库）
+gh-pages/
+三国群英谱-离线版.html
+sanguo-site.zip
+
+# 本地备份
+*.bak
+
+# 临时脚本与抓取的中间文件
+_cc.txt
+_commits.json
+_tree.json
+_stat*.js
+_think*.js
+
+# 环境
+node_modules/
+.DS_Store
+Thumbs.db

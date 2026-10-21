@@ -55,15 +55,17 @@ python -m http.server 8000
 ROTK/
 ├── README.md  DATA.md  CHANGELOG.md  LICENSE   ← 仓库说明（根目录，GitHub 直接渲染）
 ├── docs/                ← 站点本体（GitHub Pages 的发布源）
-│   ├── index.html … about.html        9 个板块页
-│   ├── mobile.css  wx-compat.css  leaflet.css   样式（leaflet 为本地内置，不依赖 CDN）
-│   ├── wx-compat.js  leaflet.js  map-svg.js     本地库脚本
-│   ├── sw.js  .nojekyll               Service Worker 与跳过 Jekyll（由脚本生成，勿手改）
-│   └── data-*.js                      全部数据，按主题分片（命名规则见下）
+│   ├── index.html … about.html        9 个板块页（站点根，URL 与跨页链接不变）
+│   ├── assets/                     样式与本地库脚本（资源归类，引用前缀 assets/）
+│   │   ├── mobile.css  wx-compat.css  leaflet.css   样式（leaflet 为本地内置，不依赖 CDN）
+│   │   └── wx-compat.js  leaflet.js  map-svg.js     本地库脚本
+│   ├── data/                       全部数据，按主题分片（命名规则见下，引用前缀 data/）
+│   │   └── data-*.js
+│   └── sw.js  .nojekyll             Service Worker 与跳过 Jekyll（由脚本生成，勿手改）
 └── scripts/             ← 构建 / 生成脚本（下划线前缀 = 不参与站点运行）
     ├── _ghbuild.js        生成 docs/sw.js、docs/.nojekyll，并做页内引用体检
     ├── _bundle.js         打包单文件离线版（输出到仓库根，不入库，由 Release 附件提供）
-    ├── _mknet.js          由人物小传 + 年表 + 战役重算 docs/data-network.js
+    ├── _mknet.js          由人物小传 + 年表 + 战役重算 docs/data/data-network.js
     ├── _relations_curated.js   人工校订关系表（被 _mknet.js 引用）
     └── _mkdetail.js  _mkidx.js  _patch_people.js   详解分片与人物页改造
 ```
@@ -91,9 +93,9 @@ ROTK/
 环境：Node.js（仅用于生成 `sw.js`、离线版与重算数据；站点本身零构建、零框架）。脚本都放在 `scripts/`，运行时已把源目录指到 `../docs`。
 
 ```sh
-node scripts/_ghbuild.js   # 生成 docs/sw.js、docs/.nojekyll，并做页内引用体检
+node scripts/_ghbuild.js   # 生成 docs/sw.js、docs/.nojekyll，并做页内引用体检（已适配 assets/ 与 data/ 子目录）
 node scripts/_bundle.js    # 打包单文件离线版（输出到仓库根，约 1.9 MB，不入库，由 Release 附件提供）
-node scripts/_mknet.js     # 由人物小传 + 年表 + 战役重新生成 docs/data-network.js
+node scripts/_mknet.js     # 由人物小传 + 年表 + 战役重新生成 docs/data/data-network.js
 ```
 
 部署：直接把 `main` 分支推送到 GitHub 即可——GitHub Pages 的配置是「从 `main` 分支的 `/docs` 目录发布」。

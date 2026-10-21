@@ -173,9 +173,9 @@ svg.map.grabbing{cursor:grabbing}
 @supports not ((gap: 1px) or (row-gap: 1px)){.bitem > *:not(:last-child){margin-right:9px;}}
 @supports not ((gap: 1px) or (row-gap: 1px)){.footer-inner > *{margin-right:18px;margin-bottom:18px;}}
 </style>
-<link rel="stylesheet" href="leaflet.css">
+<link rel="stylesheet" href="assets/leaflet.css">
 <!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
-<link rel="stylesheet" href="mobile.css">
+<link rel="stylesheet" href="assets/mobile.css">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="三国演义 · 群英谱">
 <meta property="og:title" content="三国演义 · 群英谱">
@@ -183,8 +183,8 @@ svg.map.grabbing{cursor:grabbing}
 <meta name="description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#29241f">
-<link rel="stylesheet" href="wx-compat.css">
-<script src="wx-compat.js"></script>
+<link rel="stylesheet" href="assets/wx-compat.css">
+<script src="assets/wx-compat.js"></script>
 </head>
 <body>
 
@@ -285,17 +285,17 @@ svg.map.grabbing{cursor:grabbing}
   </div>
 </footer>
 
-<script src="data-geo.js"></script>
-<script src="data-map.js"></script>
-<script src="data-map-b1.js"></script>
-<script src="data-map-b2.js"></script>
-<script src="data-timeline.js"></script>
-<script src="data-timeline2.js"></script>
-<script src="data-timeline-p0.js"></script>
+<script src="data/data-geo.js"></script>
+<script src="data/data-map.js"></script>
+<script src="data/data-map-b1.js"></script>
+<script src="data/data-map-b2.js"></script>
+<script src="data/data-timeline.js"></script>
+<script src="data/data-timeline2.js"></script>
+<script src="data/data-timeline-p0.js"></script>
 <!-- Leaflet（147KB）：唯一底图模式，直接加载。
      打包离线版时 _bundle.js 会把这个 data-src 内联，离线版里 L 直接可用。 -->
-<script data-src="leaflet.js"></script>
-<script src="map-svg.js"></script>
+<script data-src="assets/leaflet.js"></script>
+<script src="assets/map-svg.js"></script>
 <script>
 (function(){
   var G=window.GEO, MG=window.MAP_GEO;
@@ -600,7 +600,7 @@ svg.map.grabbing{cursor:grabbing}
     if(lfState===1){ lfCbs.push(cb); return; }
     lfState=1; lfCbs.push(cb);
     var s=document.createElement("script");
-    s.src="leaflet.js";
+    s.src="assets/leaflet.js";
     function fire(){ var q=lfCbs.slice(); lfCbs=[]; q.forEach(function(f){try{f(lfState===2);}catch(e){}}); }
     s.onload=function(){ lfState=2; fire(); };
     s.onerror=function(){ window.__noLeaf=1; lfState=3; fire(); };

@@ -5,22 +5,27 @@
  */
 const fs = require('fs');
 const path = require('path');
-const SRC = path.join(__dirname, '..', 'docs');   // 站点源目录
+const SRC = path.join(__dirname, '..', 'docs');   // 站点源目录（HTML 在此根）
 const OUT = SRC;                                   // 产出也落在 docs/（与源同目录，Pages 直接发布）
+const ASSETS_DIR = path.join(SRC, 'assets');       // CSS / 本地 JS 库（mobile.css、wx-compat.*、leaflet.*、map-svg.js）
+const DATA_DIR = path.join(SRC, 'data');           // 全部 data-*.js
 
 if (!fs.existsSync(SRC)) { console.error('✗ 找不到 docs/ 目录（应在仓库根下的 docs/）'); process.exit(1); }
 
 const PAGES = ['index.html', 'people.html', 'timeline.html', 'states.html',
   'network.html', 'map.html', 'game.html', 'insights.html', 'about.html'];
-const CORE = ['mobile.css', 'wx-compat.css', 'wx-compat.js', 'map-svg.js'];
-const LIBS = ['leaflet.css', 'leaflet.js'];
+const CORE = ['mobile.css', 'wx-compat.css', 'wx-compat.js', 'map-svg.js'];   // 位于 assets/
+const LIBS = ['leaflet.css', 'leaflet.js'];                                    // 位于 assets/
 
-const dataFiles = fs.readdirSync(SRC).filter(f => /^data-.*\.js$/.test(f)).sort();
+const dataFiles = fs.readdirSync(DATA_DIR).filter(f => /^data-.*\.js$/.test(f)).sort();
 
 /* ---- sw.js：预缓存核心资源；事件详解分片与 Leaflet 走运行时缓存（用到才存） ---- */
 const VERSION = 'sg-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-1';
-const precache = PAGES.concat(CORE).concat(LIBS)
-  .concat(dataFiles.filter(f => !/^data-detail-\d\d\.js$/.test(f)));
+/* 预缓存键相对 sw.js 所在位置（docs/ 根）：资源进 assets/，数据进 data/ */
+const precache = PAGES
+  .concat(CORE.map(f => 'assets/' + f))
+  .concat(LIBS.map(f => 'assets/' + f))
+  .concat(dataFiles.filter(f => !/^data-detail-\d\d\.js$/.test(f)).map(f => 'data/' + f));
 
 const sw = `/* 三国演义 · 群英谱 Service Worker
  * 预缓存核心资源，事件详解分片（data-detail-*.js）与 Leaflet 走运行时缓存 —— 用到才下载、用到才存。
@@ -109,9 +114,9 @@ console.log('预缓存: ' + precache.length + ' 项；运行时缓存: 15 个详
 console.log('引用体检: ' + (bad ? bad + ' 处缺失' : '全部通过 ✓'));
 
 /* 首屏体积对比 */
-const first = ['index.html', 'mobile.css', 'wx-compat.css', 'wx-compat.js'];
+const first = ['index.html', 'assets/mobile.css', 'assets/wx-compat.css', 'assets/wx-compat.js'];
 const firstKB = first.reduce((a, f) => a + fs.statSync(path.join(OUT, f)).size, 0) / 1024;
-const peopleKB = ['people.html', 'mobile.css', 'wx-compat.css', 'wx-compat.js', 'data-detail-index.js']
-  .concat(dataFiles.filter(f => !/^data-detail-\d\d\.js$/.test(f)))
+const peopleKB = ['people.html', 'assets/mobile.css', 'assets/wx-compat.css', 'assets/wx-compat.js', 'data/data-detail-index.js']
+  .concat(dataFiles.filter(f => !/^data-detail-\d\d\.js$/.test(f)).map(f => 'data/' + f))
   .reduce((a, f) => a + fs.statSync(path.join(OUT, f)).size, 0) / 1024;
 console.log('首屏（首页）约 ' + firstKB.toFixed(0) + ' KB；人物页首屏约 ' + peopleKB.toFixed(0) + ' KB（改造前约 600 KB）');

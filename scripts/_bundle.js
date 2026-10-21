@@ -9,27 +9,27 @@ const PAGES = ['index.html', 'people.html', 'timeline.html', 'states.html', 'net
 function inlinePage(file) {
   let s = fs.readFileSync(path.join(SRC, file), 'utf8');
   // 内联 mobile.css / wx-compat.css（CSS 注释里的 </style> 字样必须转义，否则会提前闭合标签）
-  s = s.replace(/<link rel="stylesheet" href="(mobile|wx-compat)\.css">/g, (m, f) => {
+  s = s.replace(/<link rel="stylesheet" href="assets\/(mobile|wx-compat)\.css">/g, (m, f) => {
     const css = fs.readFileSync(path.join(SRC, f + '.css'), 'utf8')
       .replace(/<\/(style)/gi, '<\\/$1');
     return '<style>\n' + css + '\n</style>';
   });
   // 内联 Leaflet 样式与脚本、简版示意图渲染器（本地库一并打包，离线可用）
-  s = s.replace(/<link rel="stylesheet" href="(leaflet\.css)">/g, (m, f) => {
+  s = s.replace(/<link rel="stylesheet" href="assets\/(leaflet\.css)">/g, (m, f) => {
     const p = path.join(SRC, f);
     if (!fs.existsSync(p)) { console.log('  ⚠ 缺少 ' + f); return m; }
     const css = fs.readFileSync(p, 'utf8').replace(/<\/(style)/gi, '<\\/$1');
     return '<style>\n' + css + '\n</style>';
   });
   // 内联全部数据脚本（同理防 </script> 提前闭合）
-  s = s.replace(/<script src="(data-[^"]+\.js)"><\/script>/g, (m, f) => {
+  s = s.replace(/<script src="(data\/[^"]+\.js)"><\/script>/g, (m, f) => {
     const p = path.join(SRC, f);
     if (!fs.existsSync(p)) { console.log('  ⚠ 缺少 ' + f); return m; }
     const js = fs.readFileSync(p, 'utf8').replace(/<\/(script)/gi, '<\\/$1');
     return '<script>\n' + js + '\n</script>';
   });
   // 内联本地库脚本（leaflet.js、map-svg.js、wx-compat.js）；内联后 onerror 无意义，直接去掉
-  s = s.replace(/<script src="(leaflet\.js|map-svg\.js|wx-compat\.js)"[^>]*><\/script>/g, (m, f) => {
+  s = s.replace(/<script src="assets\/(leaflet\.js|map-svg\.js|wx-compat\.js)"[^>]*><\/script>/g, (m, f) => {
     const p = path.join(SRC, f);
     if (!fs.existsSync(p)) { console.log('  ⚠ 缺少 ' + f); return m; }
     const js = fs.readFileSync(p, 'utf8').replace(/<\/(script)/gi, '<\\/$1');

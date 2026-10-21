@@ -142,7 +142,7 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 @supports not ((gap: 1px) or (row-gap: 1px)){.footer-brand > *:not(:last-child){margin-bottom:4px;}}
 </style>
 <!-- 移动端适配层：置于内联样式之后以覆盖其断点 -->
-<link rel="stylesheet" href="mobile.css">
+<link rel="stylesheet" href="assets/mobile.css">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="三国演义 · 群英谱">
 <meta property="og:title" content="三国演义 · 群英谱">
@@ -150,8 +150,8 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
 <meta name="description" content="699 位三国人物 · 121 年历史 · 六大时期时间轴 · 人物关系网 · 战役地图 · 可检索的人物名录与事件详解">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#29241f">
-<link rel="stylesheet" href="wx-compat.css">
-<script src="wx-compat.js"></script>
+<link rel="stylesheet" href="assets/wx-compat.css">
+<script src="assets/wx-compat.js"></script>
 </head>
 <body>
 
@@ -241,44 +241,44 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
   </div>
 </footer>
 
-<script src="data-wei.js"></script>
-<script src="data-shu.js"></script>
-<script src="data-wu-qun.js"></script>
-<script src="data-more-wei.js"></script>
-<script src="data-more-wei2.js"></script>
-<script src="data-more-shu.js"></script>
-<script src="data-more-shu2.js"></script>
-<script src="data-more-wu.js"></script>
-<script src="data-more-wu2.js"></script>
-<script src="data-more-wu3.js"></script>
-<script src="data-more-jin.js"></script>
-<script src="data-more-qun.js"></script>
-<script src="data-more-qun2.js"></script>
-<script src="data-more-qun3.js"></script>
-<script src="data-more-qun4.js"></script>
-<script src="data-more-qun5.js"></script>
-<script src="data-more-qun6.js"></script>
-<script src="data-more-qun7.js"></script>
-<script src="data-more-qun8.js"></script>
-<script src="data-more-qun9.js"></script>
-<script src="data-detail-index.js"></script>
+<script src="data/data-wei.js"></script>
+<script src="data/data-shu.js"></script>
+<script src="data/data-wu-qun.js"></script>
+<script src="data/data-more-wei.js"></script>
+<script src="data/data-more-wei2.js"></script>
+<script src="data/data-more-shu.js"></script>
+<script src="data/data-more-shu2.js"></script>
+<script src="data/data-more-wu.js"></script>
+<script src="data/data-more-wu2.js"></script>
+<script src="data/data-more-wu3.js"></script>
+<script src="data/data-more-jin.js"></script>
+<script src="data/data-more-qun.js"></script>
+<script src="data/data-more-qun2.js"></script>
+<script src="data/data-more-qun3.js"></script>
+<script src="data/data-more-qun4.js"></script>
+<script src="data/data-more-qun5.js"></script>
+<script src="data/data-more-qun6.js"></script>
+<script src="data/data-more-qun7.js"></script>
+<script src="data/data-more-qun8.js"></script>
+<script src="data/data-more-qun9.js"></script>
+<script src="data/data-detail-index.js"></script>
 <!-- 事件详解改为按需加载：data-src 不会被浏览器自动请求，由页面按人物所属批次动态注入。
      打包离线版时 _bundle.js 会把这 15 个 data-src 内联进单文件，离线版仍带完整详解。 -->
-<script data-src="data-detail-01.js"></script>
-<script data-src="data-detail-02.js"></script>
-<script data-src="data-detail-03.js"></script>
-<script data-src="data-detail-04.js"></script>
-<script data-src="data-detail-05.js"></script>
-<script data-src="data-detail-06.js"></script>
-<script data-src="data-detail-07.js"></script>
-<script data-src="data-detail-08.js"></script>
-<script data-src="data-detail-09.js"></script>
-<script data-src="data-detail-10.js"></script>
-<script data-src="data-detail-11.js"></script>
-<script data-src="data-detail-12.js"></script>
-<script data-src="data-detail-13.js"></script>
-<script data-src="data-detail-14.js"></script>
-<script data-src="data-detail-15.js"></script>
+<script data-src="data/data-detail-01.js"></script>
+<script data-src="data/data-detail-02.js"></script>
+<script data-src="data/data-detail-03.js"></script>
+<script data-src="data/data-detail-04.js"></script>
+<script data-src="data/data-detail-05.js"></script>
+<script data-src="data/data-detail-06.js"></script>
+<script data-src="data/data-detail-07.js"></script>
+<script data-src="data/data-detail-08.js"></script>
+<script data-src="data/data-detail-09.js"></script>
+<script data-src="data/data-detail-10.js"></script>
+<script data-src="data/data-detail-11.js"></script>
+<script data-src="data/data-detail-12.js"></script>
+<script data-src="data/data-detail-13.js"></script>
+<script data-src="data/data-detail-14.js"></script>
+<script data-src="data/data-detail-15.js"></script>
 <script>
 (function(){
   var F={wei:{n:"曹魏",c:"var(--wei)"},shu:{n:"蜀汉",c:"var(--shu)"},wu:{n:"东吴",c:"var(--wu)"},jin:{n:"西晋",c:"var(--jin)"},qun:{n:"群雄 · 汉 · 其他",c:"var(--qun)"}};
@@ -415,7 +415,7 @@ body{background:var(--wash);color:var(--ink);font-family:var(--sans);font-size:1
     if(dWait[b]){ dWait[b].push(cb); return; }
     dWait[b]=[cb];
     var s=document.createElement("script");
-    s.src="data-detail-"+(b<10?"0":"")+b+".js";
+    s.src="data/data-detail-"+(b<10?"0":"")+b+".js";
     function done(){ dBatch[b]=1; var q=dWait[b]||[]; dWait[b]=null; q.forEach(function(f){try{f();}catch(e){}}); }
     s.onload=done; s.onerror=done;   /* 取失败也要放行，退回只显示事件标题 */
     document.head.appendChild(s);

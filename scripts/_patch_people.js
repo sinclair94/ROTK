@@ -6,13 +6,13 @@ const F = path.join(SRC, 'people.html');
 let s = fs.readFileSync(F, 'utf8');
 
 /* 第一步：15 个详解脚本改为 data-src（浏览器不会自动请求），并插入索引脚本 */
-s = s.replace(/<script src="(data-detail-\d\d\.js)"><\/script>/g, '<script data-src="$1"></script>');
-if (!/<script src="data-detail-index\.js"><\/script>/.test(s)) {
-  s = s.replace(/<script data-src="data-detail-01\.js"><\/script>/,
-    '<script src="data-detail-index.js"></script>\n' +
+s = s.replace(/<script src="(data\/data-detail-\d\d\.js)"><\/script>/g, '<script data-src="$1"></script>');
+if (!/<script src="data\/data-detail-index\.js"><\/script>/.test(s)) {
+  s = s.replace(/<script data-src="data\/data-detail-01\.js"><\/script>/,
+    '<script src="data/data-detail-index.js"></script>\n' +
     '<!-- 事件详解改为按需加载：data-src 不会被浏览器自动请求，由页面按人物所属批次动态注入。\n' +
     '     打包离线版时 _bundle.js 会把这 15 个 data-src 内联进单文件，离线版仍带完整详解。 -->\n' +
-    '<script data-src="data-detail-01.js"></script>');
+    '<script data-src="data/data-detail-01.js"></script>');
 }
 
 const START = '    document.getElementById("m-desc").textContent=p.g;\n    var ev="";';
@@ -42,7 +42,7 @@ const LOADER =
     if(dWait[b]){ dWait[b].push(cb); return; }
     dWait[b]=[cb];
     var s=document.createElement("script");
-    s.src="data-detail-"+(b<10?"0":"")+b+".js";
+    s.src="data/data-detail-"+(b<10?"0":"")+b+".js";
     function done(){ dBatch[b]=1; var q=dWait[b]||[]; dWait[b]=null; q.forEach(function(f){try{f();}catch(e){}}); }
     s.onload=done; s.onerror=done;   /* 取失败也要放行，退回只显示事件标题 */
     document.head.appendChild(s);
@@ -84,8 +84,8 @@ s = s.slice(0, i) + NEW + s.slice(j + END.length);
 s = s.replace(ANCHOR, ANCHOR + LOADER);
 fs.writeFileSync(F, s, 'utf8');
 console.log('people.html 已改造：详解改为按需加载  (' + (s.length / 1024).toFixed(0) + ' KB)');
-console.log('  data-src 详解标记: ' + (s.match(/data-src="data-detail-/g) || []).length);
-console.log('  残留 src= 详解标签: ' + (s.match(/<script src="data-detail-\d/g) || []).length);
+console.log('  data-src 详解标记: ' + (s.match(/data-src="data\/data-detail-/g) || []).length);
+console.log('  残留 src= 详解标签: ' + (s.match(/<script src="data\/data-detail-\d/g) || []).length);
 console.log('  索引脚本: ' + /<script src="data-detail-index\.js">/.test(s));
 console.log('  含 loadBatch: ' + /function loadBatch/.test(s));
 console.log('  含 buildEvents: ' + /function buildEvents/.test(s));

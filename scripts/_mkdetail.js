@@ -5,15 +5,15 @@ const SRC=path.join(__dirname,'..','docs');            // 站点源目录
 const ctx={window:{}};
 vm.createContext(ctx);
 /* 按 people.html 的装载顺序执行，避免基础数组覆盖 concat 结果 */
-const ORDER=['data-wei.js','data-shu.js','data-wu-qun.js','data-more-wei.js','data-more-wei2.js',
-'data-more-shu.js','data-more-shu2.js','data-more-wu.js','data-more-wu2.js','data-more-wu3.js',
-'data-more-jin.js','data-more-qun.js','data-more-qun2.js','data-more-qun3.js','data-more-qun4.js',
-'data-more-qun5.js','data-more-qun6.js','data-more-qun7.js','data-more-qun8.js','data-more-qun9.js'];
+const ORDER=['data/data-wei.js','data/data-shu.js','data/data-wu-qun.js','data/data-more-wei.js','data/data-more-wei2.js',
+'data/data-more-shu.js','data/data-more-shu2.js','data/data-more-wu.js','data/data-more-wu2.js','data/data-more-wu3.js',
+'data/data-more-jin.js','data/data-more-qun.js','data/data-more-qun2.js','data/data-more-qun3.js','data/data-more-qun4.js',
+'data/data-more-qun5.js','data/data-more-qun6.js','data/data-more-qun7.js','data/data-more-qun8.js','data/data-more-qun9.js'];
 for(const f of ORDER){
   try{ vm.runInContext(fs.readFileSync(path.join(SRC,f),'utf8'),ctx,{filename:f}); }
   catch(e){ console.log('skip',f,e.message.slice(0,80)); }
 }
-vm.runInContext(fs.readFileSync(path.join(SRC,'data-network.js'),'utf8'),ctx,{filename:'data-network.js'});
+vm.runInContext(fs.readFileSync(path.join(SRC,'data','data-network.js'),'utf8'),ctx,{filename:'data-network.js'});
 const W=ctx.window;
 
 /* 汇总全部人物 */
